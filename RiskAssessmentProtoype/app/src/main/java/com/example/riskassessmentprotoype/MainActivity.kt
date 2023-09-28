@@ -86,7 +86,7 @@ fun MyApp() {
     var currentScreen by remember { mutableStateOf(Screen.Home) }
 
     Scaffold(
-        bottomBar = { CustomBottomAppBar(currentScreen) { newScreen -> currentScreen = newScreen } }
+        bottomBar = { BottomNav(currentScreen) { newScreen -> currentScreen = newScreen } }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
@@ -99,7 +99,7 @@ fun MyApp() {
             when (currentScreen) {
                 Screen.Home -> HomeScreen(currentScreen) { newScreen -> currentScreen = newScreen }
                 Screen.MyCases -> CasesListScreen()
-                Screen.Interview -> InterviewScreen()
+                Screen.Assessment -> AssessmentScreen()
                 Screen.AddCase -> AddNewCaseScreen()
             }
         }
@@ -108,7 +108,7 @@ fun MyApp() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomBottomAppBar(currentScreen: Screen, onScreenChange: (Screen) -> Unit) {
+fun BottomNav(currentScreen: Screen, onScreenChange: (Screen) -> Unit) {
     BottomAppBar {
         IconButton(
             onClick = { onScreenChange(Screen.Home) },
@@ -125,7 +125,7 @@ fun CustomBottomAppBar(currentScreen: Screen, onScreenChange: (Screen) -> Unit) 
         }
 
         IconButton(
-            onClick = { onScreenChange(Screen.Interview) },
+            onClick = { onScreenChange(Screen.Assessment) },
             modifier = Modifier.weight(1f)
         ) {
             Icon(imageVector = Icons.Default.List, contentDescription = null)
@@ -143,7 +143,7 @@ fun CustomBottomAppBar(currentScreen: Screen, onScreenChange: (Screen) -> Unit) 
 
 enum class Screen(val caseNumber: Int = -1) {
     Home,
-    Interview,
+    Assessment,
     AddCase,
     MyCases
 }
@@ -301,7 +301,7 @@ fun CasesListScreen() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InterviewScreen() {
+fun AssessmentScreen() {
     Title(title = "Risk Assessment", modifier = Modifier.padding(20.dp))
 
     LazyColumn {
