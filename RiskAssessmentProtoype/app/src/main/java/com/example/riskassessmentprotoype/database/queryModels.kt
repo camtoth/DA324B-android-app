@@ -15,14 +15,14 @@ data class Question(
     val id: Long,
     val textEn: String,
     val textSe: String,
-    val rNeglect: Float?,
-    val rPca: Float?,
-    val weightYesNeglect: Float?,
-    val weightMiddleNeglect: Float? = 0.5f,
-    val weightNoNeglect: Float?,
-    val weightYesPca: Float?,
-    val weightMiddlePca: Float? = 0.5f,
-    val weightNoPca: Float?
+    val rNeglect: Float? = null,
+    val rPca: Float? = null,
+    val weightYesNeglect: Float? = null,
+    val weightMiddleNeglect: Float? = null,
+    val weightNoNeglect: Float? = null,
+    val weightYesPca: Float? = null,
+    val weightMiddlePca: Float? = null,
+    val weightNoPca: Float? = null
 )
 
 data class Case(
@@ -32,14 +32,14 @@ data class Case(
     val gender: String,
     val givenNames: String,
     val lastName: String,
-    val neglectRisk: Boolean?,
-    val neglectScore: Float?,
-    val neglectEstimation: Float?,
-    val pcaRisk: Boolean?,
-    val pcaScore: Float?,
-    val pcaEstimation: Float?,
-    val userId: Int,
-    val parents: List<InsertParent>
+    val parents: List<InsertParent>,
+    val userId: Long,
+    val neglectRisk: Boolean? = null,
+    val neglectScore: Float? = null,
+    val neglectEstimation: Float? = null,
+    val pcaRisk: Boolean? = null,
+    val pcaScore: Float? = null,
+    val pcaEstimation: Float? = null,
 )
 
 data class Parent(

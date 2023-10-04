@@ -8,10 +8,9 @@ import java.time.LocalDate
 
 data class UpdateUser(
     val id: Long,
-    val pw: String?,
-    val givenNames: String?,
-    val lastName: String?,
-    val isAdmin: Boolean?
+    val pw: String? = null,
+    val givenNames: String? = null,
+    val lastName: String? = null
 )
 
 data class UpdateQuestion(
@@ -21,32 +20,32 @@ data class UpdateQuestion(
     val rNeglect: Float? = null,
     val rPca: Float? = null,
     val weightYesNeglect: Float? = null,
-    val weightMiddleNeglect: Float? = 0.5f,
+    val weightMiddleNeglect: Float? = null,
     val weightNoNeglect: Float? = null,
     val weightYesPca: Float? = null,
-    val weightMiddlePca: Float? = 0.5f,
+    val weightMiddlePca: Float? = null,
     val weightNoPca: Float? = null
 )
 
 data class UpdateCase(
     val id: Long,
-    val email: String?,
-    val gender: String?,
-    val givenNames: String?,
-    val lastName: String?,
-    val neglectRisk: Boolean?,
-    val neglectScore: Float?,
-    val neglectEstimation: Float?,
-    val pcaRisk: Boolean?,
-    val pcaScore: Float?,
-    val pcaEstimation: Float?
+    val email: String? = null,
+    val gender: String? = null,
+    val givenNames: String? = null,
+    val lastName: String? = null,
+    val neglectRisk: Boolean? = null,
+    val neglectScore: Float? = null,
+    val neglectEstimation: Float? = null,
+    val pcaRisk: Boolean? = null,
+    val pcaScore: Float? = null,
+    val pcaEstimation: Float? = null
 )
 
 data class UpdateParent(
     val id: Long,
-    val givenNames: String?,
-    val lastName: String?,
-    val gender: String?
+    val givenNames: String? = null,
+    val lastName: String? = null,
+    val gender: String? = null
 )
 
 data class UpdateAnswer(

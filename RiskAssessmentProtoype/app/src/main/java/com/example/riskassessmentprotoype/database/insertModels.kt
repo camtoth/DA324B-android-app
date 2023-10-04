@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
-import java.util.Date
 
 data class InsertUser(
     val username: String,
@@ -21,10 +20,10 @@ data class InsertQuestion(
     val rNeglect: Float? = null,
     val rPca: Float? = null,
     val weightYesNeglect: Float? = null,
-    val weightMiddleNeglect: Float? = 0.5f,
+    val weightMiddleNeglect: Float? = null,
     val weightNoNeglect: Float? = null,
     val weightYesPca: Float? = null,
-    val weightMiddlePca: Float? = 0.5f,
+    val weightMiddlePca: Float? = null,
     val weightNoPca: Float? = null
 )
 
@@ -34,14 +33,13 @@ data class InsertCase(
     val gender: String,
     val givenNames: String,
     val lastName: String,
-    val neglectRisk: Boolean?,
-    val neglectScore: Float?,
-    val neglectEstimation: Float?,
-    val pcaRisk: Boolean?,
-    val pcaScore: Float?,
-    val pcaEstimation: Float?,
-    val userId: Int,
-    val parents: List<InsertParent>
+    val parents: List<InsertParent>,
+    val neglectRisk: Boolean? = null,
+    val neglectScore: Float? = null,
+    val neglectEstimation: Float? = null,
+    val pcaRisk: Boolean? = null,
+    val pcaScore: Float? = null,
+    val pcaEstimation: Float? = null
 )
 
 data class InsertParent(
@@ -53,9 +51,7 @@ data class InsertParent(
 data class InsertAnswer(
     val optYes: Boolean,
     val optMiddle: Boolean,
-    val optNo: Boolean,
-    val caseId: Int,
-    val questionId: Int
+    val optNo: Boolean
 )
 
 fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
@@ -91,7 +87,7 @@ fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
     return newQuestionId
 }
 
-fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUser: User): Long {
+fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Long {
     val parentKeys = ArrayList<Long>()
     for (parent in case.parents) {
         val parentValues = ContentValues().apply {
@@ -108,7 +104,7 @@ fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUser: User): Long
         put("gender", case.gender)
         put("given_names", case.givenNames)
         put("last_name", case.lastName)
-        put("user_id", currentUser.id)
+        put("user_id", currentUserId)
     }
     val newCaseId = db.insert("Cases", null, caseValues)
     if (newCaseId.compareTo(-1) == 0) return -1
@@ -123,14 +119,14 @@ fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUser: User): Long
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestion: Question, curCase: Case): Long {
+fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: Long, curCaseId: Long): Long {
     val answerValues = ContentValues().apply {
         put("opt_yes", newAnswer.optYes)
         put("opt_no", newAnswer.optNo)
         put("opt_middle", newAnswer.optMiddle)
         put("last_changed", LocalDate.now().toString())
-        put("case_id", curCase.id)
-        put("question_id", curQuestion.id)
+        put("case_id", curCaseId)
+        put("question_id", curQuestionId)
     }
     val newAnswerId = db.insert("Answers", null, answerValues)
     return newAnswerId
