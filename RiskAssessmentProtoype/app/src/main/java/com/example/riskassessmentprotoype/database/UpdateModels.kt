@@ -121,18 +121,18 @@ fun updateAnswer(db: SQLiteDatabase, curAnswer: UpdateAnswer): Boolean {
     return (updatedRows == 1)
 }
 
-fun setAdmin(db: SQLiteDatabase, newAdmin: UpdateUser): Boolean {
+fun setAdmin(db: SQLiteDatabase, newAdminId: Long): Boolean {
     val newValues = ContentValues().apply {
         put("is_admin", true)
     }
-    val updatedRows = db.update("Users", newValues, "user_id LIKE ?", arrayOf(newAdmin.id.toString()))
+    val updatedRows = db.update("Users", newValues, "user_id LIKE ?", arrayOf(newAdminId.toString()))
     return (updatedRows == 1)
 }
 
-fun resetAdmin(db: SQLiteDatabase, oldAdmin: UpdateUser): Boolean {
+fun resetAdmin(db: SQLiteDatabase, oldAdminId: Long): Boolean {
     val newValues = ContentValues().apply {
         put("is_admin", false)
     }
-    val updatedRows = db.update("Users", newValues, "user_id LIKE ? AND username NOT 'admin'", arrayOf(oldAdmin.id.toString()))
+    val updatedRows = db.update("Users", newValues, "user_id LIKE ? AND username NOT LIKE 'admin'", arrayOf(oldAdminId.toString()))
     return (updatedRows == 1)
 }

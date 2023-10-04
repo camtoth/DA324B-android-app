@@ -26,6 +26,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         val answerTwo = InsertAnswer(false, false,true)
         insertNewAnswer(db,answerOne, firstQID, newCaseId  )
         insertNewAnswer(db, answerTwo, secondQId, newCaseId)
+        val newUser = insertNewUser(db, InsertUser("fabian","pw", "Fabian", "Fröschl", false))
     }
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL(DatabaseContract.SQL_CREATE_USERS)
