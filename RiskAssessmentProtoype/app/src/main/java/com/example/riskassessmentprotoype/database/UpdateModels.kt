@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
+import java.util.Date
 
 data class UpdateUser(
     val id: Long,
@@ -33,12 +34,13 @@ data class UpdateCase(
     val gender: String? = null,
     val givenNames: String? = null,
     val lastName: String? = null,
+    val lastChanged: Date? = null,
     val neglectRisk: Boolean? = null,
     val neglectScore: Float? = null,
     val neglectEstimation: Float? = null,
     val pcaRisk: Boolean? = null,
     val pcaScore: Float? = null,
-    val pcaEstimation: Float? = null
+    val pcaEstimation: Float? = null,
 )
 
 data class UpdateParent(
@@ -94,6 +96,7 @@ fun updateCase(db: SQLiteDatabase,curCase: UpdateCase): Boolean {
         if (curCase.pcaRisk != null) put("pca_risk", curCase.pcaRisk)
         if (curCase.pcaScore != null) put("pca_score", curCase.pcaScore)
         if (curCase.pcaEstimation != null) put("pca_estimation", curCase.pcaEstimation)
+        if (curCase.lastChanged != null) put("last_changed", curCase.lastChanged.toString())
     }
     val updatedRows = db.update("Cases", newValues, "case_id LIKE ?", arrayOf(curCase.id.toString()))
     return (updatedRows == 1)
@@ -115,9 +118,9 @@ fun updateAnswer(db: SQLiteDatabase, curAnswer: UpdateAnswer): Boolean {
         put("opt_yes", curAnswer.optYes)
         put("opt_no", curAnswer.optNo)
         put("opt_middle", curAnswer.optMiddle)
-        put("last_changed", LocalDate.now().toString())
     }
     val updatedRows = db.update("Answers", newValues, "answer_id LIKE ?", arrayOf(curAnswer.id.toString()))
+    // Update date in case
     return (updatedRows == 1)
 }
 

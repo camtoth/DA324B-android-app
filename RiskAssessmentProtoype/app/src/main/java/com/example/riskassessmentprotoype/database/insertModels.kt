@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
+import java.util.Date
 
 data class InsertUser(
     val username: String,
@@ -34,6 +35,7 @@ data class InsertCase(
     val givenNames: String,
     val lastName: String,
     val parents: List<InsertParent>,
+    val lastChanged: String? = null,
     val neglectRisk: Boolean? = null,
     val neglectScore: Float? = null,
     val neglectEstimation: Float? = null,
@@ -124,10 +126,10 @@ fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: 
         put("opt_yes", newAnswer.optYes)
         put("opt_no", newAnswer.optNo)
         put("opt_middle", newAnswer.optMiddle)
-        put("last_changed", LocalDate.now().toString())
         put("case_id", curCaseId)
         put("question_id", curQuestionId)
     }
     val newAnswerId = db.insert("Answers", null, answerValues)
+    // Update date in Case instead put("last_changed", LocalDate.now().toString())
     return newAnswerId
 }

@@ -16,10 +16,10 @@ object DatabaseContract {
             "r_neglect FLOAT(3), " +
             "r_pca FLOAT(3), " +
             "weight_yes_neglect FLOAT(3), " +
-            "weight_middle_neglect FLOAT(3) DEFAULT 0.5, " +
+            "weight_middle_neglect FLOAT(3), " +
             "weight_no_neglect FLOAT(3), " +
             "weight_yes_pca FLOAT(3), " +
-            "weight_middle_pca FLOAT(3) DEFAULT 0.5, " +
+            "weight_middle_pca FLOAT(3), " +
             "weight_no_pca FLOAT(3));"
 
     const val SQL_CREATE_PARENTS = "CREATE TABLE IF NOT EXISTS Parents (" +
@@ -35,6 +35,7 @@ object DatabaseContract {
             "gender VARCHAR(10) NOT NULL, " +
             "given_names VARCHAR(150) NOT NULL, " +
             "last_name VARCHAR(100) NOT NULL, " +
+            "last_changed date, " +
             "neglect_risk BOOL, " +
             "neglect_score FLOAT(3), " +
             "neglect_estimation FLOAT(3), " +
@@ -49,7 +50,6 @@ object DatabaseContract {
             "opt_yes BOOL NOT NULL, " +
             "opt_middle BOOL NOT NULL, " +
             "opt_no BOOL NOT NULL, " +
-            "last_changed date NOT NULL, " +
             "case_id INTEGER NOT NULL, " +
             "question_id INTEGER NOT NULL, " +
             "FOREIGN KEY(case_id) REFERENCES Cases(case_id), " +

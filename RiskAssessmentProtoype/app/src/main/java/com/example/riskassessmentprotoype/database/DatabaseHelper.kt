@@ -16,31 +16,9 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         db.execSQL(DatabaseContract.SQL_CREATE_ANSWERS)
         db.execSQL(DatabaseContract.SQL_CREATE_PARENT_TO_CASE)
         val newUserId = insertNewUser(db, InsertUser("admin", "admin", "admin", "admin", true))
-        // Everything below for testing
-        val newUser2 = insertNewUser(db, InsertUser("fabian","pw", "Fabian", "Fröschl", false))
-        val firstQID = insertNewQuestion(db, InsertQuestion(textEn = "To what extent do you see the child as a problem?", textSe = "", rNeglect = 0.41f, rPca = 0.3f, weightYesNeglect = 1f, weightMiddleNeglect = 0.5f, weightNoNeglect = 0f, weightYesPca = 1f, weightMiddlePca = 0.5f, weightNoPca = 0f))
-        val secondQId = insertNewQuestion(db, InsertQuestion(textEn = "Was the pregnancy unplanned?", textSe =  "", rPca = 0.28f, weightYesPca = 1f, weightMiddlePca = 0.5f, weightNoPca = 0f))
-        val parent1 = InsertParent("Olga", "One", "f")
-        val parent2 = InsertParent("Tom", "Two", "m")
-        val newCase = InsertCase("123", "123@hotmail.com", "m", "Terry", "Three", listOf(parent1, parent2))
-        val newCaseId = insertNewCase(db, newCase, newUserId)
-        val parent3 = InsertParent("Fredrik", "Four", "m")
-        val parent4 = InsertParent("Fanni", "Five", "f")
-        val newCase2 = InsertCase("456", "456@hotmail.com", "f", "Sara", "Six", listOf(parent3, parent4))
-        val newCaseId2 = insertNewCase(db, newCase2, newUserId)
-        val updated = updateCase(db, UpdateCase(newCaseId2, pcaRisk = true, pcaScore = 0.6f, pcaEstimation = 0.7f))
-        val answerOne = InsertAnswer(true, false,false)
-        val answerTwo = InsertAnswer(false, false,true)
-        insertNewAnswer(db,answerOne, firstQID, newCaseId  )
-        insertNewAnswer(db, answerTwo, secondQId, newCaseId)
+        // Insert questions here
     }
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL(DatabaseContract.SQL_CREATE_USERS)
-        db.execSQL(DatabaseContract.SQL_CREATE_QUESTIONS)
-        db.execSQL(DatabaseContract.SQL_CREATE_PARENTS)
-        db.execSQL(DatabaseContract.SQL_CREATE_CASES)
-        db.execSQL(DatabaseContract.SQL_CREATE_ANSWERS)
-        db.execSQL(DatabaseContract.SQL_CREATE_PARENT_TO_CASE)
     }
     companion object {
         const val DATABASE_VERSION = 1
