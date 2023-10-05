@@ -64,8 +64,10 @@ data class Answer(
 
 fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
     val caseList = LinkedList<Case>()
-    // get case data
-    val cursorCase = db.query("Cases", null, "user_id LIKE ?", arrayOf(userId.toString()), null, null, null)
+    val cursorCase = db.rawQuery(
+        "SELECT * FROM Cases WHERE user_id LIKE ?;"
+        , arrayOf(userId.toString())
+    )
     with (cursorCase) {
         while (moveToNext()) {
             var neglectRisk: Boolean? = null
@@ -91,7 +93,6 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
             ))
         }
     }
-    // get Parents
     for (case in caseList) {
         val cursorParents = db.rawQuery(
             "SELECT Parents.parent_id, Parents.given_names, Parents.last_name, Parents.gender " +
@@ -111,13 +112,12 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
             }
         }
     }
-    // add list of parents
     return caseList
 }
 
 fun getAllUsernames(db: SQLiteDatabase): List<String> {
     val usernameList = LinkedList<String>()
-    val cursor = db.query("Users", arrayOf("username"), null, null, null, null, "username ASC")
+    val cursor = db.rawQuery("SELECT username FROM Users;", null)
     with (cursor) {
         while (cursor.moveToNext()) {
             usernameList.add(getString(getColumnIndexOrThrow("username")))
@@ -128,7 +128,11 @@ fun getAllUsernames(db: SQLiteDatabase): List<String> {
 
 fun getPwByUsername(db: SQLiteDatabase, username: String): String? {
     var pw: String? = null
-    val cursor = db.query("Users", arrayOf("pw"), "username LIKE ?", arrayOf(username), null, null, null)
+    val cursor = db.rawQuery(
+        "SELECT pw FROM Users " +
+                "WHERE username LIKE ?;",
+        arrayOf(username)
+    )
     with (cursor) {
         while (cursor.moveToNext()) {
             pw = (getString(getColumnIndexOrThrow("pw")))
@@ -139,7 +143,11 @@ fun getPwByUsername(db: SQLiteDatabase, username: String): String? {
 
 fun getUserByUsername(db: SQLiteDatabase, username: String): User? {
     var user: User? = null
-    val cursor = db.query("Users", null, "username LIKE ?", arrayOf(username), null, null, null)
+    val cursor = db.rawQuery(
+        "SELECT * FROM Users " +
+                "WHERE username LIKE ?;",
+        arrayOf(username)
+    )
     with (cursor) {
         while (cursor.moveToNext()) {
             user = User(
