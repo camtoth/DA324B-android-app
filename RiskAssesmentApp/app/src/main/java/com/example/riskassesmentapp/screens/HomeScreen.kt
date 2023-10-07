@@ -26,7 +26,8 @@ import com.example.riskassesmentapp.ui.composables.ButtonWithIconText
 
 
 
-class HomeScreen(private val navController: NavController) {
+class HomeScreen(private val navController: NavController, private val username: String) {
+
     @Composable
     fun Content() {
         Column(
@@ -36,6 +37,13 @@ class HomeScreen(private val navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Welcome Message
+            Text(
+                text = "Welcome $username",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
             // Profile Photo
             Box(
                 modifier = Modifier
