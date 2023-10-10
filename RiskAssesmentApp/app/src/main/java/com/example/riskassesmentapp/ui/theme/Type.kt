@@ -6,7 +6,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+private val Monstserrat = FontFamily(
+    Font(R.font.montserrat-light, FontWeight.Light),
+    Font(R.font.montserrat-regular, FontWeight.Normal),
+    Font(R.font.montserrat-italic, FontWeight.Normal, FontStyle.Italic),
+    Font(R.font.montserrat-lightitalic, FontWeight.Light, FontStyle.Italic),
+    Font(R.font.montserrat-semibold, FontWeight.SemiBold)
+)
+
+private val NotoSans = FontFamily(
+    Font(R.font.notosans-light, FontWeight.Light),
+    Font(R.font.notosans-regular, FontWeight.Normal),
+    Font(R.font.notosans-italic, FontWeight.Normal, FontStyle.Italic),
+    Font(R.font.notosans-lightitalic, FontWeight.Light, FontStyle.Italic),
+    Font(R.font.notosans-semibold, FontWeight.SemiBold)
+)
+
+
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -14,8 +30,7 @@ val Typography = Typography(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
+    ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
@@ -30,5 +45,4 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
-    */
 )
