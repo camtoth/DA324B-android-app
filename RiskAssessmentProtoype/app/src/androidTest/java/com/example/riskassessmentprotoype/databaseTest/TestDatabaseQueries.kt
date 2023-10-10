@@ -1,5 +1,6 @@
 package com.example.riskassessmentprotoype.databaseTest
 
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -23,9 +24,12 @@ import com.example.riskassessmentprotoype.database.insertNewAnswer
 import com.example.riskassessmentprotoype.database.insertNewCase
 import com.example.riskassessmentprotoype.database.insertNewQuestion
 import com.example.riskassessmentprotoype.database.insertNewUser
+import org.junit.After
+import org.junit.AfterClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.BeforeClass
 import java.time.LocalDate
 import java.util.LinkedList
@@ -33,20 +37,13 @@ import java.util.LinkedList
 
 @RunWith(AndroidJUnit4::class)
 class TestDatabaseQueries {
-    val mockDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
-
     // Set up test database
     companion object {
         @BeforeClass
         @JvmStatic
         fun setupTestDb() {
+            resetTestDB()
             val setupDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
-            setupDb.rawQuery("DELETE FROM Answers;", null)
-            setupDb.rawQuery("DELETE FROM Questions;", null)
-            setupDb.rawQuery("DELETE FROM Parents;", null)
-            setupDb.rawQuery("DELETE FROM Parent_to_Case;", null)
-            setupDb.rawQuery("DELETE FROM Cases;", null)
-            setupDb.rawQuery("DELETE FROM Users WHERE user_id NOT LIKE 1;", null)
             val testUserId =
                 insertNewUser(setupDb, InsertUser("test1", "pw1", "Test1", "Test1", false))
             val testUserId2 =
@@ -108,6 +105,33 @@ class TestDatabaseQueries {
             insertNewAnswer(db = setupDb, newAnswer = answer3, curCaseId = 1, curQuestionId = 3)
             setupDb.close()
         }
+
+        @AfterClass
+        @JvmStatic
+        fun resetTestDB() {
+            val teardownDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
+            teardownDb.rawQuery("DELETE FROM Answers;", null)
+            teardownDb.rawQuery("DELETE FROM Questions;", null)
+            teardownDb.rawQuery("DELETE FROM Parents;", null)
+            teardownDb.rawQuery("DELETE FROM Parent_to_Case;", null)
+            teardownDb.rawQuery("DELETE FROM Cases;", null)
+            teardownDb.rawQuery("DELETE FROM Users WHERE user_id NOT LIKE 1;", null)
+            teardownDb.close()
+        }
+    }
+
+    var mockDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
+
+
+    @Before
+    fun openTestDb() {
+        mockDb.close()
+        mockDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
+    }
+
+    @After
+    fun closeTestDB() {
+        mockDb.close()
     }
 
     @Test
