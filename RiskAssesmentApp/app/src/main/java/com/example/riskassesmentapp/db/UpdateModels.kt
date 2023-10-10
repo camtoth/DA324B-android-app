@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.util.Date
 
 data class UpdateUser(
     val id: Long,
@@ -33,7 +32,7 @@ data class UpdateCase(
     val gender: String? = null,
     val givenNames: String? = null,
     val lastName: String? = null,
-    val lastChanged: Date? = null,
+    val lastChanged: String? = null,
     val neglectRisk: Boolean? = null,
     val neglectScore: Float? = null,
     val neglectEstimation: Float? = null,

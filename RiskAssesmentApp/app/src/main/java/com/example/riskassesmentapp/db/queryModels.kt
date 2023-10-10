@@ -3,8 +3,6 @@ package com.example.riskassesmentapp.db
 import android.database.sqlite.SQLiteDatabase
 import androidx.core.database.getFloatOrNull
 import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getShortOrNull
 import androidx.core.database.getStringOrNull
 import java.util.Date
 import java.util.LinkedList
@@ -59,6 +57,11 @@ data class QuestionWithAnswer (
     val questionId: Long,
     val textEn: String,
     val textSe: String,
+    val answerId: Long,
+    val optYes: Boolean,
+    val optMiddle: Boolean,
+    val optNo: Boolean,
+    val parentNo: Int,
     val rNeglect: Float? = null,
     val rPca: Float? = null,
     val weightYesNeglect: Float? = null,
@@ -67,10 +70,6 @@ data class QuestionWithAnswer (
     val weightYesPca: Float? = null,
     val weightMiddlePca: Float? = null,
     val weightNoPca: Float? = null,
-    val answerId: Long? = null,
-    val optYes: Boolean? = null,
-    val optMiddle: Boolean? = null,
-    val optNo: Boolean? = null,
 )
 
 data class Answer(
@@ -79,14 +78,16 @@ data class Answer(
     val optMiddle: Boolean,
     val optNo: Boolean,
     val lastChanged: Date,
+    val parentNo: Int,
     val caseId: Int,
     val questionId: Int
 )
 
 fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList<QuestionWithAnswer> {
-    val questionsList = LinkedList<QuestionWithAnswer>()
+    val questionsAnswersList = LinkedList<QuestionWithAnswer>()
     val cursorAnswers = db.rawQuery(
-        "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, Answers.answer_id, " +
+        "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, " +
+                "Answers.answer_id, Answers.parent_no, " +
                 "Questions.text_en, Questions.text_se, Questions.r_neglect, Questions.r_pca, " +
                 "Questions.weight_yes_neglect, Questions.weight_middle_neglect, Questions.weight_no_neglect, " +
                 "Questions.weight_yes_pca, Questions.weight_middle_pca, Questions.weight_no_pca " +
@@ -97,89 +98,57 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
     )
     with (cursorAnswers) {
         while (moveToNext()) {
-            var rNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_neglect")) != null) rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect"))
-            var rPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_pca")) != null) rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca"))
-            var weightYesNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")) != null) weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect"))
-            var weightMiddleNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")) != null) weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect"))
-            var weightNoNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")) != null) weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect"))
-            var weightYesPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")) != null) weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca"))
-            var weightMiddlePca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")) != null) weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca"))
-            var weightNoPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")) != null) weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca"))
-            var answerId: Long? = null
-            if (getLongOrNull(getColumnIndexOrThrow("answer_id")) != null) answerId = getLongOrNull(getColumnIndexOrThrow("answer_id"))
-            var optYes: Boolean? = null
-            if (getIntOrNull(getColumnIndexOrThrow("opt_yes")) != null) optYes = getIntOrNull(getColumnIndexOrThrow("opt_yes")) == 1
-            var optMiddle: Boolean? = null
-            if (getIntOrNull(getColumnIndexOrThrow("opt_middle")) != null) optMiddle = getIntOrNull(getColumnIndexOrThrow("opt_middle")) == 1
-            var optNo: Boolean? = null
-            if (getIntOrNull(getColumnIndexOrThrow("opt_no")) != null) optNo = getIntOrNull(getColumnIndexOrThrow("opt_no")) == 1
-            questionsList.add(QuestionWithAnswer(
+            questionsAnswersList.add(
+                QuestionWithAnswer(
                 questionId = getLong(getColumnIndexOrThrow("question_id")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
-                rNeglect = rNeglect,
-                rPca = rPca,
-                weightYesNeglect = weightYesNeglect,
-                weightMiddleNeglect = weightMiddleNeglect,
-                weightNoNeglect = weightNoNeglect,
-                weightYesPca = weightYesPca,
-                weightMiddlePca = weightMiddlePca,
-                weightNoPca = weightNoPca,
-                answerId = answerId,
-                optYes = optYes,
-                optMiddle = optMiddle,
-                optNo = optNo
+                answerId = getLong(getColumnIndexOrThrow("answer_id")),
+                optYes = getInt(getColumnIndexOrThrow("opt_yes")) == 1,
+                optMiddle = getInt(getColumnIndexOrThrow("opt_middle")) == 1,
+                optNo = getInt(getColumnIndexOrThrow("opt_no")) == 1,
+                parentNo = getInt(getColumnIndexOrThrow("parent_no")),
+                rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
+                rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
+                weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
+                weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
+                weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
+                weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
+                weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
+                weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
                 )
             )
         }
     }
-    if (questionsList.size != 0) return questionsList
+    return questionsAnswersList
+}
+
+fun getAllQuestions(db: SQLiteDatabase): LinkedList<Question> {
+    val questionList = LinkedList<Question>()
     val cursorQuestions = db.rawQuery(
         "SELECT * FROM Questions;",
         null
     )
     with (cursorQuestions) {
         while (moveToNext()) {
-            var rNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_neglect")) != null) rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect"))
-            var rPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_pca")) != null) rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca"))
-            var weightYesNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")) != null) weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect"))
-            var weightMiddleNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")) != null) weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect"))
-            var weightNoNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")) != null) weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect"))
-            var weightYesPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")) != null) weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca"))
-            var weightMiddlePca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")) != null) weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca"))
-            var weightNoPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")) != null) weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca"))
-            questionsList.add(QuestionWithAnswer(
-                questionId = getLong(getColumnIndexOrThrow("question_id")),
+            questionList.add(
+                Question(
+                id = getLong(getColumnIndexOrThrow("question_id")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
-                rNeglect = rNeglect,
-                rPca = rPca,
-                weightYesNeglect = weightYesNeglect,
-                weightMiddleNeglect = weightMiddleNeglect,
-                weightNoNeglect = weightNoNeglect,
-                weightYesPca = weightYesPca,
-                weightMiddlePca = weightMiddlePca,
-                weightNoPca = weightNoPca,
-            ))
+                rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
+                rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
+                weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
+                weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
+                weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
+                weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
+                weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
+                weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
+            )
+            )
         }
     }
-    return questionsList
+    return questionList
 }
 
 fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
@@ -196,7 +165,8 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
             var pcaRisk: Boolean? = null
             val pcaRiskInt = getIntOrNull(getColumnIndexOrThrow("pca_risk"))
             if (pcaRiskInt != null) pcaRisk = pcaRiskInt == 1
-            caseList.add(Case(
+            caseList.add(
+                Case(
                 id = getLong(getColumnIndexOrThrow("case_id")),
                 personnr = getString(getColumnIndexOrThrow("personnr")),
                 email = getString(getColumnIndexOrThrow("email")),
@@ -211,7 +181,8 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
                 pcaEstimation = getFloatOrNull(getColumnIndex("pca_estimation")),
                 parents = LinkedList<Parent>(),
                 lastChanged = getStringOrNull(getColumnIndex("last_changed"))
-            ))
+            )
+            )
         }
     }
     for (case in caseList) {
@@ -224,12 +195,14 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
         )
         with (cursorParents) {
             while (moveToNext()) {
-                case.parents.add(Parent(
+                case.parents.add(
+                    Parent(
                     getLong(getColumnIndexOrThrow("parent_id")),
                     getString(getColumnIndexOrThrow("given_names")),
                     getString(getColumnIndexOrThrow("last_name")),
                     getString(getColumnIndexOrThrow("gender")),
-                ))
+                )
+                )
             }
         }
     }
