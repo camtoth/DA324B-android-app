@@ -71,6 +71,7 @@ data class QuestionWithAnswer (
     val optYes: Boolean? = null,
     val optMiddle: Boolean? = null,
     val optNo: Boolean? = null,
+    val parentNo: Int? = null,
 )
 
 data class Answer(
@@ -86,7 +87,8 @@ data class Answer(
 fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList<QuestionWithAnswer> {
     val questionsList = LinkedList<QuestionWithAnswer>()
     val cursorAnswers = db.rawQuery(
-        "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, Answers.answer_id, " +
+        "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, " +
+                "Answers.answer_id, Answers.parent_no, " +
                 "Questions.text_en, Questions.text_se, Questions.r_neglect, Questions.r_pca, " +
                 "Questions.weight_yes_neglect, Questions.weight_middle_neglect, Questions.weight_no_neglect, " +
                 "Questions.weight_yes_pca, Questions.weight_middle_pca, Questions.weight_no_pca " +
@@ -118,7 +120,8 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
                 answerId = getLongOrNull(getColumnIndexOrThrow("answer_id")),
                 optYes = optYes,
                 optMiddle = optMiddle,
-                optNo = optNo
+                optNo = optNo,
+                parentNo = getInt(getColumnIndexOrThrow("parent_no")),
                 )
             )
         }

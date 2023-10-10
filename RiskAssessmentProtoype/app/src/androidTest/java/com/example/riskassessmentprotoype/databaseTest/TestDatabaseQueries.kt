@@ -98,9 +98,9 @@ class TestDatabaseQueries {
             val parent6 = InsertParent("P6", "P6", "f")
             val newCase3 = InsertCase("3", "3", "f", "3", "3", listOf(parent5, parent6))
             val case3Id = insertNewCase(setupDb, newCase3, testUserId)
-            val answer1 = InsertAnswer(optYes = false, optMiddle = false, optNo = true)
-            val answer2 = InsertAnswer(optYes = false, optMiddle = true, optNo = false)
-            val answer3 = InsertAnswer(optYes = true, optMiddle = false, optNo = false)
+            val answer1 = InsertAnswer(optYes = false, optMiddle = false, optNo = true, parentNo = 1)
+            val answer2 = InsertAnswer(optYes = false, optMiddle = true, optNo = false, parentNo = 1)
+            val answer3 = InsertAnswer(optYes = true, optMiddle = false, optNo = false, parentNo = 2)
             insertNewAnswer(db = setupDb, newAnswer = answer1, curCaseId = 1, curQuestionId = 1)
             insertNewAnswer(db = setupDb, newAnswer = answer2, curCaseId = 1, curQuestionId = 2)
             insertNewAnswer(db = setupDb, newAnswer = answer3, curCaseId = 1, curQuestionId = 3)
@@ -126,7 +126,8 @@ class TestDatabaseQueries {
             optYes = false,
             optMiddle = false,
             optNo = true,
-            answerId = 1
+            answerId = 1,
+            parentNo = 1
         ), questionsAnswersCase1[0])
         assertEquals(QuestionWithAnswer(
             questionId = 2L,
@@ -139,7 +140,8 @@ class TestDatabaseQueries {
             optYes = false,
             optMiddle = true,
             optNo = false,
-            answerId = 2
+            answerId = 2,
+            parentNo = 1
         ), questionsAnswersCase1[1])
         assertEquals(QuestionWithAnswer(
             questionId = 3L,
@@ -152,7 +154,8 @@ class TestDatabaseQueries {
             optYes = true,
             optMiddle = false,
             optNo = false,
-            answerId = 3
+            answerId = 3,
+            parentNo = 2
         ), questionsAnswersCase1[2])
 
         val questionsAnswersCase2 = getQuestionsWithAnswerByCaseId(mockDb, caseId = 2)
