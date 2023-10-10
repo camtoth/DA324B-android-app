@@ -35,7 +35,6 @@ data class InsertCase(
     val givenNames: String,
     val lastName: String,
     val parents: List<InsertParent>,
-    val lastChanged: String? = null,
     val neglectRisk: Boolean? = null,
     val neglectScore: Float? = null,
     val neglectEstimation: Float? = null,
@@ -131,5 +130,6 @@ fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: 
     }
     val newAnswerId = db.insert("Answers", null, answerValues)
     // Update date in Case instead put("last_changed", LocalDate.now().toString())
+    updateCase(db, UpdateCase(id = curCaseId, lastChanged = LocalDate.now().toString()))
     return newAnswerId
 }

@@ -97,24 +97,6 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
     )
     with (cursorAnswers) {
         while (moveToNext()) {
-            var rNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_neglect")) != null) rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect"))
-            var rPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_pca")) != null) rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca"))
-            var weightYesNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")) != null) weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect"))
-            var weightMiddleNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")) != null) weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect"))
-            var weightNoNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")) != null) weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect"))
-            var weightYesPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")) != null) weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca"))
-            var weightMiddlePca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")) != null) weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca"))
-            var weightNoPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")) != null) weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca"))
-            var answerId: Long? = null
-            if (getLongOrNull(getColumnIndexOrThrow("answer_id")) != null) answerId = getLongOrNull(getColumnIndexOrThrow("answer_id"))
             var optYes: Boolean? = null
             if (getIntOrNull(getColumnIndexOrThrow("opt_yes")) != null) optYes = getIntOrNull(getColumnIndexOrThrow("opt_yes")) == 1
             var optMiddle: Boolean? = null
@@ -125,15 +107,15 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
                 questionId = getLong(getColumnIndexOrThrow("question_id")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
-                rNeglect = rNeglect,
-                rPca = rPca,
-                weightYesNeglect = weightYesNeglect,
-                weightMiddleNeglect = weightMiddleNeglect,
-                weightNoNeglect = weightNoNeglect,
-                weightYesPca = weightYesPca,
-                weightMiddlePca = weightMiddlePca,
-                weightNoPca = weightNoPca,
-                answerId = answerId,
+                rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
+                rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
+                weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
+                weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
+                weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
+                weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
+                weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
+                weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
+                answerId = getLongOrNull(getColumnIndexOrThrow("answer_id")),
                 optYes = optYes,
                 optMiddle = optMiddle,
                 optNo = optNo
@@ -148,34 +130,18 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
     )
     with (cursorQuestions) {
         while (moveToNext()) {
-            var rNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_neglect")) != null) rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect"))
-            var rPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("r_pca")) != null) rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca"))
-            var weightYesNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")) != null) weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect"))
-            var weightMiddleNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")) != null) weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect"))
-            var weightNoNeglect: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")) != null) weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect"))
-            var weightYesPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")) != null) weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca"))
-            var weightMiddlePca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")) != null) weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca"))
-            var weightNoPca: Float? = null
-            if (getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")) != null) weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca"))
             questionsList.add(QuestionWithAnswer(
                 questionId = getLong(getColumnIndexOrThrow("question_id")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
-                rNeglect = rNeglect,
-                rPca = rPca,
-                weightYesNeglect = weightYesNeglect,
-                weightMiddleNeglect = weightMiddleNeglect,
-                weightNoNeglect = weightNoNeglect,
-                weightYesPca = weightYesPca,
-                weightMiddlePca = weightMiddlePca,
-                weightNoPca = weightNoPca,
+                rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
+                rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
+                weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
+                weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
+                weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
+                weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
+                weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
+                weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
             ))
         }
     }

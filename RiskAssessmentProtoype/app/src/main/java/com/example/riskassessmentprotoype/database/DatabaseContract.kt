@@ -35,7 +35,7 @@ object DatabaseContract {
             "gender VARCHAR(10) NOT NULL, " +
             "given_names VARCHAR(150) NOT NULL, " +
             "last_name VARCHAR(100) NOT NULL, " +
-            "last_changed date, " +
+            "last_changed VARCHAR(10), " +
             "neglect_risk BOOL, " +
             "neglect_score FLOAT(3), " +
             "neglect_estimation FLOAT(3), " +

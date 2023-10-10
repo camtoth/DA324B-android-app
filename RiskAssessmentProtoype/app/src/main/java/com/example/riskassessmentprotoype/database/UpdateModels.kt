@@ -34,7 +34,7 @@ data class UpdateCase(
     val gender: String? = null,
     val givenNames: String? = null,
     val lastName: String? = null,
-    val lastChanged: Date? = null,
+    val lastChanged: String? = null,
     val neglectRisk: Boolean? = null,
     val neglectScore: Float? = null,
     val neglectEstimation: Float? = null,

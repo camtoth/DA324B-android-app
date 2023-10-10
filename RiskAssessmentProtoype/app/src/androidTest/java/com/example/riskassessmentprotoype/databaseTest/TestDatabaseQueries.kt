@@ -1,5 +1,6 @@
 package com.example.riskassessmentprotoype.databaseTest
 
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.riskassessmentprotoype.database.Case
@@ -24,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.*
 import org.junit.BeforeClass
+import java.time.LocalDate
 import java.util.LinkedList
 
 
@@ -232,7 +234,7 @@ class TestDatabaseQueries {
     @Test
     fun testGetCasesByUser() {
         val casesAdmin = getCasesByUser(mockDb, userId = 1)
-        assert(casesAdmin.size == 0)
+        assert(casesAdmin.isEmpty())
         val casesUser1 = getCasesByUser(mockDb, userId = 2)
         assert(casesUser1.size == 2)
         val case1User1 = casesUser1[0]
@@ -243,6 +245,7 @@ class TestDatabaseQueries {
             gender = "m",
             givenNames = "1",
             lastName = "1",
+            lastChanged = LocalDate.now().toString(),
             parents = LinkedList<Parent>().apply {
                 add(Parent(id = 1, givenNames = "P1", lastName = "P1", gender = "f"))
                 add(Parent(id = 2, givenNames = "P2", lastName = "P2", gender = "m"))
