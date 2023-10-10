@@ -1,5 +1,6 @@
 package com.example.riskassesmentapp.databaseTest
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.riskassesmentapp.db.Case
@@ -15,11 +16,13 @@ import com.example.riskassesmentapp.db.User
 import com.example.riskassesmentapp.db.getAllQuestions
 import com.example.riskassesmentapp.db.getAllUsernames
 import com.example.riskassesmentapp.db.getCasesByUser
+import com.example.riskassesmentapp.db.getParentsByCase
 import com.example.riskassesmentapp.db.getPwByUsername
-import com.example.riskassesmentapp.db.getQuestionsWithAnswerByCaseId
+import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.db.insertNewCase
+import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.db.insertNewQuestion
 import com.example.riskassesmentapp.db.insertNewUser
 import org.junit.After
@@ -30,7 +33,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.BeforeClass
 import java.time.LocalDate
-import java.util.LinkedList
 
 
 @RunWith(AndroidJUnit4::class)
@@ -89,24 +91,32 @@ class TestDatabaseQueries {
                     weightNoNeglect = 1f
                 )
             )
-            val parent1 = InsertParent("P1", "P1", "f")
-            val parent2 = InsertParent("P2", "P2", "m")
-            val newCase = InsertCase("1", "1",  "1", "m", "1", "1", listOf(parent1, parent2))
+            val newCase = InsertCase("1", "1",  "1", "m", "1", "1")
             val case1Id = insertNewCase(setupDb, newCase, testUserId)
-            val parent3 = InsertParent("P3", "P3", "m")
-            val parent4 = InsertParent("P4", "P4", "f")
-            val newCase2 = InsertCase("2", "2","2", "f", "2", "2", listOf(parent3, parent4))
+            val newCase2 = InsertCase("2", "2","2", "f", "2", "2")
             val case2Id = insertNewCase(setupDb, newCase2, testUserId2)
-            val parent5 = InsertParent("P5", "P5", "m")
-            val parent6 = InsertParent("P6", "P6", "f")
-            val newCase3 = InsertCase("3", "3","3", "f", "3", "3", listOf(parent5, parent6))
+            val newCase3 = InsertCase("3", "3","3", "f", "3", "3")
             val case3Id = insertNewCase(setupDb, newCase3, testUserId)
-            val answer1 = InsertAnswer(optYes = false, optMiddle = false, optNo = true, parentNo = 1)
-            val answer2 = InsertAnswer(optYes = false, optMiddle = true, optNo = false, parentNo = 1)
-            val answer3 = InsertAnswer(optYes = true, optMiddle = false, optNo = false, parentNo = 2)
-            insertNewAnswer(db = setupDb, newAnswer = answer1, curCaseId = 1, curQuestionId = 1)
-            insertNewAnswer(db = setupDb, newAnswer = answer2, curCaseId = 1, curQuestionId = 2)
-            insertNewAnswer(db = setupDb, newAnswer = answer3, curCaseId = 1, curQuestionId = 3)
+            val parent1 = InsertParent("P1", "P1", "P1", "f")
+            val parent2 = InsertParent("P2", "P2", "P2", "m")
+            val parent3 = InsertParent("P3", "P3", "P3", "m")
+            val parent4 = InsertParent("P4", "P4", "P4", "f")
+            val parent5 = InsertParent("P5", "P5", "P5", "m")
+            val parent6 = InsertParent("P6", "P6", "P6", "f")
+            val parent1Id = insertNewParent(setupDb, parent1, case1Id)
+            insertNewParent(setupDb, parent2, case1Id)
+            insertNewParent(setupDb, parent3, case2Id)
+            val parent4Id = insertNewParent(setupDb, parent4, case2Id)
+            insertNewParent(setupDb, parent5, case3Id)
+            insertNewParent(setupDb, parent6, case3Id)
+
+
+            val answer1 = InsertAnswer(optYes = false, optMiddle = false, optNo = true)
+            val answer2 = InsertAnswer(optYes = false, optMiddle = true, optNo = false)
+            val answer3 = InsertAnswer(optYes = true, optMiddle = false, optNo = false)
+            insertNewAnswer(db = setupDb, newAnswer = answer1, questionId = firstQID, parentId = parent1Id)
+            insertNewAnswer(db = setupDb, newAnswer = answer2, questionId = secondQId, parentId = parent1Id)
+            insertNewAnswer(db = setupDb, newAnswer = answer3, questionId = thirdQId, parentId = parent4Id)
             setupDb.close()
         }
 
@@ -138,8 +148,33 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetQuestionsWithAnswerByCaseId() {
-        val questionsAnswersCase1 = getQuestionsWithAnswerByCaseId(mockDb, caseId = 1)
+    fun testGetParentsByCase() {
+        val parentsCase1 = getParentsByCase(mockDb, caseId = 1L)
+        assertEquals(2, parentsCase1.size)
+        val parent1 = Parent(id = 1L, personnr = "P1", givenNames = "P1", lastName = "P1", gender = "f", caseId = 1L, lastChanged = LocalDate.now().toString())
+        val parent2 = Parent(id = 2L, personnr = "P2", givenNames = "P2", lastName = "P2", gender = "m", caseId = 1L)
+        assertEquals(parent1, parentsCase1[0])
+        assertEquals(parent2, parentsCase1[1])
+
+        val parentsCase2 = getParentsByCase(mockDb, caseId = 2L)
+        assertEquals(2, parentsCase2.size)
+        val parent3 = Parent(id = 3L, personnr = "P3", givenNames = "P3", lastName = "P3", gender = "m", caseId = 2L)
+        val parent4 = Parent(id = 4L, personnr = "P4", givenNames = "P4", lastName = "P4", gender = "f", caseId = 2L, lastChanged = LocalDate.now().toString())
+        assertEquals(parent3, parentsCase2[0])
+        assertEquals(parent4, parentsCase2[1])
+
+        val parentsCase3 = getParentsByCase(mockDb, caseId = 3L)
+        assertEquals(2, parentsCase3.size)
+        val parent5 = Parent(id = 5L, personnr = "P5", givenNames = "P5", lastName = "P5", gender = "m", caseId = 3L)
+        val parent6 = Parent(id = 6L, personnr = "P6", givenNames = "P6", lastName = "P6", gender = "f", caseId = 3L)
+        assertEquals(parent5, parentsCase3[0])
+        assertEquals(parent6, parentsCase3[1])
+    }
+
+    @Test
+    fun testGetQuestionsWithAnswerByParentId() {
+        val questionsAnswersParent1 = getQuestionsWithAnswerByParent(mockDb, parentId = 1L)
+        assertEquals(2, questionsAnswersParent1.size)
         assertEquals(QuestionWithAnswer(
             questionId = 1L,
             titleEn = "T1E",
@@ -157,9 +192,9 @@ class TestDatabaseQueries {
             optYes = false,
             optMiddle = false,
             optNo = true,
-            answerId = 1,
-            parentNo = 1
-        ), questionsAnswersCase1[0])
+            answerId = 1L,
+            parentId = 1L
+        ), questionsAnswersParent1[0])
         assertEquals(QuestionWithAnswer(
             questionId = 2L,
             titleEn = "T2E",
@@ -173,9 +208,18 @@ class TestDatabaseQueries {
             optYes = false,
             optMiddle = true,
             optNo = false,
-            answerId = 2,
-            parentNo = 1
-        ), questionsAnswersCase1[1])
+            answerId = 2L,
+            parentId = 1L,
+        ), questionsAnswersParent1[1])
+
+        val questionsAnswersParent2 = getQuestionsWithAnswerByParent(mockDb, parentId = 2L)
+        assert(questionsAnswersParent2.isEmpty())
+
+        val questionsAnswersParent3 = getQuestionsWithAnswerByParent(mockDb, parentId = 3L)
+        assert(questionsAnswersParent3.isEmpty())
+
+        val questionsAnswersParent4 = getQuestionsWithAnswerByParent(mockDb, parentId = 4L)
+        assertEquals(1, questionsAnswersParent4.size)
         assertEquals(QuestionWithAnswer(
             questionId = 3L,
             titleEn = "T3E",
@@ -189,12 +233,15 @@ class TestDatabaseQueries {
             optYes = true,
             optMiddle = false,
             optNo = false,
-            answerId = 3,
-            parentNo = 2
-        ), questionsAnswersCase1[2])
+            answerId = 3L,
+            parentId = 4L,
+        ), questionsAnswersParent4[0])
 
-        val questionsAnswersCase2 = getQuestionsWithAnswerByCaseId(mockDb, caseId = 2)
-        assert(questionsAnswersCase2.isEmpty())
+        val questionsAnswersParent5 = getQuestionsWithAnswerByParent(mockDb, parentId = 5L)
+        assert(questionsAnswersParent5.isEmpty())
+
+        val questionsAnswersParent6 = getQuestionsWithAnswerByParent(mockDb, parentId = 6L)
+        assert(questionsAnswersParent6.isEmpty())
     }
 
     @Test
@@ -251,9 +298,9 @@ class TestDatabaseQueries {
     @Test
     fun testGetUserByUsername() {
         val admin = getUserByUsername(mockDb, "admin")
-        val admin_exp = User(1, "admin", "admin", "admin",  true)
+        val adminExp = User(1, "admin", "admin", "admin",  true)
         assertNotNull(admin)
-        assertEquals(admin_exp, admin)
+        assertEquals(adminExp, admin)
         val test1 = getUserByUsername(mockDb, "test1")
         val test1exp = User(2, "test1", "Test1", "Test1", false)
         assertNotNull(test1)
@@ -295,11 +342,7 @@ class TestDatabaseQueries {
             email = "1",
             gender = "m",
             givenNames = "1",
-            lastName = "1",
-            parents = LinkedList<Parent>().apply {
-                add(Parent(id = 1, givenNames = "P1", lastName = "P1", gender = "f"))
-                add(Parent(id = 2, givenNames = "P2", lastName = "P2", gender = "m"))
-            }
+            lastName = "1"
         )
         assertEquals(case1User1Exp, case1User1)
         val case2User1 = casesUser1[1]
@@ -311,10 +354,6 @@ class TestDatabaseQueries {
             gender = "f",
             givenNames = "3",
             lastName = "3",
-            parents = LinkedList<Parent>().apply {
-                add(Parent(id = 5, givenNames = "P5", lastName = "P5", gender = "m"))
-                add(Parent(id = 6, givenNames = "P6", lastName = "P6", gender = "f"))
-            }
         )
         assertEquals(case2User1Exp, case2User1)
         val casesUser2 = getCasesByUser(mockDb, userId = 3)
@@ -328,10 +367,6 @@ class TestDatabaseQueries {
             gender = "f",
             givenNames = "2",
             lastName = "2",
-            parents = LinkedList<Parent>().apply {
-                add(Parent(id = 3, givenNames = "P3", lastName = "P3", gender = "m"))
-                add(Parent(id = 4, givenNames = "P4", lastName = "P4", gender = "f"))
-            }
         )
         assertEquals(case1User2Exp,case1User2)
     }

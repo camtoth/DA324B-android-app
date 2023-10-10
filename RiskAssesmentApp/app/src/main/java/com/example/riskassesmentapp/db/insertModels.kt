@@ -36,20 +36,19 @@ data class InsertCase(
     val gender: String,
     val givenNames: String,
     val lastName: String,
-    val parents: List<InsertParent>
 )
 
 data class InsertParent(
+    val personnr: String,
     val givenNames: String,
     val lastName: String,
-    val gender: String
+    val gender: String,
 )
 
 data class InsertAnswer(
     val optYes: Boolean,
     val optMiddle: Boolean,
-    val optNo: Boolean,
-    val parentNo: Int
+    val optNo: Boolean
 )
 
 fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
@@ -60,8 +59,7 @@ fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
         put("last_name", user.lastName)
         put("is_admin", user.isAdmin)
     }
-    val newUserId = db.insert("Users", null, userValues)
-    return newUserId
+    return db.insert("Users", null, userValues)
 }
 
 fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
@@ -83,21 +81,21 @@ fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
             put("weight_no_pca", question.weightNoPca)
         }
     }
-    val newQuestionId = db.insert("Questions", null, questionValues)
-    return newQuestionId
+    return db.insert("Questions", null, questionValues)
+}
+
+fun insertNewParent(db: SQLiteDatabase, parent: InsertParent, curCaseId: Long): Long {
+    val parentValues = ContentValues().apply {
+        put("personnr", parent.personnr)
+        put("given_names", parent.givenNames)
+        put("last_name", parent.lastName)
+        put("gender", parent.gender)
+        put("case_id", curCaseId)
+    }
+    return db.insert("Parents", null, parentValues)
 }
 
 fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Long {
-    val parentKeys = ArrayList<Long>()
-    for (parent in case.parents) {
-        val parentValues = ContentValues().apply {
-            put("given_names", parent.givenNames)
-            put("last_name", parent.lastName)
-            put("gender", parent.gender)
-        }
-        val newParentId = db.insert("Parents", null, parentValues)
-        if (newParentId.compareTo(-1) != 0) parentKeys.add(newParentId)
-    }
     val caseValues = ContentValues().apply {
         put("personnr", case.personnr)
         put("case_nr", case.caseNr)
@@ -107,30 +105,19 @@ fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Lo
         put("last_name", case.lastName)
         put("user_id", currentUserId)
     }
-    val newCaseId = db.insert("Cases", null, caseValues)
-    if (newCaseId.compareTo(-1) == 0) return -1
-    for (parentId in parentKeys) {
-        val parentToCaseValues = ContentValues().apply {
-            put("parent_id", parentId)
-            put("case_id", newCaseId)
-        }
-        db.insert("Parent_to_Case", null, parentToCaseValues)
-    }
-    return newCaseId
+    return db.insert("Cases", null, caseValues)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: Long, curCaseId: Long): Long {
+fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, questionId: Long, parentId: Long): Long {
     val answerValues = ContentValues().apply {
         put("opt_yes", newAnswer.optYes)
         put("opt_no", newAnswer.optNo)
         put("opt_middle", newAnswer.optMiddle)
-        put("parent_no", newAnswer.parentNo)
-        put("case_id", curCaseId)
-        put("question_id", curQuestionId)
+        put("parent_id", parentId)
+        put("question_id", questionId)
     }
     val newAnswerId = db.insert("Answers", null, answerValues)
-    // Update date in Parent instead put("last_changed", LocalDate.now().toString())
-    updateCase(db, UpdateCase(id = curCaseId, lastChanged = LocalDate.now().toString()))
+    updateParent(db, UpdateParent(id = parentId, lastChanged = LocalDate.now().toString()))
     return newAnswerId
 }

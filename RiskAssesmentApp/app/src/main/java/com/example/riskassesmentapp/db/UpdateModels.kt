@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.time.LocalDate
 
 data class UpdateUser(
     val id: Long,
@@ -41,7 +42,12 @@ data class UpdateParent(
     val id: Long,
     val givenNames: String? = null,
     val lastName: String? = null,
-    val gender: String? = null
+    val gender: String? = null,
+    val highRiskPca: Boolean? = null,
+    val highRiskNeglect: Boolean? = null,
+    val estHighRiskPca: Boolean? = null,
+    val estHighRiskNeglect: Boolean? = null,
+    val lastChanged: String? = null
 )
 
 data class UpdateAnswer(
@@ -57,8 +63,7 @@ fun updateUser(db: SQLiteDatabase, curUser: UpdateUser): Boolean {
         if (curUser.givenNames != null) put("given_names", curUser.givenNames)
         if (curUser.lastName != null) put("last_name", curUser.lastName)
     }
-    val updatedRows = db.update("Users", newValues, "user_id LIKE ?", arrayOf(curUser.id.toString()))
-    return (updatedRows == 1)
+    return db.update("Users", newValues, "user_id LIKE ?", arrayOf(curUser.id.toString())) == 1
 }
 
 fun updateQuestion(db: SQLiteDatabase, curQuestion: UpdateQuestion): Boolean {
@@ -76,8 +81,7 @@ fun updateQuestion(db: SQLiteDatabase, curQuestion: UpdateQuestion): Boolean {
         if (curQuestion.weightNoPca != null) put("weight_no_pca", curQuestion.weightNoPca)
         if (curQuestion.weightMiddlePca != null) put("weight_middle_pca", curQuestion.weightMiddlePca)
     }
-    val updatedRows = db.update("Questions", newValues, "question_id LIKE ?", arrayOf(curQuestion.id.toString()))
-    return (updatedRows == 1)
+    return db.update("Questions", newValues, "question_id LIKE ?", arrayOf(curQuestion.id.toString())) == 1
 }
 
 fun updateCase(db: SQLiteDatabase,curCase: UpdateCase): Boolean {
@@ -88,29 +92,32 @@ fun updateCase(db: SQLiteDatabase,curCase: UpdateCase): Boolean {
         if (curCase.lastName != null) put("last_name", curCase.lastName)
         if (curCase.highRisk != null) put("high_risk", curCase.highRisk)
     }
-    val updatedRows = db.update("Cases", newValues, "case_id LIKE ?", arrayOf(curCase.id.toString()))
-    return (updatedRows == 1)
+    return db.update("Cases", newValues, "case_id LIKE ?", arrayOf(curCase.id.toString())) == 1
 }
 
-fun updateParent(db: SQLiteDatabase, curParent: UpdateParent): Boolean {
+fun updateParent(db: SQLiteDatabase, parent: UpdateParent): Boolean {
     val newValues = ContentValues().apply {
-        if (curParent.givenNames != null) put("given_names", curParent.givenNames)
-        if (curParent.lastName != null) put("last_name", curParent.lastName)
-        if (curParent.gender != null) put("gender", curParent.gender)
+        if (parent.givenNames != null) put("given_names", parent.givenNames)
+        if (parent.lastName != null) put("last_name", parent.lastName)
+        if (parent.gender != null) put("gender", parent.gender)
+        if (parent.highRiskPca != null) put("high_risk_pca", parent.highRiskPca)
+        if (parent.highRiskNeglect != null) put("high_risk_neglect", parent.highRiskNeglect)
+        if (parent.estHighRiskPca != null) put("est_high_risk_pca", parent.estHighRiskPca)
+        if (parent.estHighRiskNeglect != null) put("est_high_risk_neglect", parent.estHighRiskNeglect)
+        if (parent.lastChanged != null) put("last_changed", parent.lastChanged)
     }
-    val updatedRows = db.update("Parents", newValues, "parent_id LIKE ?", arrayOf(curParent.id.toString()))
-    return (updatedRows == 1)
+    return db.update("Parents", newValues, "parent_id LIKE ?", arrayOf(parent.id.toString())) == 1
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun updateAnswer(db: SQLiteDatabase, curAnswer: UpdateAnswer): Boolean {
+fun updateAnswer(db: SQLiteDatabase, answer: UpdateAnswer, parentId: Long): Boolean {
     val newValues = ContentValues().apply {
-        put("opt_yes", curAnswer.optYes)
-        put("opt_no", curAnswer.optNo)
-        put("opt_middle", curAnswer.optMiddle)
+        put("opt_yes", answer.optYes)
+        put("opt_no", answer.optNo)
+        put("opt_middle", answer.optMiddle)
     }
-    val updatedRows = db.update("Answers", newValues, "answer_id LIKE ?", arrayOf(curAnswer.id.toString()))
-    // Update date in case
+    val updatedRows = db.update("Answers", newValues, "answer_id LIKE ?", arrayOf(answer.id.toString()))
+    updateParent(db, UpdateParent(id = parentId, lastChanged = LocalDate.now().toString()))
     return (updatedRows == 1)
 }
 
@@ -118,14 +125,12 @@ fun setAdmin(db: SQLiteDatabase, newAdminId: Long): Boolean {
     val newValues = ContentValues().apply {
         put("is_admin", true)
     }
-    val updatedRows = db.update("Users", newValues, "user_id LIKE ?", arrayOf(newAdminId.toString()))
-    return (updatedRows == 1)
+    return db.update("Users", newValues, "user_id LIKE ?", arrayOf(newAdminId.toString())) == 1
 }
 
 fun resetAdmin(db: SQLiteDatabase, oldAdminId: Long): Boolean {
     val newValues = ContentValues().apply {
         put("is_admin", false)
     }
-    val updatedRows = db.update("Users", newValues, "user_id LIKE ? AND username NOT LIKE 'admin'", arrayOf(oldAdminId.toString()))
-    return (updatedRows == 1)
+    return db.update("Users", newValues, "user_id LIKE ? AND username NOT LIKE 'admin'", arrayOf(oldAdminId.toString())) == 1
 }

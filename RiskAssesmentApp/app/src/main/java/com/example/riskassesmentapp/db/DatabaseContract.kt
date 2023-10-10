@@ -56,9 +56,7 @@ object DatabaseContract {
             "opt_middle BOOL NOT NULL, " +
             "opt_no BOOL NOT NULL, " +
             "parent_id INTEGER NOT NULL, " +
-            "case_id INTEGER NOT NULL, " +
             "question_id INTEGER NOT NULL, " +
             "FOREIGN KEY(parent_id) REFERENCES Parents(parent_id), " +
-            "FOREIGN KEY(case_id) REFERENCES Cases(case_id), " +
             "FOREIGN KEY(question_id) REFERENCES Questions(question_id));"
 }
