@@ -15,7 +15,9 @@ data class InsertUser(
 )
 
 data class InsertQuestion(
+    val titleEn: String,
     val textEn: String,
+    val titleSe: String,
     val textSe: String,
     val rNeglect: Float? = null,
     val rPca: Float? = null,
@@ -29,17 +31,12 @@ data class InsertQuestion(
 
 data class InsertCase(
     val personnr: String,
+    val caseNr: String,
     val email: String,
     val gender: String,
     val givenNames: String,
     val lastName: String,
-    val parents: List<InsertParent>,
-    val neglectRisk: Boolean? = null,
-    val neglectScore: Float? = null,
-    val neglectEstimation: Float? = null,
-    val pcaRisk: Boolean? = null,
-    val pcaScore: Float? = null,
-    val pcaEstimation: Float? = null
+    val parents: List<InsertParent>
 )
 
 data class InsertParent(
@@ -70,7 +67,9 @@ fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
 fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
     val questionValues = ContentValues().apply {
         put("text_en", question.textEn)
+        put("title_en", question.titleEn)
         put("text_se", question.textSe)
+        put("title_se", question.titleSe)
         if (question.rNeglect != null) {
             put("r_neglect", question.rNeglect)
             put("weight_yes_neglect", question.weightYesNeglect)
@@ -101,6 +100,7 @@ fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Lo
     }
     val caseValues = ContentValues().apply {
         put("personnr", case.personnr)
+        put("case_nr", case.caseNr)
         put("email", case.email)
         put("gender", case.gender)
         put("given_names", case.givenNames)
@@ -130,7 +130,7 @@ fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: 
         put("question_id", curQuestionId)
     }
     val newAnswerId = db.insert("Answers", null, answerValues)
-    // Update date in Case instead put("last_changed", LocalDate.now().toString())
+    // Update date in Parent instead put("last_changed", LocalDate.now().toString())
     updateCase(db, UpdateCase(id = curCaseId, lastChanged = LocalDate.now().toString()))
     return newAnswerId
 }

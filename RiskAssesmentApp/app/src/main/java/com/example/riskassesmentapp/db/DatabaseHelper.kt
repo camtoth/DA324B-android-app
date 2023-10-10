@@ -9,12 +9,11 @@ import androidx.annotation.RequiresApi
 class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(DatabaseContract.SQL_CREATE_USERS)
         db.execSQL(DatabaseContract.SQL_CREATE_QUESTIONS)
-        db.execSQL(DatabaseContract.SQL_CREATE_PARENTS)
+        db.execSQL(DatabaseContract.SQL_CREATE_USERS)
         db.execSQL(DatabaseContract.SQL_CREATE_CASES)
+        db.execSQL(DatabaseContract.SQL_CREATE_PARENTS)
         db.execSQL(DatabaseContract.SQL_CREATE_ANSWERS)
-        db.execSQL(DatabaseContract.SQL_CREATE_PARENT_TO_CASE)
         val newUserId = insertNewUser(db, InsertUser("admin", "admin", "admin", "admin", true))
         // Insert questions here
     }

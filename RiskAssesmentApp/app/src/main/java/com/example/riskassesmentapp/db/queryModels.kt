@@ -17,7 +17,9 @@ data class User(
 
 data class Question(
     val id: Long,
+    val titleEn: String,
     val textEn: String,
+    val titleSe: String,
     val textSe: String,
     val rNeglect: Float? = null,
     val rPca: Float? = null,
@@ -32,18 +34,13 @@ data class Question(
 data class Case(
     val id: Long,
     val personnr: String,
+    val caseNr: String,
     val email: String,
     val gender: String,
     val givenNames: String,
     val lastName: String,
     val parents: LinkedList<Parent>,
-    val lastChanged: String? = null,
-    val neglectRisk: Boolean? = null,
-    val neglectScore: Float? = null,
-    val neglectEstimation: Float? = null,
-    val pcaRisk: Boolean? = null,
-    val pcaScore: Float? = null,
-    val pcaEstimation: Float? = null,
+    val highRisk: Boolean? = null,
 )
 
 data class Parent(
@@ -55,7 +52,9 @@ data class Parent(
 
 data class QuestionWithAnswer (
     val questionId: Long,
+    val titleEn: String,
     val textEn: String,
+    val titleSe: String,
     val textSe: String,
     val answerId: Long,
     val optYes: Boolean,
@@ -101,7 +100,9 @@ fun getQuestionsWithAnswerByCaseId(db: SQLiteDatabase, caseId: Long): LinkedList
             questionsAnswersList.add(
                 QuestionWithAnswer(
                 questionId = getLong(getColumnIndexOrThrow("question_id")),
+                titleEn = getString(getColumnIndexOrThrow("title_en")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
+                titleSe = getString(getColumnIndexOrThrow("title_se")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
                 answerId = getLong(getColumnIndexOrThrow("answer_id")),
                 optYes = getInt(getColumnIndexOrThrow("opt_yes")) == 1,
@@ -134,7 +135,9 @@ fun getAllQuestions(db: SQLiteDatabase): LinkedList<Question> {
             questionList.add(
                 Question(
                 id = getLong(getColumnIndexOrThrow("question_id")),
+                titleEn = getString(getColumnIndexOrThrow("title_en")),
                 textEn = getString(getColumnIndexOrThrow("text_en")),
+                titleSe = getString(getColumnIndexOrThrow("title_se")),
                 textSe = getString(getColumnIndexOrThrow("text_se")),
                 rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
                 rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
@@ -159,28 +162,20 @@ fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
     )
     with (cursorCase) {
         while (moveToNext()) {
-            var neglectRisk: Boolean? = null
-            val neglectRiskInt = getIntOrNull(getColumnIndexOrThrow("neglect_risk"))
-            if (neglectRiskInt != null) neglectRisk = neglectRiskInt == 1
-            var pcaRisk: Boolean? = null
-            val pcaRiskInt = getIntOrNull(getColumnIndexOrThrow("pca_risk"))
-            if (pcaRiskInt != null) pcaRisk = pcaRiskInt == 1
+            var highRisk: Boolean? = null
+            val highRiskInt = getIntOrNull(getColumnIndexOrThrow("high_risk"))
+            if (highRiskInt != null) highRisk = highRiskInt == 1
             caseList.add(
                 Case(
                 id = getLong(getColumnIndexOrThrow("case_id")),
                 personnr = getString(getColumnIndexOrThrow("personnr")),
+                caseNr = getString(getColumnIndexOrThrow("case_nr")),
                 email = getString(getColumnIndexOrThrow("email")),
                 gender = getString(getColumnIndexOrThrow("gender")),
                 givenNames = getString(getColumnIndexOrThrow("given_names")),
                 lastName = getString(getColumnIndexOrThrow("last_name")),
-                neglectRisk = neglectRisk,
-                neglectScore = getFloatOrNull(getColumnIndex("neglect_score")),
-                neglectEstimation = getFloatOrNull(getColumnIndex("neglect_estimation")),
-                pcaRisk = pcaRisk,
-                pcaScore = getFloatOrNull(getColumnIndex("pca_score")),
-                pcaEstimation = getFloatOrNull(getColumnIndex("pca_estimation")),
+                highRisk = highRisk,
                 parents = LinkedList<Parent>(),
-                lastChanged = getStringOrNull(getColumnIndex("last_changed"))
             )
             )
         }

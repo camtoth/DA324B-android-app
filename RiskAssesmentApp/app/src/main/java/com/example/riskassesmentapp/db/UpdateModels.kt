@@ -14,7 +14,9 @@ data class UpdateUser(
 
 data class UpdateQuestion(
     val id: Long,
+    val titleEn: String? = null,
     val textEn: String? = null,
+    val titleSe: String? = null,
     val textSe: String? = null,
     val rNeglect: Float? = null,
     val rPca: Float? = null,
@@ -32,13 +34,7 @@ data class UpdateCase(
     val gender: String? = null,
     val givenNames: String? = null,
     val lastName: String? = null,
-    val lastChanged: String? = null,
-    val neglectRisk: Boolean? = null,
-    val neglectScore: Float? = null,
-    val neglectEstimation: Float? = null,
-    val pcaRisk: Boolean? = null,
-    val pcaScore: Float? = null,
-    val pcaEstimation: Float? = null,
+    val highRisk: Boolean? = null,
 )
 
 data class UpdateParent(
@@ -67,7 +63,9 @@ fun updateUser(db: SQLiteDatabase, curUser: UpdateUser): Boolean {
 
 fun updateQuestion(db: SQLiteDatabase, curQuestion: UpdateQuestion): Boolean {
     val newValues = ContentValues().apply {
+        if (curQuestion.titleEn != null) put("title_en", curQuestion.titleEn)
         if (curQuestion.textEn != null) put("text_en", curQuestion.textEn)
+        if (curQuestion.titleSe != null) put("title_se", curQuestion.titleSe)
         if (curQuestion.textSe != null) put("text_se", curQuestion.textSe)
         if (curQuestion.rNeglect != null) put("r_neglect", curQuestion.rNeglect)
         if (curQuestion.rPca != null) put("r_pca", curQuestion.rPca)
@@ -88,13 +86,7 @@ fun updateCase(db: SQLiteDatabase,curCase: UpdateCase): Boolean {
         if (curCase.gender != null) put("gender", curCase.gender)
         if (curCase.givenNames != null) put("given_names", curCase.givenNames)
         if (curCase.lastName != null) put("last_name", curCase.lastName)
-        if (curCase.neglectRisk != null) put("neglect_risk", curCase.neglectRisk)
-        if (curCase.neglectScore != null) put("neglect_score", curCase.neglectScore)
-        if (curCase.neglectEstimation != null) put("neglect_estimation", curCase.neglectEstimation)
-        if (curCase.pcaRisk != null) put("pca_risk", curCase.pcaRisk)
-        if (curCase.pcaScore != null) put("pca_score", curCase.pcaScore)
-        if (curCase.pcaEstimation != null) put("pca_estimation", curCase.pcaEstimation)
-        if (curCase.lastChanged != null) put("last_changed", curCase.lastChanged.toString())
+        if (curCase.highRisk != null) put("high_risk", curCase.highRisk)
     }
     val updatedRows = db.update("Cases", newValues, "case_id LIKE ?", arrayOf(curCase.id.toString()))
     return (updatedRows == 1)

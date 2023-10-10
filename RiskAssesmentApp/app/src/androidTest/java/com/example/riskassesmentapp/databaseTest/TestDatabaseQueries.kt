@@ -49,8 +49,10 @@ class TestDatabaseQueries {
             val firstQID = insertNewQuestion(
                 setupDb,
                 InsertQuestion(
-                    textEn = "Q1",
-                    textSe = "Q1",
+                    titleEn = "T1E",
+                    textEn = "Q1E",
+                    titleSe = "T1S",
+                    textSe = "Q1S",
                     rNeglect = 0.5f,
                     rPca = 0.5f,
                     weightYesNeglect = 1f,
@@ -64,8 +66,10 @@ class TestDatabaseQueries {
             val secondQId = insertNewQuestion(
                 setupDb,
                 InsertQuestion(
-                    textEn = "Q2",
-                    textSe = "Q2",
+                    titleEn = "T2E",
+                    textEn = "Q2E",
+                    titleSe = "T2S",
+                    textSe = "Q2S",
                     rPca = 0.5f,
                     weightYesPca = 1f,
                     weightMiddlePca = 0.5f,
@@ -75,8 +79,10 @@ class TestDatabaseQueries {
             val thirdQId = insertNewQuestion(
                 setupDb,
                 InsertQuestion(
-                    textEn = "Q3",
-                    textSe = "Q3",
+                    titleEn = "T3E",
+                    textEn = "Q3E",
+                    titleSe = "T3S",
+                    textSe = "Q3S",
                     rNeglect = 0.5f,
                     weightYesNeglect = 0f,
                     weightMiddleNeglect = 0.5f,
@@ -85,15 +91,15 @@ class TestDatabaseQueries {
             )
             val parent1 = InsertParent("P1", "P1", "f")
             val parent2 = InsertParent("P2", "P2", "m")
-            val newCase = InsertCase("1", "1", "m", "1", "1", listOf(parent1, parent2))
+            val newCase = InsertCase("1", "1",  "1", "m", "1", "1", listOf(parent1, parent2))
             val case1Id = insertNewCase(setupDb, newCase, testUserId)
             val parent3 = InsertParent("P3", "P3", "m")
             val parent4 = InsertParent("P4", "P4", "f")
-            val newCase2 = InsertCase("2", "2", "f", "2", "2", listOf(parent3, parent4))
+            val newCase2 = InsertCase("2", "2","2", "f", "2", "2", listOf(parent3, parent4))
             val case2Id = insertNewCase(setupDb, newCase2, testUserId2)
             val parent5 = InsertParent("P5", "P5", "m")
             val parent6 = InsertParent("P6", "P6", "f")
-            val newCase3 = InsertCase("3", "3", "f", "3", "3", listOf(parent5, parent6))
+            val newCase3 = InsertCase("3", "3","3", "f", "3", "3", listOf(parent5, parent6))
             val case3Id = insertNewCase(setupDb, newCase3, testUserId)
             val answer1 = InsertAnswer(optYes = false, optMiddle = false, optNo = true, parentNo = 1)
             val answer2 = InsertAnswer(optYes = false, optMiddle = true, optNo = false, parentNo = 1)
@@ -109,10 +115,9 @@ class TestDatabaseQueries {
         fun resetTestDB() {
             val teardownDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
             teardownDb.rawQuery("DELETE FROM Answers;", null)
-            teardownDb.rawQuery("DELETE FROM Questions;", null)
             teardownDb.rawQuery("DELETE FROM Parents;", null)
-            teardownDb.rawQuery("DELETE FROM Parent_to_Case;", null)
             teardownDb.rawQuery("DELETE FROM Cases;", null)
+            teardownDb.rawQuery("DELETE FROM Questions;", null)
             teardownDb.rawQuery("DELETE FROM Users WHERE user_id NOT LIKE 1;", null)
             teardownDb.close()
         }
@@ -137,8 +142,10 @@ class TestDatabaseQueries {
         val questionsAnswersCase1 = getQuestionsWithAnswerByCaseId(mockDb, caseId = 1)
         assertEquals(QuestionWithAnswer(
             questionId = 1L,
-            textEn = "Q1",
-            textSe = "Q1",
+            titleEn = "T1E",
+            textEn = "Q1E",
+            titleSe = "T1S",
+            textSe = "Q1S",
             rNeglect = 0.5f,
             rPca = 0.5f,
             weightYesNeglect = 1f,
@@ -155,8 +162,10 @@ class TestDatabaseQueries {
         ), questionsAnswersCase1[0])
         assertEquals(QuestionWithAnswer(
             questionId = 2L,
-            textEn = "Q2",
-            textSe = "Q2",
+            titleEn = "T2E",
+            textEn = "Q2E",
+            titleSe = "T2S",
+            textSe = "Q2S",
             rPca = 0.5f,
             weightYesPca = 1f,
             weightMiddlePca = 0.5f,
@@ -169,8 +178,10 @@ class TestDatabaseQueries {
         ), questionsAnswersCase1[1])
         assertEquals(QuestionWithAnswer(
             questionId = 3L,
-            textEn = "Q3",
-            textSe = "Q3",
+            titleEn = "T3E",
+            textEn = "Q3E",
+            titleSe = "T3S",
+            textSe = "Q3S",
             rNeglect = 0.5f,
             weightYesNeglect = 0f,
             weightMiddleNeglect = 0.5f,
@@ -191,8 +202,10 @@ class TestDatabaseQueries {
         val allQuestions = getAllQuestions(mockDb)
         assertEquals(Question(
             id = 1L,
-            textEn = "Q1",
-            textSe = "Q1",
+            titleEn = "T1E",
+            textEn = "Q1E",
+            titleSe = "T1S",
+            textSe = "Q1S",
             rNeglect = 0.5f,
             rPca = 0.5f,
             weightYesNeglect = 1f,
@@ -204,8 +217,10 @@ class TestDatabaseQueries {
         ), allQuestions[0])
         assertEquals(Question(
             id = 2L,
-            textEn = "Q2",
-            textSe = "Q2",
+            titleEn = "T2E",
+            textEn = "Q2E",
+            titleSe = "T2S",
+            textSe = "Q2S",
             rPca = 0.5f,
             weightYesPca = 1f,
             weightMiddlePca = 0.5f,
@@ -213,8 +228,10 @@ class TestDatabaseQueries {
         ), allQuestions[1])
         assertEquals(Question(
             id = 3L,
-            textEn = "Q3",
-            textSe = "Q3",
+            titleEn = "T3E",
+            textEn = "Q3E",
+            titleSe = "T3S",
+            textSe = "Q3S",
             rNeglect = 0.5f,
             weightYesNeglect = 0f,
             weightMiddleNeglect = 0.5f,
@@ -274,11 +291,11 @@ class TestDatabaseQueries {
         val case1User1Exp = Case(
             id = 1,
             personnr = "1",
+            caseNr = "1",
             email = "1",
             gender = "m",
             givenNames = "1",
             lastName = "1",
-            lastChanged = LocalDate.now().toString(),
             parents = LinkedList<Parent>().apply {
                 add(Parent(id = 1, givenNames = "P1", lastName = "P1", gender = "f"))
                 add(Parent(id = 2, givenNames = "P2", lastName = "P2", gender = "m"))
@@ -289,6 +306,7 @@ class TestDatabaseQueries {
         val case2User1Exp = Case(
             id = 3,
             personnr = "3",
+            caseNr = "3",
             email = "3",
             gender = "f",
             givenNames = "3",
@@ -305,6 +323,7 @@ class TestDatabaseQueries {
         val case1User2Exp = Case(
             id = 2,
             personnr = "2",
+            caseNr = "2",
             email = "2",
             gender = "f",
             givenNames = "2",
