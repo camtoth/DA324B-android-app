@@ -10,8 +10,10 @@ import com.example.riskassessmentprotoype.database.InsertParent
 import com.example.riskassessmentprotoype.database.InsertQuestion
 import com.example.riskassessmentprotoype.database.InsertUser
 import com.example.riskassessmentprotoype.database.Parent
+import com.example.riskassessmentprotoype.database.Question
 import com.example.riskassessmentprotoype.database.QuestionWithAnswer
 import com.example.riskassessmentprotoype.database.User
+import com.example.riskassessmentprotoype.database.getAllQuestions
 import com.example.riskassessmentprotoype.database.getAllUsernames
 import com.example.riskassessmentprotoype.database.getCasesByUser
 import com.example.riskassessmentprotoype.database.getPwByUsername
@@ -159,8 +161,14 @@ class TestDatabaseQueries {
         ), questionsAnswersCase1[2])
 
         val questionsAnswersCase2 = getQuestionsWithAnswerByCaseId(mockDb, caseId = 2)
-        assertEquals(QuestionWithAnswer(
-            questionId = 1L,
+        assert(questionsAnswersCase2.isEmpty())
+    }
+
+    @Test
+    fun testGetAllQuestions() {
+        val allQuestions = getAllQuestions(mockDb)
+        assertEquals(Question(
+            id = 1L,
             textEn = "Q1",
             textSe = "Q1",
             rNeglect = 0.5f,
@@ -171,25 +179,25 @@ class TestDatabaseQueries {
             weightYesPca = 1f,
             weightMiddlePca = 0.5f,
             weightNoPca = 0f
-        ), questionsAnswersCase2[0])
-        assertEquals(QuestionWithAnswer(
-            questionId = 2L,
+        ), allQuestions[0])
+        assertEquals(Question(
+            id = 2L,
             textEn = "Q2",
             textSe = "Q2",
             rPca = 0.5f,
             weightYesPca = 1f,
             weightMiddlePca = 0.5f,
             weightNoPca = 0f
-        ), questionsAnswersCase2[1])
-        assertEquals(QuestionWithAnswer(
-            questionId = 3L,
+        ), allQuestions[1])
+        assertEquals(Question(
+            id = 3L,
             textEn = "Q3",
             textSe = "Q3",
             rNeglect = 0.5f,
             weightYesNeglect = 0f,
             weightMiddleNeglect = 0.5f,
             weightNoNeglect = 1f
-        ), questionsAnswersCase2[2])
+        ), allQuestions[2])
     }
 
     @Test
