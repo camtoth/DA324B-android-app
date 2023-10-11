@@ -88,7 +88,6 @@ class MainActivity : ComponentActivity() {
     companion object {
         private const val AUTH_REQUEST_CODE = 1001
     }
-
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

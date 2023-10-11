@@ -45,6 +45,4 @@ class AssessmentScreen(private val navController: NavController) {
             }
         }
     }
-
-
 }

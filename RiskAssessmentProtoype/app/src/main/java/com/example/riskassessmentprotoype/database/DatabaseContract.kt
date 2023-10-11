@@ -35,7 +35,7 @@ object DatabaseContract {
             "gender VARCHAR(10) NOT NULL, " +
             "given_names VARCHAR(150) NOT NULL, " +
             "last_name VARCHAR(100) NOT NULL, " +
-            "last_changed date, " +
+            "last_changed VARCHAR(10), " +
             "neglect_risk BOOL, " +
             "neglect_score FLOAT(3), " +
             "neglect_estimation FLOAT(3), " +
@@ -50,6 +50,7 @@ object DatabaseContract {
             "opt_yes BOOL NOT NULL, " +
             "opt_middle BOOL NOT NULL, " +
             "opt_no BOOL NOT NULL, " +
+            "parent_no INTEGER NOT NULL, " +
             "case_id INTEGER NOT NULL, " +
             "question_id INTEGER NOT NULL, " +
             "FOREIGN KEY(case_id) REFERENCES Cases(case_id), " +
