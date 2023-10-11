@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
 
+
 data class UpdateUser(
     val id: Long,
     val pw: String? = null,
@@ -64,6 +65,7 @@ fun updateUser(db: SQLiteDatabase, curUser: UpdateUser): Boolean {
         if (curUser.lastName != null) put("last_name", curUser.lastName)
     }
     return db.update("Users", newValues, "user_id LIKE ?", arrayOf(curUser.id.toString())) == 1
+
 }
 
 fun updateQuestion(db: SQLiteDatabase, curQuestion: UpdateQuestion): Boolean {
@@ -82,6 +84,7 @@ fun updateQuestion(db: SQLiteDatabase, curQuestion: UpdateQuestion): Boolean {
         if (curQuestion.weightMiddlePca != null) put("weight_middle_pca", curQuestion.weightMiddlePca)
     }
     return db.update("Questions", newValues, "question_id LIKE ?", arrayOf(curQuestion.id.toString())) == 1
+
 }
 
 fun updateCase(db: SQLiteDatabase,curCase: UpdateCase): Boolean {

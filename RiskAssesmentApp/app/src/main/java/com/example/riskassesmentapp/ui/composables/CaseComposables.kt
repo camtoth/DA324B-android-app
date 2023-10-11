@@ -260,5 +260,3 @@ fun CaseCard(case: Case) {
         }
     }
 }
-
-
