@@ -17,11 +17,28 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-//todo
+    primary = PrimaryLightBlue,
+    onPrimary = PrimaryBlue,
+    primaryContainer = PrimaryBlue,
+    onPrimaryContainer = Color.White,
+    secondary = BlueTonedGray,
+    onSecondary = Color.White,
+    secondaryContainer = CardBackgroundBlue,
+    onSecondaryContainer = BlueBlack,
+    background = DarkBlueGray,
+    surface = LightBlue,
+    tertiary = SunshineYellow,
+    onTertiary = DarkYellowBrown,
+    tertiaryContainer = PaleYellow,
+    onTertiaryContainer = YellowBrown,
+    error = DeepToneRed,
+    onError = Color.White,
+    errorContainer = PaleRed,
+    onErrorContainer = DeepToneRed
+
 )
 
 private val LightColorScheme = lightColorScheme(
-//todo
     primary = PrimaryLightBlue,
     onPrimary = PrimaryBlue,
     primaryContainer = PrimaryBlue,
@@ -32,17 +49,14 @@ private val LightColorScheme = lightColorScheme(
     onSecondaryContainer = BlueBlack,
     background = BlueTonedWhite,
     surface = LightBlue,
-    tertiary = PaleYellow
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    tertiary = SunshineYellow,
+    onTertiary = DarkYellowBrown,
+    tertiaryContainer = PaleYellow,
+    onTertiaryContainer = YellowBrown,
+    error = DeepToneRed,
+    onError = Color.White,
+    errorContainer = PaleRed,
+    onErrorContainer = DeepToneRed
 )
 
 @Composable
@@ -65,7 +79,7 @@ fun RiskAssesmentAppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = colorScheme.onSecondaryContainer.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }

@@ -19,7 +19,7 @@ val PaleRed = Color (0XFFFFB4AB)
 
 // low risk colors
 val BrightGreen = Color (0XFF58C625)
-val PalGreen =  Color (0XFFA7DA85)
+val PaleGreen =  Color (0XFFA7DA85)
 
 // text colors
 val BlueBlack = Color(0xFF0D1D2A)
