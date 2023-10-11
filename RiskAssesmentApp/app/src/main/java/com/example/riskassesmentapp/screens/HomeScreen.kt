@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -17,13 +18,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.riskassesmentapp.R
+import com.example.riskassesmentapp.ui.composables.AppTitle
 import com.example.riskassesmentapp.ui.composables.ButtonWithIconText
-
+import com.example.riskassesmentapp.ui.composables.GetTodaysDate
+import com.example.riskassesmentapp.ui.composables.HomeScreenButton
 
 
 class HomeScreen(private val navController: NavController) {
@@ -36,55 +43,56 @@ class HomeScreen(private val navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile Photo
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(shape = CircleShape)
-                    .background(Color.Gray)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            AppTitle()            // App Title
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val buttons = listOf(
-                Icons.Default.Add to "Add New Case",
-                Icons.Default.Star to "My Cases",
-                Icons.Default.Settings to "Settings",
-                Icons.Default.Info to "Info"
-            )
+            Box(                        // Logo Photo
+                modifier = Modifier
+                    .scale(1.5f)
+                    .padding(30.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.riskapplogo),
+                    contentDescription = null
+                )
+            }
+
+            GetTodaysDate()               // Get Today's Date
+
+
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 50.dp),
                 content = {
-                    items(buttons) { (icon, text) ->
-                        ButtonWithIconText(icon, text) {
-                            when (text) {
-                                "Add New Case" -> {
-                                    println("Add New Case button clicked")
-                                    navController.navigate("add_case")
-                                }
 
-                                "My Cases" -> {
-                                    println("My Cases button clicked")
-                                    navController.navigate("my_cases")
-                                }
+                    //  onClick = { if (currentRoute != "home") navController.navigate("home") },
+                    items( 2) { index ->
+                        when(index) {
 
-                                "Settings" -> {
-                                    println("Settings button clicked")
-                                    // Navigate to Settings if available
-                                }
-
-                                "Info" -> {
-                                    println("Info button clicked")
-                                    // Navigate to Info if available
-                                }
+                            0 -> {
+                                HomeScreenButton(
+                                    navController = navController,
+                                    destination = "add_case",
+                                    icon = Icons.Default.Add,
+                                    text = "Add New Case",
+                                    buttonColor = MaterialTheme.colorScheme.primaryContainer,
+                                    textColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             }
+                            1 -> {
+                                HomeScreenButton (
+                                    navController = navController,
+                                    destination = "add_case",
+                                    icon = Icons.Default.Info,
+                                    text = "Info",
+                                    buttonColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    textColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+
                         }
                     }
                 }
@@ -92,3 +100,10 @@ class HomeScreen(private val navController: NavController) {
         }
     }
 }
+@Preview
+@Composable
+fun previewHomeScreen(){
+    val navController = rememberNavController()
+    HomeScreen(navController).Content()
+}
+
