@@ -1,5 +1,6 @@
 package com.example.riskassesmentapp.ui.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -61,7 +62,6 @@ fun onResubmitClick() {
 @Composable
 fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
     RiskAssesmentAppTheme {
-        // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -72,8 +72,8 @@ fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    items(5) { i ->
-                        QuestionCard()
+                    items(questionsList.size){ i ->
+                        QuestionCard(questionsList[i])
                     }
                     item {
                         Button(
@@ -96,7 +96,7 @@ fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
 @Composable
 fun RadioButton() {
     val radioOptions = listOf("A", "B", "C")
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
     Column {
         radioOptions.forEach { text ->
             Row(
@@ -124,18 +124,22 @@ fun RadioButton() {
 }
 
 @Composable
-fun QuestionCard(modifier: Modifier = Modifier) {
+fun QuestionCard(question: QuestionWithAnswer, modifier: Modifier = Modifier) {
     Card(modifier = modifier
-        .padding(16.dp)
+        .padding(16.dp),
+    colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
     ){
         Column {
             Text(
-                text = "Example question",
+                text = question.textEn,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.headlineLarge
             )
-            Row(){
+            Row {
                 RadioButton()
             }
         }
