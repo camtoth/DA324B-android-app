@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.riskassesmentapp.models.Case
 
 
@@ -135,7 +136,7 @@ fun CasesList() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewCase() {
+fun AddNewCase(navController: NavController) {
     var caseNumber by remember { mutableStateOf(0) }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
@@ -192,7 +193,7 @@ fun AddNewCase() {
         )
 
         Button(
-            onClick = { /* Non-functional button */ },
+            onClick = { navController.navigate("assessment") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)

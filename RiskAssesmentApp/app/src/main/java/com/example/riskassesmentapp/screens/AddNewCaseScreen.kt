@@ -7,6 +7,6 @@ import com.example.riskassesmentapp.ui.composables.AddNewCase
 class AddNewCaseScreen(private val navController: NavController) {
     @Composable
     fun Content() {
-        AddNewCase()
+        AddNewCase(navController)
     }
 }
