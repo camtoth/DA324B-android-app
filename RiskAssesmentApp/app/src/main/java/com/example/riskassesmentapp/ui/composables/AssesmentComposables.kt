@@ -1,9 +1,8 @@
 package com.example.riskassesmentapp.ui.composables
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,31 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AssessmentScreen() {
-    Title(title = "Risk Assessment", modifier = Modifier.padding(20.dp))
-
-    LazyColumn {
-        items((1..3).toList()) { questionNumber ->
-            QuestionAndAnswers(question = "Question $questionNumber")
-        }
-
-        item {
-            Button(
-                onClick = { /* Handle Submit Assessment */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text("Submit Assessment")
-            }
-        }
-    }
-}
+import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
+import java.util.LinkedList
 
 @Composable
 fun QuestionAndAnswers(question: String) {
@@ -79,5 +56,89 @@ fun AnswerChoice(answer: String) {
 
 fun onResubmitClick() {
     TODO("Not yet implemented")
+}
+
+@Composable
+fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
+    RiskAssesmentAppTheme {
+        // A surface container using the 'background' color from the theme
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(5) { i ->
+                        QuestionCard()
+                    }
+                    item {
+                        Button(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .height(40.dp)
+                                .fillMaxWidth(1f),
+                            onClick = {
+                                /*TODO*/
+                            }) {
+                            Text(text = "Show result")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RadioButton() {
+    val radioOptions = listOf("A", "B", "C")
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
+    Column {
+        radioOptions.forEach { text ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = (text == selectedOption),
+                        onClick = {
+                            onOptionSelected(text)
+                        }
+                    )
+                    .padding(horizontal = 16.dp)
+            ) {
+                RadioButton(
+                    selected = (text == selectedOption),
+                    onClick = { onOptionSelected(text) }
+                )
+                Text(
+                    text = text,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun QuestionCard(modifier: Modifier = Modifier) {
+    Card(modifier = modifier
+        .padding(16.dp)
+    ){
+        Column {
+            Text(
+                text = "Example question",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Row(){
+                RadioButton()
+            }
+        }
+    }
 }
 
