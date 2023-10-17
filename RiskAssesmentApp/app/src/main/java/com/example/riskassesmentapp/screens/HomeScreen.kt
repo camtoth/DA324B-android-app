@@ -33,7 +33,9 @@ import com.example.riskassesmentapp.ui.composables.GetTodaysDate
 import com.example.riskassesmentapp.ui.composables.HomeScreenButton
 
 
-class HomeScreen(private val navController: NavController) {
+
+class HomeScreen(private val navController: NavController, private val username: String) {
+
     @Composable
     fun Content() {
         Column(
@@ -43,11 +45,15 @@ class HomeScreen(private val navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppTitle()            // App Title
+            // Welcome Message
+            Text(
+                text = "Welcome $username",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box(                        // Logo Photo
+            // Profile Photo
+            Box(
                 modifier = Modifier
                     .scale(1.5f)
                     .padding(30.dp)
@@ -100,10 +106,3 @@ class HomeScreen(private val navController: NavController) {
         }
     }
 }
-@Preview
-@Composable
-fun previewHomeScreen(){
-    val navController = rememberNavController()
-    HomeScreen(navController).Content()
-}
-
