@@ -11,10 +11,30 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.riskassesmentapp.models.Case
 
+@Preview
+@Composable
+fun ShowCaseCard(){
+    val testCase =
+        Case(
+            number = 1,
+            interviewDate = "March 2, 2023",
+            firstName = "John",
+            lastName = "Doe",
+            personnummer = "19000302017892",
+            overallRisk = "Low Risk",
+            parentChildInteraction = 60,
+            parentIndependent = 40,
+            characteristicsChild = 70,
+            characteristicsFamily = 50,
+            isDetailedView = false
+        )
+    CaseCard(testCase)
+}
 
 @Composable
 fun CasesList() {
@@ -130,7 +150,6 @@ fun CasesList() {
             CaseCard(case)
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

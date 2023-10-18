@@ -110,23 +110,34 @@ fun MyApp() {
         bottomBar = {
             BottomNav(navController)
         }
-    ) {
-        NavHost(navController, startDestination = "login") {
-            composable("login") {
-                LoginPage(navController, onLoginSuccessful = {
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true }
-                    }
-                }, userViewModel, dbHelper).Content()
-            }
-            composable("home") {
-                if (username != null) {
-                    HomeScreen(navController, username).Content()
+    ) { innerPadding ->
+        val gradientBrush = Brush.verticalGradient(
+            colors = listOf(MaterialTheme.colorScheme.background, LightBlue)
+        )
+
+        Box(
+            modifier = Modifier
+                .background(brush = gradientBrush)
+                .padding(innerPadding)
+        ) {
+            NavHost(navController, startDestination = "login") {
+                composable("login") {
+                    LoginPage(navController, onLoginSuccessful = {
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }, userViewModel, dbHelper).Content()
                 }
+                composable("home") {
+                    if (username != null) {
+                        HomeScreen(navController, username).Content()
+                    }
+                }
+                composable("add_case") { AddNewCaseScreen(navController).Content() }
+                composable("my_cases") { CasesListScreen(navController).Content() }
+                composable("assessment") { AssessmentScreen(navController).Content() }
+                composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
             }
-            composable("add_case") { AddNewCaseScreen(navController).Content() }
-            composable("my_cases") { CasesListScreen(navController).Content() }
-            composable("assessment") { AssessmentScreen(navController).Content() }
         }
     }
 }
