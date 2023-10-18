@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.ui.composables.CasesList
+import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
+//import com.example.riskassesmentapp.ui.composables.CasesList
 import com.example.riskassesmentapp.ui.composables.Title
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,8 +47,8 @@ class CasesListScreen(private val navController: NavController) {
                         }
                     )
                 }
-            )
-            CasesList()
+           )
+           CasesList()
         }
     }
 }
