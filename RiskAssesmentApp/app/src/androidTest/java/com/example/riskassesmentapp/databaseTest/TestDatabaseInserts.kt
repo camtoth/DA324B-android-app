@@ -10,6 +10,7 @@ import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.db.insertNewCase
 import com.example.riskassesmentapp.db.insertNewQuestion
 import com.example.riskassesmentapp.db.insertNewUser
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
@@ -58,7 +59,7 @@ class TestDatabaseInserts {
     }
 
     @Test
-    fun testInsertNewUser() {
+    fun testInsertNewUser() = runTest {
         val user2id = insertNewUser(mockDb, InsertUser("test1", "pw1", "Test1", "Test1", false))
         assertEquals(user2id, 2L)
         val user3Id = insertNewUser(mockDb, InsertUser("test2", "pw2", "Test2", "Test2", false))

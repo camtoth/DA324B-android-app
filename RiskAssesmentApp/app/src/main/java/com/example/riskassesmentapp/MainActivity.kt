@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
+import com.example.riskassesmentapp.db.DatabaseOpenHelper
 import com.example.riskassesmentapp.db.DatabaseProvider
 import com.example.riskassesmentapp.db.User
 import com.example.riskassesmentapp.models.UserViewModel
@@ -100,8 +101,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val navController = rememberNavController()
-    val context = LocalContext.current
-    val dbHelper = DatabaseProvider.getInstance(context)
+    val dbConnection = DatabaseOpenHelper(LocalContext.current).writableDatabase
     val userViewModel: UserViewModel = viewModel()
     val username = userViewModel.currentUsername
 
@@ -126,7 +126,7 @@ fun MyApp() {
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
-                    }, userViewModel, dbHelper).Content()
+                    }, userViewModel, dbConnection).Content()
                 }
                 composable("home") {
                     if (username != null) {

@@ -39,15 +39,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.example.riskassesmentapp.db.InsertUser
+import java.sql.SQLInput
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 class LoginPage(private val navController: NavController,
                 val onLoginSuccessful: (String) -> Unit,
                 private val userViewModel: UserViewModel,
-                private val databaseOpenHelper: DatabaseOpenHelper) {
-
-    val db = databaseOpenHelper.readableDatabase
+                private val dbConnection: SQLiteDatabase) {
 
     @Composable
     fun Content() {
@@ -118,7 +117,7 @@ class LoginPage(private val navController: NavController,
             Button(onClick = {
                 scope.launch {
                     try {
-                        val user = authenticateUser(db, username, password)
+                        val user = authenticateUser(dbConnection, username, password)
                         if (user != null) {
                             userViewModel.loginUser(username) // Utilize the provided ViewModel instance
                             onLoginSuccessful(username)

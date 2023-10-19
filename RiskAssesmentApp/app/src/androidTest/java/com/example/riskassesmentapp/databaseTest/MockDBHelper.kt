@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.riskassesmentapp.db.DatabaseContract
 import com.example.riskassesmentapp.db.InsertAnswer
 import com.example.riskassesmentapp.db.InsertCase
@@ -17,6 +18,9 @@ import com.example.riskassesmentapp.db.insertNewCase
 import com.example.riskassesmentapp.db.insertNewQuestion
 import com.example.riskassesmentapp.db.insertNewUser
 import com.example.riskassesmentapp.db.updateCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MockDBHelper(context: Context): SQLiteOpenHelper(context, "MockDatabase.db", null, 1) {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -26,7 +30,12 @@ class MockDBHelper(context: Context): SQLiteOpenHelper(context, "MockDatabase.db
         db.execSQL(DatabaseContract.SQL_CREATE_CASES)
         db.execSQL(DatabaseContract.SQL_CREATE_PARENTS)
         db.execSQL(DatabaseContract.SQL_CREATE_ANSWERS)
-        insertNewUser(db, InsertUser("admin", "admin", "admin", "admin", true))
+        db.execSQL("INSERT INTO Users " +
+                "(username, pw, given_names, last_name, is_admin) " +
+                "VALUES " +
+                "(?, ?, ?, ?, ?)",
+            arrayOf("admin", "admin", "admin", "admin", "1")
+        )
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
