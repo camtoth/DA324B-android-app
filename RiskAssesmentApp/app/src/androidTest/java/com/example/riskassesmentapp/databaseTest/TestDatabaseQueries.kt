@@ -25,6 +25,7 @@ import com.example.riskassesmentapp.db.insertNewCase
 import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.db.insertNewQuestion
 import com.example.riskassesmentapp.db.insertNewUser
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Test
@@ -148,7 +149,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetParentsByCase() {
+    fun testGetParentsByCase() = runTest {
         val parentsCase1 = getParentsByCase(mockDb, caseId = 1L)
         assertEquals(2, parentsCase1.size)
         val parent1 = Parent(id = 1L, personnr = "P1", givenNames = "P1", lastName = "P1", gender = "f", caseId = 1L, lastChanged = LocalDate.now().toString())
@@ -172,7 +173,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetQuestionsWithAnswerByParentId() {
+    fun testGetQuestionsWithAnswerByParentId() = runTest {
         val questionsAnswersParent1 = getQuestionsWithAnswerByParent(mockDb, parentId = 1L)
         assertEquals(2, questionsAnswersParent1.size)
         assertEquals(QuestionWithAnswer(
@@ -245,7 +246,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetAllQuestions() {
+    fun testGetAllQuestions() = runTest {
         val allQuestions = getAllQuestions(mockDb)
         assertEquals(Question(
             id = 1L,
@@ -287,7 +288,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetAllUsernames() {
+    fun testGetAllUsernames() = runTest {
         val userList = getAllUsernames(mockDb)
         assert(userList.size == 3)
         assert(userList.contains("admin"))
@@ -296,7 +297,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetUserByUsername() {
+    fun testGetUserByUsername() = runTest {
         val admin = getUserByUsername(mockDb, "admin")
         val adminExp = User(1, "admin", "admin", "admin",  true)
         assertNotNull(admin)
@@ -314,7 +315,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetPwByUsername() {
+    fun testGetPwByUsername() = runTest {
         val adminPw = getPwByUsername(mockDb, "admin")
         val adminPwExp = "admin"
         assertEquals(adminPwExp, adminPw)
@@ -329,7 +330,7 @@ class TestDatabaseQueries {
     }
 
     @Test
-    fun testGetCasesByUser() {
+    fun testGetCasesByUser() = runTest {
         val casesAdmin = getCasesByUser(mockDb, userId = 1)
         assert(casesAdmin.isEmpty())
         val casesUser1 = getCasesByUser(mockDb, userId = 2)

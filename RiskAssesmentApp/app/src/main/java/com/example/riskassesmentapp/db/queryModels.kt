@@ -4,6 +4,8 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.core.database.getFloatOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.LinkedList
 
@@ -77,47 +79,49 @@ data class QuestionWithAnswer (
     val weightNoPca: Float? = null,
 )
 
-fun getQuestionsWithAnswerByParent(db: SQLiteDatabase, parentId: Long): LinkedList<QuestionWithAnswer> {
-    val questionsAnswersList = LinkedList<QuestionWithAnswer>()
-    val cursorAnswers = db.rawQuery(
-        "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, " +
-                "Answers.answer_id, Answers.parent_id, Questions.title_en, Questions.text_en, " +
-                "Questions.title_se, Questions.text_se, Questions.r_neglect, Questions.r_pca, " +
-                "Questions.weight_yes_neglect, Questions.weight_middle_neglect, " +
-                "Questions.weight_no_neglect, Questions.weight_yes_pca, " +
-                "Questions.weight_middle_pca, Questions.weight_no_pca " +
-                "FROM Answers " +
-                "INNER JOIN Questions ON Answers.question_id == Questions.question_id " +
-                "WHERE Answers.parent_id LIKE ?",
-        arrayOf(parentId.toString())
-    )
-    with (cursorAnswers) {
-        while (moveToNext()) {
-            questionsAnswersList.add(
-                QuestionWithAnswer(
-                    parentId = parentId,
-                    questionId = getLong(getColumnIndexOrThrow("question_id")),
-                    titleEn = getString(getColumnIndexOrThrow("title_en")),
-                    textEn = getString(getColumnIndexOrThrow("text_en")),
-                    titleSe = getString(getColumnIndexOrThrow("title_se")),
-                    textSe = getString(getColumnIndexOrThrow("text_se")),
-                    answerId = getLong(getColumnIndexOrThrow("answer_id")),
-                    optYes = getInt(getColumnIndexOrThrow("opt_yes")) == 1,
-                    optMiddle = getInt(getColumnIndexOrThrow("opt_middle")) == 1,
-                    optNo = getInt(getColumnIndexOrThrow("opt_no")) == 1,
-                    rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
-                    rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
-                    weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
-                    weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
-                    weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
-                    weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
-                    weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
-                    weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
+suspend fun getQuestionsWithAnswerByParent(db: SQLiteDatabase, parentId: Long): LinkedList<QuestionWithAnswer> {
+    return withContext(Dispatchers.IO) {
+        val questionsAnswersList = LinkedList<QuestionWithAnswer>()
+        val cursorAnswers = db.rawQuery(
+            "SELECT Answers.question_id, Answers.opt_yes, Answers.opt_middle, Answers.opt_no, " +
+                    "Answers.answer_id, Answers.parent_id, Questions.title_en, Questions.text_en, " +
+                    "Questions.title_se, Questions.text_se, Questions.r_neglect, Questions.r_pca, " +
+                    "Questions.weight_yes_neglect, Questions.weight_middle_neglect, " +
+                    "Questions.weight_no_neglect, Questions.weight_yes_pca, " +
+                    "Questions.weight_middle_pca, Questions.weight_no_pca " +
+                    "FROM Answers " +
+                    "INNER JOIN Questions ON Answers.question_id == Questions.question_id " +
+                    "WHERE Answers.parent_id LIKE ?",
+            arrayOf(parentId.toString())
+        )
+        with (cursorAnswers) {
+            while (moveToNext()) {
+                questionsAnswersList.add(
+                    QuestionWithAnswer(
+                        parentId = parentId,
+                        questionId = getLong(getColumnIndexOrThrow("question_id")),
+                        titleEn = getString(getColumnIndexOrThrow("title_en")),
+                        textEn = getString(getColumnIndexOrThrow("text_en")),
+                        titleSe = getString(getColumnIndexOrThrow("title_se")),
+                        textSe = getString(getColumnIndexOrThrow("text_se")),
+                        answerId = getLong(getColumnIndexOrThrow("answer_id")),
+                        optYes = getInt(getColumnIndexOrThrow("opt_yes")) == 1,
+                        optMiddle = getInt(getColumnIndexOrThrow("opt_middle")) == 1,
+                        optNo = getInt(getColumnIndexOrThrow("opt_no")) == 1,
+                        rNeglect = getFloatOrNull(getColumnIndexOrThrow("r_neglect")),
+                        rPca = getFloatOrNull(getColumnIndexOrThrow("r_pca")),
+                        weightYesNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_yes_neglect")),
+                        weightMiddleNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_middle_neglect")),
+                        weightNoNeglect = getFloatOrNull(getColumnIndexOrThrow("weight_no_neglect")),
+                        weightYesPca = getFloatOrNull(getColumnIndexOrThrow("weight_yes_pca")),
+                        weightMiddlePca = getFloatOrNull(getColumnIndexOrThrow("weight_middle_pca")),
+                        weightNoPca = getFloatOrNull(getColumnIndexOrThrow("weight_no_pca")),
+                    )
                 )
-            )
+            }
         }
+        questionsAnswersList
     }
-    return questionsAnswersList
 }
 
 fun getAllQuestions(db: SQLiteDatabase): LinkedList<Question> {
