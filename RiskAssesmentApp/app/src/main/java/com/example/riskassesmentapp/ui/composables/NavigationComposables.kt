@@ -79,8 +79,8 @@ fun BottomNav(navController: NavController) {
             )
 
             BottomNavButton(
-                isSelected = currentRoute == "add_case",
-                onClick = { if (currentRoute != "add_case") navController.navigate("my_cases") },
+                isSelected = currentRoute == "settings",
+                onClick = { if (currentRoute != "settings") navController.navigate("settings") },
                 icon = Icons.Default.Settings,
                 text = "Settings",
             )

@@ -4,8 +4,9 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.util.Date
 
 data class InsertUser(
     val username: String,
@@ -16,7 +17,9 @@ data class InsertUser(
 )
 
 data class InsertQuestion(
+    val titleEn: String,
     val textEn: String,
+    val titleSe: String,
     val textSe: String,
     val rNeglect: Float? = null,
     val rPca: Float? = null,
@@ -30,24 +33,18 @@ data class InsertQuestion(
 
 data class InsertCase(
     val personnr: String,
+    val caseNr: String,
     val email: String,
     val gender: String,
     val givenNames: String,
     val lastName: String,
-    val parents: List<InsertParent>,
-    val lastChanged: String? = null,
-    val neglectRisk: Boolean? = null,
-    val neglectScore: Float? = null,
-    val neglectEstimation: Float? = null,
-    val pcaRisk: Boolean? = null,
-    val pcaScore: Float? = null,
-    val pcaEstimation: Float? = null
 )
 
 data class InsertParent(
+    val personnr: String,
     val givenNames: String,
     val lastName: String,
-    val gender: String
+    val gender: String,
 )
 
 data class InsertAnswer(
@@ -56,80 +53,86 @@ data class InsertAnswer(
     val optNo: Boolean
 )
 
-fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
-    val userValues = ContentValues().apply {
-        put("username", user.username)
-        put("pw", user.pw)
-        put("given_names", user.givenNames)
-        put("last_name", user.lastName)
-        put("is_admin", user.isAdmin)
+suspend fun insertNewUser(db: SQLiteDatabase, user: InsertUser): Long {
+    return withContext(Dispatchers.IO) {
+        val userValues = ContentValues().apply {
+            put("username", user.username)
+            put("pw", user.pw)
+            put("given_names", user.givenNames)
+            put("last_name", user.lastName)
+            put("is_admin", user.isAdmin)
+        }
+        db.insert("Users", null, userValues)
     }
-    val newUserId = db.insert("Users", null, userValues)
-    return newUserId
 }
 
-fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
-    val questionValues = ContentValues().apply {
-        put("text_en", question.textEn)
-        put("text_se", question.textSe)
-        if (question.rNeglect != null) {
-            put("r_neglect", question.rNeglect)
-            put("weight_yes_neglect", question.weightYesNeglect)
-            put("weight_middle_neglect", question.weightMiddleNeglect)
-            put("weight_no_neglect", question.weightNoNeglect)
+
+suspend fun insertNewQuestion(db: SQLiteDatabase, question: InsertQuestion): Long {
+    return withContext(Dispatchers.IO) {
+        val questionValues = ContentValues().apply {
+            put("text_en", question.textEn)
+            put("title_en", question.titleEn)
+            put("text_se", question.textSe)
+            put("title_se", question.titleSe)
+            if (question.rNeglect != null) {
+                put("r_neglect", question.rNeglect)
+                put("weight_yes_neglect", question.weightYesNeglect)
+                put("weight_middle_neglect", question.weightMiddleNeglect)
+                put("weight_no_neglect", question.weightNoNeglect)
+            }
+            if (question.rPca != null) {
+                put("r_pca", question.rPca)
+                put("weight_yes_pca", question.weightYesPca)
+                put("weight_middle_pca", question.weightMiddlePca)
+                put("weight_no_pca", question.weightNoPca)
+            }
         }
-        if (question.rPca != null) {
-            put("r_pca", question.rPca)
-            put("weight_yes_pca", question.weightYesPca)
-            put("weight_middle_pca", question.weightMiddlePca)
-            put("weight_no_pca", question.weightNoPca)
-        }
+        db.insert("Questions", null, questionValues)
     }
-    val newQuestionId = db.insert("Questions", null, questionValues)
-    return newQuestionId
 }
 
-fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Long {
-    val parentKeys = ArrayList<Long>()
-    for (parent in case.parents) {
+
+suspend fun insertNewParent(db: SQLiteDatabase, parent: InsertParent, curCaseId: Long): Long {
+    return withContext(Dispatchers.IO) {
         val parentValues = ContentValues().apply {
+            put("personnr", parent.personnr)
             put("given_names", parent.givenNames)
             put("last_name", parent.lastName)
             put("gender", parent.gender)
+            put("case_id", curCaseId)
         }
-        val newParentId = db.insert("Parents", null, parentValues)
-        if (newParentId.compareTo(-1) != 0) parentKeys.add(newParentId)
+        db.insert("Parents", null, parentValues)
     }
-    val caseValues = ContentValues().apply {
-        put("personnr", case.personnr)
-        put("email", case.email)
-        put("gender", case.gender)
-        put("given_names", case.givenNames)
-        put("last_name", case.lastName)
-        put("user_id", currentUserId)
-    }
-    val newCaseId = db.insert("Cases", null, caseValues)
-    if (newCaseId.compareTo(-1) == 0) return -1
-    for (parentId in parentKeys) {
-        val parentToCaseValues = ContentValues().apply {
-            put("parent_id", parentId)
-            put("case_id", newCaseId)
+}
+
+
+suspend fun insertNewCase(db: SQLiteDatabase, case: InsertCase, currentUserId: Long): Long {
+    return withContext(Dispatchers.IO) {
+        val caseValues = ContentValues().apply {
+            put("personnr", case.personnr)
+            put("case_nr", case.caseNr)
+            put("email", case.email)
+            put("gender", case.gender)
+            put("given_names", case.givenNames)
+            put("last_name", case.lastName)
+            put("user_id", currentUserId)
         }
-        db.insert("Parent_to_Case", null, parentToCaseValues)
+        db.insert("Cases", null, caseValues)
     }
-    return newCaseId
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, curQuestionId: Long, curCaseId: Long): Long {
-    val answerValues = ContentValues().apply {
-        put("opt_yes", newAnswer.optYes)
-        put("opt_no", newAnswer.optNo)
-        put("opt_middle", newAnswer.optMiddle)
-        put("case_id", curCaseId)
-        put("question_id", curQuestionId)
+suspend fun insertNewAnswer(db: SQLiteDatabase, newAnswer: InsertAnswer, questionId: Long, parentId: Long): Long {
+    return withContext(Dispatchers.IO) {
+        val answerValues = ContentValues().apply {
+            put("opt_yes", newAnswer.optYes)
+            put("opt_no", newAnswer.optNo)
+            put("opt_middle", newAnswer.optMiddle)
+            put("parent_id", parentId)
+            put("question_id", questionId)
+        }
+        val newAnswerId = db.insert("Answers", null, answerValues)
+        updateParent(db, UpdateParent(id = parentId, lastChanged = LocalDate.now().toString()))
+        newAnswerId
     }
-    val newAnswerId = db.insert("Answers", null, answerValues)
-    // Update date in Case instead put("last_changed", LocalDate.now().toString())
-    return newAnswerId
 }
