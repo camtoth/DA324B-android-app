@@ -17,8 +17,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         db.execSQL(DatabaseContract.SQL_CREATE_CASES)
         db.execSQL(DatabaseContract.SQL_CREATE_PARENTS)
         db.execSQL(DatabaseContract.SQL_CREATE_ANSWERS)
-        val newUserId = insertNewUser(db, InsertUser("admin", hashPassword("admin"), "admin", "admin", true))
-        val newUserId2 = insertNewUser(db, InsertUser("admin123", hashPassword("admin123"), "admin123", "admin123", true))
+        insertNewUser(db, InsertUser("admin", hashPassword("admin"), "admin", "admin", true))
         // Insert questions here
         insertNewQuestion(db, InsertQuestion(
             titleEn = "Parent perceives child as problem",
