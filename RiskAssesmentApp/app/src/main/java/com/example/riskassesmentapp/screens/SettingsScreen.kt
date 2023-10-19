@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -104,20 +105,24 @@ class SettingsScreen(private val navController: NavController) {
                     value = newPassword.value,
                     onValueChange = { newPassword.value = it },
                     label = { Text("New Password") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                        cursorColor = MaterialTheme.colorScheme.primaryContainer)
                 )
             },
             confirmButton = {
                 Button(onClick = {
                     // handle password change logic here
                     onDismiss()
-                }) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = Color.White)) {
                     Text("Confirm", style = MaterialTheme.typography.bodyLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", style = MaterialTheme.typography.bodyLarge)
+                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
                 }
             }
         )
@@ -141,7 +146,7 @@ class SettingsScreen(private val navController: NavController) {
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", style = MaterialTheme.typography.bodyLarge)
+                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
                 }
             },
         )
