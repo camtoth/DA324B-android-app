@@ -80,4 +80,3 @@ fun AnswerChoice(answer: String) {
 fun onResubmitClick() {
     TODO("Not yet implemented")
 }
-
