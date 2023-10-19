@@ -42,7 +42,7 @@ class TestDatabaseQueries {
     companion object {
         @BeforeClass
         @JvmStatic
-        fun setupTestDb() {
+        fun setupTestDb() = runTest {
             resetTestDB()
             val setupDb = MockDBHelper(InstrumentationRegistry.getInstrumentation().targetContext).writableDatabase
             val testUserId =
