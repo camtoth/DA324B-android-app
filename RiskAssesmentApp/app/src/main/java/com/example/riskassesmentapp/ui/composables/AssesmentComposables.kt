@@ -1,5 +1,6 @@
 package com.example.riskassesmentapp.ui.composables
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,13 +15,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.riskassesmentapp.db.InsertAnswer
+import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 @Composable
-fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
+fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase) {
     val showDialog = remember { mutableStateOf(false) }
+    val answersMap = HashMap<Long, InsertAnswer>()
+    var scope = rememberCoroutineScope()
+
     RiskAssesmentAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -36,7 +45,7 @@ fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
                         .padding(16.dp)
                 ) {
                     items(questionsList.size){ i ->
-                        QuestionCard(questionsList[i])
+                        QuestionCard(questionsList[i], answersMap)
                     }
                     item {
                         Button(
@@ -46,6 +55,7 @@ fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
                                 .fillMaxWidth(1f),
                             onClick = {
                                 showDialog.value = true
+                                SendAnswersToDB(dbConnection, scope, answersMap, parentId)
                             }) {
                             Text(text = "Show result")
                         }
@@ -56,8 +66,16 @@ fun Assessment(questionsList : LinkedList<QuestionWithAnswer>) {
     }
 }
 
+fun SendAnswersToDB(dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, InsertAnswer>, parentId: Long) {
+    for(answer in answersMap) {
+        scope.launch {
+            insertNewAnswer(dbConnection, answer.value, answer.key, parentId)
+        }
+    }
+}
+
 @Composable
-fun QuestionCard(question: QuestionWithAnswer, modifier: Modifier = Modifier) {
+fun QuestionCard(question: Question, answersMap: HashMap<Long, InsertAnswer>,modifier: Modifier = Modifier) {
     Card(modifier = modifier
         .padding(16.dp),
         colors = CardDefaults.cardColors(
@@ -73,7 +91,7 @@ fun QuestionCard(question: QuestionWithAnswer, modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineLarge
             )
             Row {
-                RadioButton()
+                RadioButton(question.id, answersMap)
             }
         }
     }
@@ -119,8 +137,8 @@ fun AnswerChoice(answer: String) {
 }
 
 @Composable
-fun RadioButton() {
-    val radioOptions = listOf("A", "B", "C")
+fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>) {
+    val radioOptions = listOf("Yes", "Middle", "No")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
     Column {
         radioOptions.forEach { text ->
@@ -137,7 +155,10 @@ fun RadioButton() {
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = { onOptionSelected(text) }
+                    onClick = {
+                        onOptionSelected(text)
+                        answersMap[questionId] = AnswerStringToInsertAnswer(text)
+                    }
                 )
                 Text(
                     text = text,
@@ -148,6 +169,16 @@ fun RadioButton() {
     }
 }
 
+fun AnswerStringToInsertAnswer(stringAnswer: String) : InsertAnswer{ //TODO: remove hardcoded stringAnswer and use the correctly localized version
+    val newInsertAnswer: InsertAnswer = when (stringAnswer) {
+        "Yes" -> InsertAnswer(optYes = true, optMiddle = false, optNo = false)
+        "Middle" -> InsertAnswer(optYes = false, optMiddle = true, optNo = false)
+        else -> InsertAnswer(optYes = false, optMiddle = false, optNo = true)
+    }
+    return newInsertAnswer
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertDialogExample(
@@ -156,7 +187,7 @@ fun AlertDialogExample(
     dialogTitle: String,
     dialogText: String,
     icon: ImageVector,
-) {
+    ) {
     AlertDialog(
         icon = {
             Icon(icon, contentDescription = "Example Icon")

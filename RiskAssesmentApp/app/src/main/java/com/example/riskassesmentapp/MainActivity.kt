@@ -135,7 +135,7 @@ fun MyApp() {
                 }
                 composable("add_case") { AddNewCaseScreen(navController).Content() }
                 composable("my_cases") { CasesListScreen(navController).Content() }
-                composable("assessment") { AssessmentScreen(navController).Content() }
+                composable("assessment") { AssessmentScreen(navController, dbConnection).Content() }
                 composable("settings") { SettingsScreen(navController).Content() }
                 composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
             }
