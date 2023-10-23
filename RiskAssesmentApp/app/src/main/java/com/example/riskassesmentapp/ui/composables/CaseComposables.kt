@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -221,80 +223,47 @@ fun CaseCard(case: Case) {
 }
 
 @Composable
-fun ParentInfo(parent: Parent){
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+fun ParentInfo(parent: Parent) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Person Number",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row() {
-                Text(
-                    text = "${parent.personnr}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+            Text(
+                text = "Person Number",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "${parent.personnr}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween){
+            Text(
+                text = "Gender",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "${parent.gender}",
+                style = MaterialTheme.typography.bodySmall
+            )
         }
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Gender",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row() {
-                Text(
-                    text = "${parent.gender}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Last Changed",
                     style = MaterialTheme.typography.bodySmall
                 )
-            }
-            Row() {
                 Text(
                     text = parent.lastChanged ?: "Not Available",
                     style = MaterialTheme.typography.bodySmall
                 )
-            }
         }
     }
 
-}
 @Composable
 fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
     Column(
@@ -305,6 +274,7 @@ fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .background(LightBlue)
+                .padding(10.dp, 0.dp)
                 .fillMaxWidth()
                 .clickable { onToggle() }
         ) {
@@ -319,12 +289,18 @@ fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
 
         // Display additional content if the parent is expanded
         if (isExpanded) {
-            ParentInfo(parent)
-            Divider(color = LightGray, thickness = 1.dp, modifier = Modifier
-                .fillMaxWidth(.9f)
-                .align(Alignment.CenterHorizontally))
-            RiskDetails(parent = parent)
-            ReviewSection(parent = parent)
+
+            Column (modifier = Modifier.padding(10.dp, 0.dp)) {
+                ParentInfo(parent)
+                Divider(
+                    color = LightGray, thickness = 1.dp, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                RiskDetails(parent = parent)
+                ReviewSection(parent = parent)
+            }
         }
     }
 }
@@ -389,7 +365,7 @@ fun ReviewSection(parent: Parent){
     Column {
         Text(text = "Revise Assessment",
             style = MaterialTheme.typography.labelMedium)
-        EstimatedRisk(parent = parent)
+        //EstimatedRisk(parent = parent)
         ReviewButton(parent = parent)
     }
 }
@@ -465,18 +441,24 @@ fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    Row ( modifier = Modifier.fillMaxWidth(),
+                    Row ( modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom) {
                         Text("Name")
                         Text(" ${case.givenNames} ${case.lastName}")
                     }
-                    Row ( modifier = Modifier.fillMaxWidth(),
+                    Row ( modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Personnummer")
                         Text("${case.personnr}")
                     }
-                    Row ( modifier = Modifier.fillMaxWidth(),
+                    Row ( modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Gender")
                         Text(" ${case.gender}")
@@ -507,26 +489,27 @@ fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
 
 @Composable 
 fun RiskLevel(highRisk: Boolean){
-    val fillColor = if (highRisk) MaterialTheme.colorScheme.errorContainer else PaleGreen
-    val outlineColor = if (highRisk) MaterialTheme.colorScheme.error else BrightGreen
-    val textColor = if(highRisk) MaterialTheme.colorScheme.error else BrightGreen
+    val fillColor = if (highRisk) MaterialTheme.colorScheme.error else BrightGreen
     val riskText = if (highRisk) "High" else "Low"
 
-    Box(
-        modifier = Modifier
-            .height(18.dp)
-            .width(50.dp)
-            .border(1.dp, outlineColor, shape = MaterialTheme.shapes.medium)
-            .background(fillColor, shape = MaterialTheme.shapes.medium)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(8.dp)
     ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(fillColor, shape = CircleShape)
+        ) {
+            // Empty box for the dot
+        }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
         Text(
             text = riskText,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.Center),
-
-            color = textColor
+            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
         )
     }
 }
