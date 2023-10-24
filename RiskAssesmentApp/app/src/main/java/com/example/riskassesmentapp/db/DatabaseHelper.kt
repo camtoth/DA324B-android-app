@@ -570,6 +570,29 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
                 weightMiddlePca = 0.5f,
                 weightNoPca = 0f,
             ))
+            val caseId = insertNewCase(db, InsertCase(
+                personnr = "1",
+                caseNr = "1",
+                email = "1",
+                gender = "M",
+                givenNames = "1",
+                lastName = "1"
+            ), 1)
+            val parent1 = insertNewParent(db, InsertParent(
+                personnr = "2",
+                givenNames = "2",
+                lastName = "2",
+                gender = "m"
+            ), caseId)
+            val parent2 = insertNewParent(db, InsertParent(
+                personnr = "3",
+                givenNames = "3",
+                lastName = "3",
+                gender = "f"
+            ), caseId)
+            insertNewAnswer(db, InsertAnswer(true, false, false), 1,parent1)
+            insertNewAnswer(db, InsertAnswer(false, true, false), 2,parent1)
+            insertNewAnswer(db, InsertAnswer(false, false, true), 1,parent2)
         }
     }
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
