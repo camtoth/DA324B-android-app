@@ -11,14 +11,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.riskassesmentapp.R
 import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.models.Case
 import com.example.riskassesmentapp.ui.theme.BrightGreen
@@ -229,7 +235,7 @@ fun ParentInfo(parent: Parent) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Person Number",
+                text = "Personnummer",
                 style = MaterialTheme.typography.bodySmall
             )
             Text(
@@ -240,7 +246,7 @@ fun ParentInfo(parent: Parent) {
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween){
             Text(
-                text = "Gender",
+                text = "Kön",
                 style = MaterialTheme.typography.bodySmall
             )
             Text(
@@ -254,7 +260,7 @@ fun ParentInfo(parent: Parent) {
             horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Last Changed",
+                    text = "Senast ändrad",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
@@ -268,7 +274,8 @@ fun ParentInfo(parent: Parent) {
 fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
     Column(
         modifier = Modifier
-            .background(LightBlue)
+            .background(color = LightBlue,
+                shape = RoundedCornerShape(8.dp)),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -308,50 +315,115 @@ fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
 fun RiskDetails(parent: Parent) {
     Row {
         Text(
-            "Risk Recommentations",
-            style = MaterialTheme.typography.labelMedium
+            "Riskrekommendationer",
+            style = MaterialTheme.typography.labelMedium.copy(textDecoration = TextDecoration.Underline)
         )
     }
-    Text("Neglect",
-        style = MaterialTheme.typography.bodySmall)
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(10.dp)
     ) {
+        Row ( modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Försummelse",
+                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
+            )
+            Row (horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically){
+                Text(
+                    text = "Visa",
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        textDecoration =  TextDecoration.Underline),
+                    modifier = Modifier
+                        .padding(8.dp, 4.dp)
+                        .clickable {
+                            // Handle button click action here
+                        }
+                )
+            }
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Recommendation:",
+                text = "Rekommendation:",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.highRiskNeglect?.let { RiskLevel(highRisk = it) }
         }
-
-    }
-
-    SectionAnswers(section = "Neglect")
-    Text("Physical Harm",
-        style = MaterialTheme.typography.bodySmall)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Recommendation:",
+                text = "Uppfattad Risk",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.estHighRiskNeglect?.let { RiskLevel(highRisk = it) }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row (modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically)
+        {
+            Text(
+                "Fysisk Skada",
+                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
+            )
+            Row(horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Visa",
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        textDecoration =  TextDecoration.Underline),
+                    modifier = Modifier
+                        .padding(8.dp, 4.dp)
+                        .clickable {
+                        // Handle button click action here
+                    }
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Rekommendation:",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.highRiskPca?.let { RiskLevel(highRisk = it) }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Upfattad Risk",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.estHighRiskPca?.let { RiskLevel(highRisk = it) }
+        }
     }
-    SectionAnswers(section = "Physical Harm")
-
 }
+    //SectionAnswers(section = "Physical Harm")
+
 
 @Composable
 fun SectionAnswers(section:String){
@@ -363,7 +435,7 @@ fun SectionAnswers(section:String){
 @Composable
 fun ReviewSection(parent: Parent){
     Column {
-        Text(text = "Revise Assessment",
+        Text(text = "Redigera Assessment",
             style = MaterialTheme.typography.labelMedium)
         //EstimatedRisk(parent = parent)
         ReviewButton(parent = parent)
@@ -406,7 +478,7 @@ fun ReviewButton(parent: Parent){
         onClick = { /*to do*/},
         modifier = Modifier.padding(8.dp)
     ) {
-        Text(text = "Review")
+        Text(text = "Redigera")
     }
 }
 
@@ -429,15 +501,16 @@ fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
             modifier = Modifier.padding(16.dp)
         ) {
             item {
-                Text("Case Number | ${case.caseNr}",
+                Text(" Ärendenummer | ${case.caseNr}",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold)
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(10.dp))
             }
             item {
                 Column (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(LightBlue),
+                        .background(color = LightBlue, shape = RoundedCornerShape(8.dp)),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
 
@@ -446,7 +519,7 @@ fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
                         .padding(10.dp, 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom) {
-                        Text("Name")
+                        Text("Namn")
                         Text(" ${case.givenNames} ${case.lastName}")
                     }
                     Row ( modifier = Modifier
@@ -460,16 +533,17 @@ fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
                         .fillMaxWidth()
                         .padding(10.dp, 0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Gender")
+                        Text("Kön")
                         Text(" ${case.gender}")
                     }
                 }
             }
             item {
                 Row {
-                    Text("Parents",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold
+                    Text("Föräldrar",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(10.dp, 10.dp)
                     )
                 }
             }
