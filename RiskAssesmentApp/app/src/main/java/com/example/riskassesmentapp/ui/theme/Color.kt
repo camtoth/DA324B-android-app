@@ -18,7 +18,7 @@ val DeepToneRed = Color (0XFFBA1A1A)
 val PaleRed = Color (0XFFFFB4AB)
 
 // low risk colors
-val BrightGreen = Color (0XFF58C625)
+val BrightGreen = Color(0xFF448626)
 val PaleGreen =  Color (0XFFA7DA85)
 
 // text colors

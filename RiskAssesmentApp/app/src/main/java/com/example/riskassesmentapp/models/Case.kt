@@ -1,15 +1,15 @@
 package com.example.riskassesmentapp.models
 
+import com.example.riskassesmentapp.db.Parent
+import java.util.LinkedList
+
 data class Case(
-    val number: Int,
-    val interviewDate: String,
-    val firstName: String,
+    val id: Long,
+    val personnr: String,
+    val caseNr: String,
+    val email: String,
+    val gender: String,
+    val givenNames: String,
     val lastName: String,
-    val personnummer: String,
-    val overallRisk: String,
-    val parentChildInteraction: Int,
-    val parentIndependent: Int,
-    val characteristicsChild: Int,
-    val characteristicsFamily: Int,
-    val isDetailedView: Boolean = false
+    val highRisk: Boolean? = null,
 )
