@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.ui.composables.CasesList
+import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
+//import com.example.riskassesmentapp.ui.composables.CasesList
 import com.example.riskassesmentapp.ui.composables.Title
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +89,7 @@ class CasesListScreen(private val navController: NavController) {
             Text("My Cases", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
 
             CasesList()
+
         }
     }
 }
