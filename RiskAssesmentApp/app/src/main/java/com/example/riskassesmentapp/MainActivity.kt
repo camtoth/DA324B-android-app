@@ -138,7 +138,11 @@ fun MyApp() {
                 composable("assessment") { AssessmentScreen(navController).Content() }
                 composable("settings") { SettingsScreen(navController).Content() }
                 composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
-                composable("register"){ RegisterScreen(navController).Content()}
+                composable("register"){ RegisterScreen(navController, onRegisterSuccessful = {
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
+                    }
+                }, userViewModel, dbHelper).Content()}
             }
         }
     }
