@@ -138,6 +138,7 @@ fun MyApp() {
                 composable("assessment") { AssessmentScreen(navController).Content() }
                 composable("settings") { SettingsScreen(navController).Content() }
                 composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
+                composable("register"){ RegisterScreen(navController).Content()}
             }
         }
     }

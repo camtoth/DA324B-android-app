@@ -6,10 +6,13 @@ import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
@@ -23,15 +26,21 @@ import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
@@ -76,17 +85,22 @@ class LoginPage(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.riskapplogo),
-                contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Box(
+                modifier = Modifier
+                    .scale(1.5f)
+                    .padding(30.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.riskapplogo),
+                    contentDescription = null
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = "Sign in",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.align(Alignment.Start)
             )
 
@@ -96,11 +110,14 @@ class LoginPage(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Username") },
-                leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
+                leadingIcon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
+                    .fillMaxWidth(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                    cursorColor = MaterialTheme.colorScheme.primaryContainer),
                 visualTransformation = VisualTransformation.None
             )
 
@@ -113,8 +130,11 @@ class LoginPage(
                 leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
+                    .fillMaxWidth(),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                    cursorColor = MaterialTheme.colorScheme.primaryContainer),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
@@ -128,7 +148,7 @@ class LoginPage(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -146,19 +166,24 @@ class LoginPage(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
-                Text("Login")
+                Text("Sign in")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             TextButton(
                 onClick = {
                     // Handle sign up action
                 }
             ) {
-                Text("No account yet? Sign up")
+                SignUpText(navController = navController, "register")
             }
         }
     }
@@ -166,6 +191,29 @@ class LoginPage(
     // Mocked function to represent user authentication. Replace this with your actual authentication logic.
 
 }
+
+
+@Composable
+fun SignUpText(navController: NavController, destination: String) {
+    Row(
+        modifier = Modifier.padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "No account yet? ",
+            color = Color.Black
+        )
+        Text(
+            text = "Sign up",
+            color = MaterialTheme.colorScheme.primaryContainer,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable {
+                navController.navigate(destination)
+            }
+        )
+    }
+}
+
 
 suspend fun authenticateUser(db: SQLiteDatabase, username: String, password: String): User? {
     return withContext(Dispatchers.IO) { // Use IO Dispatcher for DB operations
