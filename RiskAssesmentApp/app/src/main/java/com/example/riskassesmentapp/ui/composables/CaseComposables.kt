@@ -1,7 +1,7 @@
 package com.example.riskassesmentapp.ui.composables
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,29 +9,28 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.riskassesmentapp.R
+import androidx.compose.ui.window.Dialog
 import com.example.riskassesmentapp.db.Parent
+import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import com.example.riskassesmentapp.models.Case
 import com.example.riskassesmentapp.ui.theme.BrightGreen
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import com.example.riskassesmentapp.ui.theme.LightGray
-import com.example.riskassesmentapp.ui.theme.PaleGreen
-import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import java.util.LinkedList
 
 
@@ -271,11 +270,14 @@ fun ParentInfo(parent: Parent) {
     }
 
 @Composable
-fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
+fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onToggle: () -> Unit) {
     Column(
         modifier = Modifier
-            .background(color = LightBlue,
-                shape = RoundedCornerShape(8.dp)),
+            .background(
+                color = LightBlue,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp)),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -297,7 +299,7 @@ fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
         // Display additional content if the parent is expanded
         if (isExpanded) {
 
-            Column (modifier = Modifier.padding(10.dp, 0.dp)) {
+            Column(modifier = Modifier.padding(10.dp, 0.dp)) {
                 ParentInfo(parent)
                 Divider(
                     color = LightGray, thickness = 1.dp, modifier = Modifier
@@ -305,14 +307,17 @@ fun ParentSection(parent: Parent, isExpanded: Boolean, onToggle: () -> Unit) {
                         .padding(10.dp)
                         .align(Alignment.CenterHorizontally)
                 )
-                RiskDetails(parent = parent)
+                RiskDetails(parent = parent, db = db)
                 ReviewSection(parent = parent)
             }
         }
     }
 }
+
 @Composable
-fun RiskDetails(parent: Parent) {
+fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
+    var areQuestionsVisible by remember { mutableStateOf(false) }
+
     Row {
         Text(
             "Riskrekommendationer",
@@ -324,26 +329,31 @@ fun RiskDetails(parent: Parent) {
             .fillMaxWidth()
             .padding(10.dp)
     ) {
-        Row ( modifier = Modifier.fillMaxWidth(),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 "Försummelse",
                 style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
             )
-            Row (horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically){
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "Visa",
                     color = MaterialTheme.colorScheme.primaryContainer,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        textDecoration =  TextDecoration.Underline),
+                        textDecoration = TextDecoration.Underline
+                    ),
                     modifier = Modifier
                         .padding(8.dp, 4.dp)
                         .clickable {
-                            // Handle button click action here
+                            areQuestionsVisible = true
                         }
                 )
             }
@@ -373,29 +383,45 @@ fun RiskDetails(parent: Parent) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row (modifier = Modifier.fillMaxWidth(),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically)
+            verticalAlignment = Alignment.CenterVertically
+        )
         {
             Text(
                 "Fysisk Skada",
                 style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
             )
-            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "Visa",
                     color = MaterialTheme.colorScheme.primaryContainer,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        textDecoration =  TextDecoration.Underline),
+                        textDecoration = TextDecoration.Underline
+                    ),
                     modifier = Modifier
                         .padding(8.dp, 4.dp)
                         .clickable {
-                        // Handle button click action here
-                    }
+                            areQuestionsVisible = true
+                        }
                 )
+                if (areQuestionsVisible) {
+                    ShowSectionAnswers(
+                        section = "pca",
+                        parent = parent,
+                        db = db,
+                        isVisible = areQuestionsVisible,
+                        onDismiss = {
+                            areQuestionsVisible = false
+                        }
+                    )
+                }
             }
         }
         Row(
@@ -422,147 +448,100 @@ fun RiskDetails(parent: Parent) {
         }
     }
 }
-    //SectionAnswers(section = "Physical Harm")
-
 
 @Composable
-fun SectionAnswers(section:String){
-    //get the answers to the Neglect and Risk Sections 
-    Text("$section Question and Answers go here ",
-        style = MaterialTheme.typography.bodySmall)
+fun ShowSectionAnswers(  section: String,
+                         parent: Parent,
+                         db: SQLiteDatabase,
+                         isVisible: Boolean,
+                         onDismiss: () -> Unit) {
+    //get the answers to the Neglect and Risk Sections
+    if (isVisible) {
+        Dialog(
+            onDismissRequest = {
+                onDismiss() // Call the callback to dismiss the dialog
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(300.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp)
+            ) {
+                Column {
+                    val allQuestions = getQuestionsWithAnswerByParent(db = db, parentId = parent.id)
+                    val neglectQuestions = LinkedList<QuestionWithAnswer>()
+                    for (question in allQuestions) {
+                        if (question.rNeglect != null) {
+                            neglectQuestions.add(question)
+                        }
+                        // Close button (X)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close Icon",
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .clickable {
+                                    onDismiss() // Call the callback to dismiss the dialog
+                                }
+                        )
+                        // Convert the linked list to a readable text
+                        Text(
+                            text = if (section == "N") neglectQuestions.joinToString(separator = "\n")
+                            else allQuestions.joinToString(separator = "\n"),
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
 fun ReviewSection(parent: Parent){
-    Column {
-        Text(text = "Redigera Assessment",
-            style = MaterialTheme.typography.labelMedium)
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically) {
+//        Text(text = "Redigera Assessment",
+//            style = MaterialTheme.typography.labelMedium)
         //EstimatedRisk(parent = parent)
         ReviewButton(parent = parent)
     }
 }
 
 @Composable
-fun EstimatedRisk(parent: Parent){
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Estimated Risk Neglect:",
-                style = MaterialTheme.typography.labelSmall
-            )
-            parent.estHighRiskNeglect?.let { RiskLevel(highRisk = it) }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Estimated Risk Physical Harm:",
-                style = MaterialTheme.typography.labelSmall
-            )
-            parent.estHighRiskPca?.let { RiskLevel(highRisk = it) }
-        }
-    }
-
-
-}
-
-@Composable
 fun ReviewButton(parent: Parent){
-    //to do
     Button(
-        onClick = { /*to do*/},
-        modifier = Modifier.padding(8.dp)
+        onClick = { /* Handle button click action */ },
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
-        Text(text = "Redigera")
-    }
-}
-
-
-@Composable
-fun DetailedCaseCard(case: Case, parents: LinkedList<Parent>) {
-    val parentShowDetails = remember { mutableStateMapOf<Parent, Boolean>() }
-
-    parents.forEach { parent ->
-        parentShowDetails[parent] = true
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-    ) {
-        LazyColumn(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            item {
-                Text(" Ärendenummer | ${case.caseNr}",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(10.dp))
-            }
-            item {
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = LightBlue, shape = RoundedCornerShape(8.dp)),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    Row ( modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp, 0.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom) {
-                        Text("Namn")
-                        Text(" ${case.givenNames} ${case.lastName}")
-                    }
-                    Row ( modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp, 0.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Personnummer")
-                        Text("${case.personnr}")
-                    }
-                    Row ( modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp, 0.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Kön")
-                        Text(" ${case.gender}")
-                    }
-                }
-            }
-            item {
-                Row {
-                    Text("Föräldrar",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(10.dp, 10.dp)
-                    )
-                }
-            }
-            items(parents) { parent ->
-                ParentSection(
-                    parent = parent,
-                    isExpanded = parentShowDetails[parent] ?: false,
-                    onToggle = {
-                        parentShowDetails[parent] = !parentShowDetails[parent]!!
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Pencil Icon",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer // Icon color
+            )
+            Text(
+                text = "Redigera",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer // Text color
+            )
         }
     }
 }
 
-@Composable 
-fun RiskLevel(highRisk: Boolean){
+@Composable
+fun EditAssessment(){
+    //should allow for the edits of an assessment
+}
+
+@Composable
+fun RiskLevel(highRisk: Boolean) {
     val fillColor = if (highRisk) MaterialTheme.colorScheme.error else BrightGreen
     val riskText = if (highRisk) "High" else "Low"
 
@@ -587,51 +566,3 @@ fun RiskLevel(highRisk: Boolean){
         )
     }
 }
-
-    @Preview
-    @Composable
-    fun ShowDetailedCaseCard() {
-        RiskAssesmentAppTheme {
-            val parent1 = Parent(
-                caseId = 12345679333,
-                gender = "M",
-                givenNames = "Sven",
-                id = 23437957439,
-                lastName = "Svensson",
-                personnr = "123424232312",
-                estHighRiskNeglect = false,
-                highRiskNeglect = false,
-                estHighRiskPca = true,
-                highRiskPca = true
-
-            )
-
-            val parent2 = Parent(
-                caseId = 987654321,
-                gender = "F",
-                givenNames = "Anna",
-                id = 567890123,
-                lastName = "Andersson",
-                personnr = "9876543210",
-                estHighRiskNeglect = false,
-                highRiskNeglect = false,
-                estHighRiskPca = true,
-                highRiskPca = true
-            )
-            val testParents = LinkedList<Parent>()
-            testParents.add(parent1)
-            testParents.add(parent2)
-
-            val testCase = Case(
-                caseNr = "44",
-                email = "email@email.com",
-                gender = "F",
-                givenNames = "Suzy",
-                id = 12345679333,
-                lastName = "Svensson",
-                personnr = "123423451234",
-            )
-
-            DetailedCaseCard(case = testCase, testParents)
-        }
-    }
