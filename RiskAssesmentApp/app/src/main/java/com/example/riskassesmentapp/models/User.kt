@@ -1,8 +1,12 @@
 package com.example.riskassesmentapp.models
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.riskassesmentapp.db.InsertUser
+import com.example.riskassesmentapp.db.insertNewUser
+import com.example.riskassesmentapp.screens.hashPassword
 
 data class Username(val username: String)
 
@@ -12,6 +16,10 @@ class UserViewModel : ViewModel() {
 
     fun loginUser(username: String) {
         currentUser.value = Username(username)
+    }
+
+    suspend fun registerUser(db: SQLiteDatabase, username: String, password: String, givenNames: String, lastName: String){
+        insertNewUser(db, InsertUser(username, hashPassword(password), givenNames, lastName, false))
     }
 
     fun logoutUser() {

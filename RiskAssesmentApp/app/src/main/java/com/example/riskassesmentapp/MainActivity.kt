@@ -105,6 +105,8 @@ fun MyApp() {
     val userViewModel: UserViewModel = viewModel()
     val username = userViewModel.currentUsername
 
+    val isLoggedIn = userViewModel.isLoggedIn
+
     Scaffold(
         //containerColor = MaterialTheme.colorScheme.primary,
         bottomBar = {
@@ -122,28 +124,74 @@ fun MyApp() {
         ) {
             NavHost(navController, startDestination = "login") {
                 composable("login") {
-                    LoginPage(navController, onLoginSuccessful = {
+                    if (isLoggedIn) {
+                        // Redirect to home if already logged in
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
-                    }, userViewModel, dbConnection).Content()
+                    } else {
+                        LoginPage(navController, onLoginSuccessful = {
+                            navController.navigate("home") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }, userViewModel, dbConnection).Content()
+                    }
                 }
                 composable("home") {
-                    if (username != null) {
-                        HomeScreen(navController, username).Content()
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        if (username != null) {
+                            HomeScreen(navController, username).Content()
+                        }
                     }
                 }
-                composable("add_case") { AddNewCaseScreen(navController).Content() }
-                composable("my_cases") { CasesListScreen(navController).Content() }
-                composable("assessment") { AssessmentScreen(navController).Content() }
-                composable("settings") { SettingsScreen(navController).Content() }
-                composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
-                composable("register"){ RegisterScreen(navController, onRegisterSuccessful = {
-                    navController.navigate("login") {
-                        popUpTo("register") { inclusive = true }
+                composable("add_case") {
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        AddNewCaseScreen(navController).Content()
                     }
-                }, userViewModel, dbHelper).Content()}
+                }
+                composable("my_cases") {
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        CasesListScreen(navController).Content()
+                    }
+                }
+                composable("assessment") {
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        AssessmentScreen(navController).Content()
+                    }
+                }
+                composable("settings") {
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        SettingsScreen(navController,userViewModel ).Content()
+                    }
+                }
+                composable("detailed_case") {
+                    if (!isLoggedIn) {
+                        navController.navigate("login")
+                    } else {
+                        DetailedCaseScreen(navController).Content()
+                    }
+                }
+                composable("register") {
+                    // Register page accessible regardless of login status
+                    RegisterScreen(navController, onRegisterSuccessful = {
+                        navController.navigate("home") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    }, userViewModel, dbConnection).Content()
+                }
+
             }
         }
     }
+
 }

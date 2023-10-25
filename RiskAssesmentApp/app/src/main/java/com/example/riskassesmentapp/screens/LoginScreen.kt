@@ -65,10 +65,10 @@ class LoginPage(
     private val navController: NavController,
     val onLoginSuccessful: (String) -> Unit,
     private val userViewModel: UserViewModel,
-    private val databaseOpenHelper: DatabaseOpenHelper
+    private val databaseOpen: SQLiteDatabase
 ) {
 
-    private val db: SQLiteDatabase = databaseOpenHelper.readableDatabase
+    private val db: SQLiteDatabase = databaseOpen
 
     @Composable
     fun Content() {
