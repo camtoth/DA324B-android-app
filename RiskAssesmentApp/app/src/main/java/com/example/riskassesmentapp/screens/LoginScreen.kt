@@ -4,12 +4,18 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
@@ -22,8 +28,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
@@ -38,16 +46,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.example.riskassesmentapp.R
 import com.example.riskassesmentapp.db.InsertUser
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-class LoginPage(private val navController: NavController,
-                val onLoginSuccessful: (String) -> Unit,
-                private val userViewModel: UserViewModel,
-                private val databaseOpenHelper: DatabaseOpenHelper) {
+class LoginPage(
+    private val navController: NavController,
+    val onLoginSuccessful: (String) -> Unit,
+    private val userViewModel: UserViewModel,
+    private val databaseOpenHelper: DatabaseOpenHelper
+) {
 
-    val db = databaseOpenHelper.readableDatabase
+    private val db: SQLiteDatabase = databaseOpenHelper.readableDatabase
 
     @Composable
     fun Content() {
@@ -59,16 +70,38 @@ class LoginPage(private val navController: NavController,
         val scope = rememberCoroutineScope()
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.riskapplogo),
+                contentDescription = null,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Sign in",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Username") },
+                leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
+                visualTransformation = VisualTransformation.None
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -77,63 +110,60 @@ class LoginPage(private val navController: NavController,
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
+                leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.Blue, RoundedCornerShape(8.dp)),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
             if (showError) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Red // Or your desired background color
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = errorMessage,
-                            color = Color.White, // Or your desired text color
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        TextButton(
-                            onClick = { showError = false },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
-                        ) {
-                            Text(text = "DISMISS")
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            Button(onClick = {
-                scope.launch {
-                    try {
-                        val user = authenticateUser(db, username, password)
-                        if (user != null) {
-                            userViewModel.loginUser(username) // Utilize the provided ViewModel instance
-                            onLoginSuccessful(username)
-                        } else {
+            Button(
+                onClick = {
+                    scope.launch {
+                        try {
+                            val user = authenticateUser(db, username, password)
+                            if (user != null) {
+                                userViewModel.loginUser(username) // Utilize the provided ViewModel instance
+                                onLoginSuccessful(username)
+                            } else {
+                                showError = true
+                            }
+                        } catch (e: Exception) {
                             showError = true
                         }
-                    } catch (e: Exception) {
-                        showError = true
                     }
-                }
-            }) {
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Login")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(
+                onClick = {
+                    // Handle sign up action
+                }
+            ) {
+                Text("No account yet? Sign up")
             }
         }
     }
+
+    // Mocked function to represent user authentication. Replace this with your actual authentication logic.
 
 }
 
