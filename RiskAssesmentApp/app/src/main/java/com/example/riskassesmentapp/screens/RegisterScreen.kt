@@ -51,17 +51,21 @@ class RegisterScreen(
     private val navController: NavController,
     val onRegisterSuccessful: (String) -> Unit,
     private val userViewModel: UserViewModel,
-    private val databaseOpenHelper: DatabaseOpenHelper) {
+    private val database: SQLiteDatabase) {
 
-        private val db: SQLiteDatabase = databaseOpenHelper.readableDatabase
+        private val db: SQLiteDatabase = database
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun Content() {
             var username by remember { mutableStateOf("") }
             var password by remember { mutableStateOf("") }
+            var passwordRepeat by remember { mutableStateOf("") }
+            var confirmPassword by remember { mutableStateOf("") } // for confirming the password
+            var givenNames by remember { mutableStateOf("") } // new field for given names
+            var lastName by remember { mutableStateOf("") } // new field for last name
             var showError by remember { mutableStateOf(false) }
-            val errorMessage = "Wrong username or password"
+            var errorMessage = "Wrong username or password"
 
             val scope = rememberCoroutineScope()
 
@@ -111,6 +115,36 @@ class RegisterScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
+                    value = givenNames,
+                    onValueChange = { givenNames = it },
+                    label = { Text("Given Names") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                        cursorColor = MaterialTheme.colorScheme.primaryContainer),
+                    visualTransformation = VisualTransformation.None
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = lastName,
+                    onValueChange = { lastName = it },
+                    label = { Text("Last Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                        focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                        cursorColor = MaterialTheme.colorScheme.primaryContainer),
+                    visualTransformation = VisualTransformation.None
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
@@ -129,8 +163,8 @@ class RegisterScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = passwordRepeat,
+                    onValueChange = { passwordRepeat = it },
                     label = { Text("Repeat Password") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                     singleLine = true,
@@ -159,9 +193,24 @@ class RegisterScreen(
                     onClick = {
                         scope.launch {
                             try {
-                                val user = authenticateUser(db, username, password)
+                                if (username.isEmpty() || password.isEmpty() || givenNames.isEmpty() || lastName.isEmpty()) {
+                                    // Update the error message and set showError to true
+                                    errorMessage = "All fields are required"
+                                    showError = true
+                                    return@launch
+                                }
+
+                                if (password != passwordRepeat) {
+                                    // Update the error message and set showError to true
+                                    errorMessage = "Passwords do not match"
+                                    showError = true
+                                    return@launch
+                                }
+
+                                userViewModel.registerUser(db, username, password, givenNames, lastName) // register the user
+                                val user = authenticateUser(db, username, password) // Authenticate the user
                                 if (user != null) {
-                                    userViewModel.loginUser(username) // Utilize the provided ViewModel instance
+                                    userViewModel.loginUser(username)
                                     onRegisterSuccessful(username)
                                 } else {
                                     showError = true
