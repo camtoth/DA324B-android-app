@@ -121,6 +121,7 @@ fun MyApp() {
         Box(
             modifier = Modifier
                 .background(brush = gradientBrush)
+                .fillMaxSize()
                 .padding(innerPadding)
         ) {
             NavHost(navController, startDestination = "login") {
@@ -190,16 +191,26 @@ fun MyApp() {
                         SettingsScreen(navController, userViewModel).Content()
                     }
                 }
-                composable("detailed_case") {
+                composable("information") {
                     LaunchedEffect(key1 = isLoggedIn) {
                         if (!isLoggedIn) {
                             navController.navigate("login")
                         }
                     }
                     if (isLoggedIn) {
-                        DetailedCaseScreen(navController).Content()
+                        InformationScreen(navController).Content()
                     }
                 }
+//                composable("detailed_case") {
+//                    LaunchedEffect(key1 = isLoggedIn) {
+//                        if (!isLoggedIn) {
+//                            navController.navigate("login")
+//                        }
+//                    }
+//                    if (isLoggedIn) {
+//                        DetailedCaseScreen(navController).Content()
+//                    }
+//                }
                 composable("register") {
                     // Register page accessible regardless of login status
                     RegisterScreen(navController, onRegisterSuccessful = {

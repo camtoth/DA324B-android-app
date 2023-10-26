@@ -469,9 +469,13 @@ fun ShowSectionAnswers(  section: String,
                     .padding(16.dp)
             ) {
                 Column {
-                    val allQuestions = getQuestionsWithAnswerByParent(db = db, parentId = parent.id)
+                    var allQuestions by remember { mutableStateOf<List<QuestionWithAnswer>?>(null) }
+                    LaunchedEffect(db, parent.id) {
+                        val questions = getQuestionsWithAnswerByParent(db, parent.id)
+                        allQuestions = questions
+                    }
                     val neglectQuestions = LinkedList<QuestionWithAnswer>()
-                    for (question in allQuestions) {
+                    for (question in allQuestions!!) {
                         if (question.rNeglect != null) {
                             neglectQuestions.add(question)
                         }
@@ -488,7 +492,7 @@ fun ShowSectionAnswers(  section: String,
                         // Convert the linked list to a readable text
                         Text(
                             text = if (section == "N") neglectQuestions.joinToString(separator = "\n")
-                            else allQuestions.joinToString(separator = "\n"),
+                            else allQuestions!!.joinToString(separator = "\n"),
                             modifier = Modifier.padding(8.dp)
                         )
                     }
