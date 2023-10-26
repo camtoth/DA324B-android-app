@@ -137,9 +137,16 @@ fun AnswerChoice(answer: String) {
 }
 
 @Composable
-fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>) {
+fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selectedOptionIndex : Int = 0) {
     val radioOptions = listOf("Yes", "Middle", "No")
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
+    var selectedOptionFromMap = -1
+    if(answersMap[questionId] != null) {
+        selectedOptionFromMap = getAnswerIndex(answersMap[questionId]);
+    }
+    if(selectedOptionFromMap == -1) {
+        selectedOptionFromMap = selectedOptionIndex
+    }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
             Row(
@@ -178,6 +185,19 @@ fun AnswerStringToInsertAnswer(stringAnswer: String) : InsertAnswer{ //TODO: rem
     return newInsertAnswer
 }
 
+fun getAnswerIndex(answer: InsertAnswer?) : Int{
+    if(answer == null) {
+        return -1
+    }
+    var index: Int = if(answer.optYes) {
+        0;
+    } else if(answer.optMiddle) {
+        1;
+    } else {
+        2;
+    }
+    return index
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
