@@ -156,7 +156,7 @@ suspend fun getAllQuestions(db: SQLiteDatabase): LinkedList<Question> {
     }
 }
 
-suspend fun getCasesByUser(db: SQLiteDatabase, userId: Long): LinkedList<Case> {
+suspend fun getCasesByUser(db: SQLiteDatabase, userId: Long): List<Case> {
     return withContext(Dispatchers.IO) {
         val caseList = LinkedList<Case>()
         val cursorCase = db.rawQuery(
