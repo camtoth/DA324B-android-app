@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
@@ -105,6 +106,8 @@ fun MyApp() {
     val userViewModel: UserViewModel = viewModel()
     val username = userViewModel.currentUsername
 
+    val isLoggedIn = userViewModel.isLoggedIn
+
     Scaffold(
         //containerColor = MaterialTheme.colorScheme.primary,
         bottomBar = {
@@ -118,27 +121,107 @@ fun MyApp() {
         Box(
             modifier = Modifier
                 .background(brush = gradientBrush)
+                .fillMaxSize()
                 .padding(innerPadding)
         ) {
             NavHost(navController, startDestination = "login") {
                 composable("login") {
-                    LoginPage(navController, onLoginSuccessful = {
+                    if (isLoggedIn) {
+                        // Redirect to home if already logged in
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
-                    }, userViewModel, dbConnection).Content()
+                    } else {
+                        LoginPage(navController, onLoginSuccessful = {
+                            navController.navigate("home") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }, userViewModel, dbConnection).Content()
+                    }
                 }
                 composable("home") {
-                    if (username != null) {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }
+                    }
+                    if (isLoggedIn && username != null) {
                         HomeScreen(navController, username).Content()
                     }
                 }
-                composable("add_case") { AddNewCaseScreen(navController).Content() }
-                composable("my_cases") { CasesListScreen(navController).Content() }
-                composable("assessment") { AssessmentScreen(navController, dbConnection).Content() }
-                composable("settings") { SettingsScreen(navController).Content() }
-                composable("detailed_case"){ DetailedCaseScreen(navController).Content()}
+                composable("add_case") {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        AddNewCaseScreen(navController).Content()
+                    }
+                }
+                composable("my_cases") {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        CasesListScreen(navController).Content()
+                    }
+                }
+                composable("assessment") {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        AssessmentScreen(navController).Content()
+                    }
+                }
+                composable("settings") {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        SettingsScreen(navController, userViewModel).Content()
+                    }
+                }
+                composable("information") {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        InformationScreen(navController).Content()
+                    }
+                }
+//                composable("detailed_case") {
+//                    LaunchedEffect(key1 = isLoggedIn) {
+//                        if (!isLoggedIn) {
+//                            navController.navigate("login")
+//                        }
+//                    }
+//                    if (isLoggedIn) {
+//                        DetailedCaseScreen(navController).Content()
+//                    }
+//                }
+                composable("register") {
+                    // Register page accessible regardless of login status
+                    RegisterScreen(navController, onRegisterSuccessful = {
+                        navController.navigate("home") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    }, userViewModel, dbConnection).Content()
+                }
+
             }
         }
     }
+
 }

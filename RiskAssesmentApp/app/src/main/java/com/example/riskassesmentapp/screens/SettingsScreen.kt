@@ -36,14 +36,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.theme.Typography
 
-class SettingsScreen(private val navController: NavController) {
+class SettingsScreen(private val navController: NavController, val user: UserViewModel) {
 
     @Composable
     fun Content() {
         val showDialog = remember { mutableStateOf(false) }
         val showDeleteDialog = remember { mutableStateOf(false) }
+        val username = user.currentUsername
 
         Column(
             modifier = Modifier
@@ -54,7 +56,7 @@ class SettingsScreen(private val navController: NavController) {
             Text("Settings", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(128.dp))
 
-            SettingRow(icon = Icons.Default.AccountBox, text = "Logged in as: username")
+            SettingRow(icon = Icons.Default.AccountBox, text = "Logged in as: $username")
             Spacer(modifier = Modifier.height(8.dp))
             SettingRow(icon = Icons.Default.Lock, text = "Modify Password", onClick = { showDialog.value = true })
             Spacer(modifier = Modifier.height(64.dp))

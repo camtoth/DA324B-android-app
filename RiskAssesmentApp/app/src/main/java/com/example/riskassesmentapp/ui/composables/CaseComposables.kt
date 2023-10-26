@@ -1,151 +1,134 @@
 package com.example.riskassesmentapp.ui.composables
 
+import android.database.sqlite.SQLiteDatabase
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.example.riskassesmentapp.db.Parent
+import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.models.Case
+import com.example.riskassesmentapp.ui.theme.BrightGreen
+import com.example.riskassesmentapp.ui.theme.LightBlue
+import com.example.riskassesmentapp.ui.theme.LightGray
+import java.util.LinkedList
 
-@Preview
-@Composable
-fun ShowCaseCard(){
-    val testCase =
-        Case(
-            number = 1,
-            interviewDate = "March 2, 2023",
-            firstName = "John",
-            lastName = "Doe",
-            personnummer = "19000302017892",
-            overallRisk = "Low Risk",
-            parentChildInteraction = 60,
-            parentIndependent = 40,
-            characteristicsChild = 70,
-            characteristicsFamily = 50,
-            isDetailedView = false
-        )
-    CaseCard(testCase)
-}
 
 @Composable
 fun CasesList() {
     val dummyCases = listOf(
-        Case(
-            number = 1,
-            interviewDate = "March 2, 2023",
-            firstName = "John",
-            lastName = "Doe",
-            personnummer = "19000302017892",
-            overallRisk = "Low Risk",
-            parentChildInteraction = 60,
-            parentIndependent = 40,
-            characteristicsChild = 70,
-            characteristicsFamily = 50,
-            isDetailedView = false
-        ),
-        Case(
-            number = 2,
-            interviewDate = "April 15, 2023",
-            firstName = "Jane",
-            lastName = "Smith",
-            personnummer = "19000302017892",
-            overallRisk = "Medium Risk",
-            parentChildInteraction = 70,
-            parentIndependent = 50,
-            characteristicsChild = 60,
-            characteristicsFamily = 40,
-            isDetailedView = false
-        ),
-        Case(
-            number = 3,
-            interviewDate = "May 20, 2023",
-            firstName = "Alice",
-            lastName = "Johnson",
-            personnummer = "19000302017892",
-            overallRisk = "High Risk",
-            parentChildInteraction = 80,
-            parentIndependent = 60,
-            characteristicsChild = 75,
-            characteristicsFamily = 70,
-            isDetailedView = false
-        ),
-        Case(
-            number = 4,
-            interviewDate = "June 10, 2023",
-            firstName = "Emily",
-            lastName = "Williams",
-            personnummer = "19000302017892",
-            overallRisk = "Medium Risk",
-            parentChildInteraction = 65,
-            parentIndependent = 45,
-            characteristicsChild = 55,
-            characteristicsFamily = 60,
-            isDetailedView = false
-        ),
-        Case(
-            number = 5,
-            interviewDate = "July 5, 2023",
-            firstName = "Michael",
-            lastName = "Anderson",
-            personnummer = "19000302017892",
-            overallRisk = "High Risk",
-            parentChildInteraction = 75,
-            parentIndependent = 65,
-            characteristicsChild = 70,
-            characteristicsFamily = 75,
-            isDetailedView = false
-        ),
-        Case(
-            number = 6,
-            interviewDate = "August 12, 2023",
-            firstName = "Olivia",
-            lastName = "Martinez",
-            personnummer = "19000302017892",
-            overallRisk = "Low Risk",
-            parentChildInteraction = 55,
-            parentIndependent = 35,
-            characteristicsChild = 45,
-            characteristicsFamily = 50,
-            isDetailedView = false
-        ),
-        Case(
-            number = 7,
-            interviewDate = "September 18, 2023",
-            firstName = "James",
-            lastName = "Brown",
-            personnummer = "19000302017892",
-            overallRisk = "Medium Risk",
-            parentChildInteraction = 70,
-            parentIndependent = 50,
-            characteristicsChild = 60,
-            characteristicsFamily = 65,
-            isDetailedView = false
-        ),
-        Case(
-            number = 8,
-            interviewDate = "October 24, 2023",
-            firstName = "Sophia",
-            lastName = "Garcia",
-            personnummer = "19000302017892",
-            overallRisk = "High Risk",
-            parentChildInteraction = 80,
-            parentIndependent = 70,
-            characteristicsChild = 75,
-            characteristicsFamily = 80,
-            isDetailedView = false
-        )
+    Case(
+        caseNr = "44",
+        email = "email1@email.com",
+        gender = "F",
+        givenNames = "Suzy",
+        id = 12345679333,
+        lastName = "Svensson",
+        personnr = "123423451234"
+    ),
+    Case(
+        caseNr = "45",
+        email = "email2@email.com",
+        gender = "M",
+        givenNames = "John",
+        id = 987654321,
+        lastName = "Doe",
+        personnr = "9876543210"
+    ),
+    Case(
+        caseNr = "46",
+        email = "email3@email.com",
+        gender = "F",
+        givenNames = "Alice",
+        id = 555555555,
+        lastName = "Johnson",
+        personnr = "5555555555"
+    ),
+    Case(
+        caseNr = "47",
+        email = "email4@email.com",
+        gender = "M",
+        givenNames = "Bob",
+        id = 444444444,
+        lastName = "Smith",
+        personnr = "4444444444"
+    ),
+    Case(
+        caseNr = "48",
+        email = "email5@email.com",
+        gender = "F",
+        givenNames = "Eva",
+        id = 123456789,
+        lastName = "Williams",
+        personnr = "1234567890"
+    ),
+    Case(
+        caseNr = "49",
+        email = "email6@email.com",
+        gender = "M",
+        givenNames = "David",
+        id = 9876543210,
+        lastName = "Brown",
+        personnr = "9876543211"
+    ),
+    Case(
+        caseNr = "50",
+        email = "email7@email.com",
+        gender = "F",
+        givenNames = "Sophia",
+        id = 111111111,
+        lastName = "Miller",
+        personnr = "1111111111"
+    ),
+    Case(
+        caseNr = "51",
+        email = "email8@email.com",
+        gender = "M",
+        givenNames = "Oliver",
+        id = 222222222,
+        lastName = "Taylor",
+        personnr = "2222222222"
+    ),
+    Case(
+        caseNr = "52",
+        email = "email9@email.com",
+        gender = "F",
+        givenNames = "Charlotte",
+        id = 333333333,
+        lastName = "Davis",
+        personnr = "3333333333"
+    ),
+    Case(
+        caseNr = "53",
+        email = "email10@email.com",
+        gender = "M",
+        givenNames = "James",
+        id = 4444444444,
+        lastName = "Moore",
+        personnr = "4444444445"
     )
-
+)
     LazyColumn {
         items(dummyCases) { case ->
             CaseCard(case)
@@ -169,45 +152,353 @@ fun CaseCard(case: Case) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Case Number: ${case.number}", fontSize = 18.sp)
-                IconButton(
-                    onClick = { isExpanded = !isExpanded },
-                ) {
-                    Icon(
-                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = null
+                Text("Case Number: ${case.caseNr}", fontSize = 18.sp)
+            }
+
+        }
+    }
+}
+
+@Composable
+fun ParentInfo(parent: Parent) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Personnummer",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "${parent.personnr}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween){
+            Text(
+                text = "Kön",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "${parent.gender}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Senast ändrad",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = parent.lastChanged ?: "Not Available",
+                    style = MaterialTheme.typography.bodySmall
+                )
+        }
+    }
+
+@Composable
+fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onToggle: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .background(
+                color = LightBlue,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp)),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .background(LightBlue)
+                .padding(10.dp, 0.dp)
+                .fillMaxWidth()
+                .clickable { onToggle() }
+        ) {
+            // Display an arrow icon based on the expansion state
+            Text("${parent.givenNames} ${parent.lastName}")
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                contentDescription = null
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Display additional content if the parent is expanded
+        if (isExpanded) {
+
+            Column(modifier = Modifier.padding(10.dp, 0.dp)) {
+                ParentInfo(parent)
+                Divider(
+                    color = LightGray, thickness = 1.dp, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                RiskDetails(parent = parent, db = db)
+                ReviewSection(parent = parent)
+            }
+        }
+    }
+}
+
+@Composable
+fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
+    var areQuestionsVisible by remember { mutableStateOf(false) }
+
+    Row {
+        Text(
+            "Riskrekommendationer",
+            style = MaterialTheme.typography.labelMedium.copy(textDecoration = TextDecoration.Underline)
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Försummelse",
+                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
+            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Visa",
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier
+                        .padding(8.dp, 4.dp)
+                        .clickable {
+                            areQuestionsVisible = true
+                        }
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Rekommendation:",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.highRiskNeglect?.let { RiskLevel(highRisk = it) }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Uppfattad Risk",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.estHighRiskNeglect?.let { RiskLevel(highRisk = it) }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            Text(
+                "Fysisk Skada",
+                style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
+            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Visa",
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier
+                        .padding(8.dp, 4.dp)
+                        .clickable {
+                            areQuestionsVisible = true
+                        }
+                )
+                if (areQuestionsVisible) {
+                    ShowSectionAnswers(
+                        section = "pca",
+                        parent = parent,
+                        db = db,
+                        isVisible = areQuestionsVisible,
+                        onDismiss = {
+                            areQuestionsVisible = false
+                        }
                     )
                 }
             }
-            Text("Interview Date: ${case.interviewDate}")
-            Text("Name: ${case.firstName} ${case.lastName}")
-            Text("Personnummer: ${case.personnummer}")
-            Text("Overall Risk: ${case.overallRisk}")
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Rekommendation:",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.highRiskPca?.let { RiskLevel(highRisk = it) }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Upfattad Risk",
+                style = MaterialTheme.typography.labelSmall
+            )
+            parent.estHighRiskPca?.let { RiskLevel(highRisk = it) }
+        }
+    }
+}
 
-            if (isExpanded) {
+@Composable
+fun ShowSectionAnswers(  section: String,
+                         parent: Parent,
+                         db: SQLiteDatabase,
+                         isVisible: Boolean,
+                         onDismiss: () -> Unit) {
+    //get the answers to the Neglect and Risk Sections
+    if (isVisible) {
+        Dialog(
+            onDismissRequest = {
+                onDismiss() // Call the callback to dismiss the dialog
+            }
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(300.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp)
+            ) {
                 Column {
-                    Text("Risk by Section:")
-                    Text("Parent-child interaction: ${case.parentChildInteraction}%")
-                    Text("The parent independent of the child: ${case.parentIndependent}%")
-                    Text("Characteristics of child excluding parent: ${case.characteristicsChild}%")
-                    Text("Characteristics of the family: ${case.characteristicsFamily}%")
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Button(
-                            onClick = { /* Handle "See Interview" button click */ },
-                        ) {
-                            Text("See Assessment")
+                    var allQuestions by remember { mutableStateOf<List<QuestionWithAnswer>?>(null) }
+                    LaunchedEffect(db, parent.id) {
+                        val questions = getQuestionsWithAnswerByParent(db, parent.id)
+                        allQuestions = questions
+                    }
+                    val neglectQuestions = LinkedList<QuestionWithAnswer>()
+                    for (question in allQuestions!!) {
+                        if (question.rNeglect != null) {
+                            neglectQuestions.add(question)
                         }
-                        Button(
-                            onClick = { /* Handle "Resubmit Interview" button click */ },
-                        ) {
-                            Text("Resubmit Assessment")
-                        }
+                        // Close button (X)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close Icon",
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .clickable {
+                                    onDismiss() // Call the callback to dismiss the dialog
+                                }
+                        )
+                        // Convert the linked list to a readable text
+                        Text(
+                            text = if (section == "N") neglectQuestions.joinToString(separator = "\n")
+                            else allQuestions!!.joinToString(separator = "\n"),
+                            modifier = Modifier.padding(8.dp)
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ReviewSection(parent: Parent){
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically) {
+//        Text(text = "Redigera Assessment",
+//            style = MaterialTheme.typography.labelMedium)
+        //EstimatedRisk(parent = parent)
+        ReviewButton(parent = parent)
+    }
+}
+
+@Composable
+fun ReviewButton(parent: Parent){
+    Button(
+        onClick = { /* Handle button click action */ },
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Pencil Icon",
+                tint = MaterialTheme.colorScheme.onPrimaryContainer // Icon color
+            )
+            Text(
+                text = "Redigera",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer // Text color
+            )
+        }
+    }
+}
+
+@Composable
+fun EditAssessment(){
+    //should allow for the edits of an assessment
+}
+
+@Composable
+fun RiskLevel(highRisk: Boolean) {
+    val fillColor = if (highRisk) MaterialTheme.colorScheme.error else BrightGreen
+    val riskText = if (highRisk) "High" else "Low"
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(fillColor, shape = CircleShape)
+        ) {
+            // Empty box for the dot
+        }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = riskText,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+        )
     }
 }

@@ -13,6 +13,7 @@ import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.QuestionWithAnswer
 import com.example.riskassesmentapp.db.User
+import com.example.riskassesmentapp.db.deleteUser
 import com.example.riskassesmentapp.db.getAllQuestions
 import com.example.riskassesmentapp.db.getAllUsernames
 import com.example.riskassesmentapp.db.getCasesByUser
@@ -146,6 +147,33 @@ class TestDatabaseQueries {
     @After
     fun closeTestDB() {
         mockDb.close()
+    }
+
+    @Test
+    fun testDeleteUserAdmin() = runTest {
+        val usersBefore = getAllUsernames(mockDb)
+        assert(usersBefore.contains("admin"))
+        val deleted = deleteUser(mockDb, userId = 1)
+        assert(deleted == 0)
+        val usersAfter = getAllUsernames(mockDb)
+        assert(usersAfter.contains("admin"))
+    }
+
+    @Test
+    fun testDeleteUser() = runTest {
+        val newUserId = insertNewUser(mockDb, InsertUser(
+            "delete",
+            "delete",
+            "delete",
+            "delete",
+            false
+        ))
+        val usersBefore = getAllUsernames(mockDb)
+        assert(usersBefore.contains("delete"))
+        val deleted = deleteUser(mockDb, userId = newUserId)
+        assert(deleted == 1)
+        val usersAfter = getAllUsernames(mockDb)
+        assert(!usersAfter.contains("delete"))
     }
 
     @Test

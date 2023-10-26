@@ -90,7 +90,7 @@ class HomeScreen(private val navController: NavController, private val username:
                             1 -> {
                                 HomeScreenButton (
                                     navController = navController,
-                                    destination = "add_case",
+                                    destination = "information",
                                     icon = Icons.Default.Info,
                                     text = "Info",
                                     buttonColor = MaterialTheme.colorScheme.tertiaryContainer,
