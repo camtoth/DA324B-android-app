@@ -178,7 +178,7 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        AssessmentScreen(navController).Content()
+                        AssessmentScreen(navController, dbConnection).Content()
                     }
                 }
                 composable("settings") {
