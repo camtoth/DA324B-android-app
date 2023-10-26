@@ -168,7 +168,9 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        CasesListScreen(navController).Content()
+                        if (username != null) {
+                            CasesListScreen(navController, dbConnection, username).Content()
+                        }
                     }
                 }
                 composable("assessment") {

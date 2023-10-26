@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.riskassesmentapp.db.Parent
+import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
 import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import androidx.navigation.NavController
@@ -36,101 +37,9 @@ import java.util.LinkedList
 
 
 @Composable
-fun CasesList() {
-    val dummyCases = listOf(
-    Case(
-        caseNr = "44",
-        email = "email1@email.com",
-        gender = "F",
-        givenNames = "Suzy",
-        id = 12345679333,
-        lastName = "Svensson",
-        personnr = "123423451234"
-    ),
-    Case(
-        caseNr = "45",
-        email = "email2@email.com",
-        gender = "M",
-        givenNames = "John",
-        id = 987654321,
-        lastName = "Doe",
-        personnr = "9876543210"
-    ),
-    Case(
-        caseNr = "46",
-        email = "email3@email.com",
-        gender = "F",
-        givenNames = "Alice",
-        id = 555555555,
-        lastName = "Johnson",
-        personnr = "5555555555"
-    ),
-    Case(
-        caseNr = "47",
-        email = "email4@email.com",
-        gender = "M",
-        givenNames = "Bob",
-        id = 444444444,
-        lastName = "Smith",
-        personnr = "4444444444"
-    ),
-    Case(
-        caseNr = "48",
-        email = "email5@email.com",
-        gender = "F",
-        givenNames = "Eva",
-        id = 123456789,
-        lastName = "Williams",
-        personnr = "1234567890"
-    ),
-    Case(
-        caseNr = "49",
-        email = "email6@email.com",
-        gender = "M",
-        givenNames = "David",
-        id = 9876543210,
-        lastName = "Brown",
-        personnr = "9876543211"
-    ),
-    Case(
-        caseNr = "50",
-        email = "email7@email.com",
-        gender = "F",
-        givenNames = "Sophia",
-        id = 111111111,
-        lastName = "Miller",
-        personnr = "1111111111"
-    ),
-    Case(
-        caseNr = "51",
-        email = "email8@email.com",
-        gender = "M",
-        givenNames = "Oliver",
-        id = 222222222,
-        lastName = "Taylor",
-        personnr = "2222222222"
-    ),
-    Case(
-        caseNr = "52",
-        email = "email9@email.com",
-        gender = "F",
-        givenNames = "Charlotte",
-        id = 333333333,
-        lastName = "Davis",
-        personnr = "3333333333"
-    ),
-    Case(
-        caseNr = "53",
-        email = "email10@email.com",
-        gender = "M",
-        givenNames = "James",
-        id = 4444444444,
-        lastName = "Moore",
-        personnr = "4444444445"
-    )
-)
+fun CasesList(cases: List<Case>) {
     LazyColumn {
-        items(dummyCases) { case ->
+        items(cases) { case ->
             CaseCard(case)
         }
     }

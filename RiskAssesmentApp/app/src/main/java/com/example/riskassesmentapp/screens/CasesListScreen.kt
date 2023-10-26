@@ -1,5 +1,7 @@
 package com.example.riskassesmentapp.screens
 
+import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,15 +18,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.riskassesmentapp.db.getCasesByUser
+import com.example.riskassesmentapp.db.getUserByUsername
+import com.example.riskassesmentapp.models.Case
+import com.example.riskassesmentapp.models.Username
 import com.example.riskassesmentapp.ui.composables.CasesList
 //import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
 //import com.example.riskassesmentapp.ui.composables.CasesList
 import com.example.riskassesmentapp.ui.composables.Title
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-class CasesListScreen(private val navController: NavController) {
+class CasesListScreen(private val navController: NavController, private val database: SQLiteDatabase, private val username: String) {
+
     @Composable
     fun Content() {
+        var userId = 1L // Replace this with the actual user ID
+        val coroutineScope = rememberCoroutineScope()
+        var cases by remember { mutableStateOf<List<com.example.riskassesmentapp.db.Case>>(emptyList()) }
+
+        LaunchedEffect(Unit) {
+            coroutineScope.launch {
+                userId = getUserByUsername(database, username)!!.id
+                cases = getCasesByUser(database, userId)
+
+            }
+        }
+
         var searchText by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.padding(16.dp)) {
@@ -88,7 +108,7 @@ class CasesListScreen(private val navController: NavController) {
 
             Text("My Cases", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
 
-            CasesList()
+            CasesList(cases)
 
         }
     }
