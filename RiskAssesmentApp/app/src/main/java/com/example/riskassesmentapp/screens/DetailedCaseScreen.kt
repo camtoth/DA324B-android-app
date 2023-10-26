@@ -17,8 +17,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,18 +33,36 @@ import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.DatabaseOpenHelper
 import com.example.riskassesmentapp.db.Parent
+import com.example.riskassesmentapp.db.getCasesByUser
+import com.example.riskassesmentapp.db.getParentsByCase
+import com.example.riskassesmentapp.db.getUserByUsername
+import com.example.riskassesmentapp.db.loadCase
 import com.example.riskassesmentapp.ui.composables.ParentSection
 import com.example.riskassesmentapp.ui.theme.LightBlue
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 class DetailedCaseScreen(private val navController: NavController,
-                         private val databaseOpenHelper: DatabaseOpenHelper,
-                         private val parents: LinkedList<Parent>,
-                         private val case: Case   ) {
+                         private val databaseOpen: SQLiteDatabase,
+                         private val caseId: Long,
+) {
     @Composable
     fun Content() {
-        val db = databaseOpenHelper.readableDatabase
+        val db : SQLiteDatabase = databaseOpen
         val parentShowDetails = remember { mutableStateMapOf<Parent, Boolean>() }
+
+        var case by remember { mutableStateOf<Case?>(null) }
+        val parents = remember { mutableStateListOf<Parent>() }
+
+        val coroutineScope = rememberCoroutineScope()
+        LaunchedEffect(Unit) {
+            coroutineScope.launch {
+                case = loadCase(db, caseId)
+                val loadedParents = getParentsByCase(db, caseId)
+                parents.addAll(loadedParents)
+            }
+        }
+
 
         parents.forEach { parent ->
             parentShowDetails[parent] = true
@@ -54,7 +78,7 @@ class DetailedCaseScreen(private val navController: NavController,
                 modifier = Modifier.padding(16.dp)
             ) {
                 item {
-                    Text(" Ärendenummer | ${case.caseNr}",
+                    Text(" Ärendenummer | ${case?.caseNr}",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(10.dp))
@@ -73,21 +97,21 @@ class DetailedCaseScreen(private val navController: NavController,
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Bottom) {
                             Text("Namn")
-                            Text(" ${case.givenNames} ${case.lastName}")
+                            Text(" ${case?.givenNames} ${case?.lastName}")
                         }
                         Row ( modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp, 0.dp),
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Personnummer")
-                            Text("${case.personnr}")
+                            Text("${case?.personnr}")
                         }
                         Row ( modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp, 0.dp),
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Kön")
-                            Text(" ${case.gender}")
+                            Text(" ${case?.gender}")
                         }
                     }
                 }

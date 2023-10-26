@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.riskassesmentapp.db.DatabaseOpenHelper
 import com.example.riskassesmentapp.db.DatabaseProvider
 import com.example.riskassesmentapp.db.User
@@ -203,16 +205,14 @@ fun MyApp() {
                         InformationScreen(navController).Content()
                     }
                 }
-//                composable("detailed_case") {
-//                    LaunchedEffect(key1 = isLoggedIn) {
-//                        if (!isLoggedIn) {
-//                            navController.navigate("login")
-//                        }
-//                    }
-//                    if (isLoggedIn) {
-//                        DetailedCaseScreen(navController).Content()
-//                    }
-//                }
+                composable(
+                    "detailed_case/{caseId}",
+                    arguments = listOf(navArgument("caseId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val caseId = backStackEntry.arguments?.getLong("caseId") ?: throw IllegalArgumentException("Case ID must be provided")
+                    DetailedCaseScreen(navController, dbConnection, caseId).Content()
+                }
+
                 composable("register") {
                     // Register page accessible regardless of login status
                     RegisterScreen(navController, onRegisterSuccessful = {

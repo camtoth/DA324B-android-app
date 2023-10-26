@@ -228,6 +228,36 @@ suspend fun getParentsByCase(db: SQLiteDatabase, caseId: Long): LinkedList<Paren
     }
 }
 
+suspend fun loadCase(db: SQLiteDatabase, caseId: Long): Case? {
+    return withContext(Dispatchers.IO) {
+        var loadedCase: Case? = null
+        val cursor = db.rawQuery(
+            "SELECT * FROM Cases WHERE case_id = ?;",
+            arrayOf(caseId.toString())
+        )
+        with(cursor) {
+            if (moveToFirst()) {
+                var highRisk: Boolean? = null
+                val highRiskInt = getIntOrNull(getColumnIndexOrThrow("high_risk"))
+                if (highRiskInt != null) highRisk = highRiskInt == 1
+
+                loadedCase = Case(
+                    id = getLong(getColumnIndexOrThrow("case_id")),
+                    personnr = getString(getColumnIndexOrThrow("personnr")),
+                    caseNr = getString(getColumnIndexOrThrow("case_nr")),
+                    email = getString(getColumnIndexOrThrow("email")),
+                    gender = getString(getColumnIndexOrThrow("gender")),
+                    givenNames = getString(getColumnIndexOrThrow("given_names")),
+                    lastName = getString(getColumnIndexOrThrow("last_name")),
+                    highRisk = highRisk,
+                )
+            }
+        }
+        loadedCase
+    }
+}
+
+
 suspend fun getAllUsernames(db: SQLiteDatabase): List<String> {
     return withContext(Dispatchers.IO) {
         val usernameList = LinkedList<String>()

@@ -108,8 +108,9 @@ class CasesListScreen(private val navController: NavController, private val data
 
             Text("My Cases", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
 
-            CasesList(cases)
-
+            CasesList(cases, onClick = { selectedCase ->
+                navController.navigate("detailed_case/${selectedCase.id}")
+            })
         }
     }
 }
