@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
@@ -138,46 +139,64 @@ fun MyApp() {
                     }
                 }
                 composable("home") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
-                        if (username != null) {
-                            HomeScreen(navController, username).Content()
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login") {
+                                popUpTo("login") { inclusive = true }
+                            }
                         }
+                    }
+                    if (isLoggedIn && username != null) {
+                        HomeScreen(navController, username).Content()
                     }
                 }
                 composable("add_case") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
                         AddNewCaseScreen(navController).Content()
                     }
                 }
                 composable("my_cases") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
                         CasesListScreen(navController).Content()
                     }
                 }
                 composable("assessment") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
                         AssessmentScreen(navController).Content()
                     }
                 }
                 composable("settings") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
-                        SettingsScreen(navController,userViewModel ).Content()
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
+                        SettingsScreen(navController, userViewModel).Content()
                     }
                 }
                 composable("detailed_case") {
-                    if (!isLoggedIn) {
-                        navController.navigate("login")
-                    } else {
+                    LaunchedEffect(key1 = isLoggedIn) {
+                        if (!isLoggedIn) {
+                            navController.navigate("login")
+                        }
+                    }
+                    if (isLoggedIn) {
                         DetailedCaseScreen(navController).Content()
                     }
                 }
