@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.ui.composables.CasesList
-import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
+//import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
 //import com.example.riskassesmentapp.ui.composables.CasesList
 import com.example.riskassesmentapp.ui.composables.Title
 
