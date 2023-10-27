@@ -18,8 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.riskassesmentapp.db.InsertCase
+import com.example.riskassesmentapp.db.InsertParent
 import com.example.riskassesmentapp.db.getCasesByUser
 import com.example.riskassesmentapp.db.getUserByUsername
+import com.example.riskassesmentapp.db.insertNewCase
+import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.models.Case
 import com.example.riskassesmentapp.models.Username
 import com.example.riskassesmentapp.ui.composables.CasesList
@@ -40,6 +44,36 @@ class CasesListScreen(private val navController: NavController, private val data
         LaunchedEffect(Unit) {
             coroutineScope.launch {
                 userId = getUserByUsername(database, username)!!.id
+
+                userId?.let { id ->
+                    val newCase = InsertCase(
+                        personnr = "196509075678",
+                        caseNr = "Case2023-001",
+                        email = "john.doe@example.com",
+                        gender = "Male",
+                        givenNames = "John",
+                        lastName = "Doe"
+                    )
+                    val caseId = insertNewCase(database, newCase, id)
+
+                    val newParent1 = InsertParent(
+                        personnr = "194503012345",
+                        givenNames = "Mary",
+                        lastName = "Johnson",
+                        gender = "Female"
+                    )
+                    insertNewParent(database, newParent1, caseId)
+
+                    val newParent2 = InsertParent(
+                        personnr = "194807092345",
+                        givenNames = "Robert",
+                        lastName = "Johnson",
+                        gender = "Male"
+                    )
+                    insertNewParent(database, newParent2, caseId)
+
+                }
+
                 cases = getCasesByUser(database, userId)
 
             }
