@@ -192,7 +192,7 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        SettingsScreen(navController, userViewModel).Content()
+                        SettingsScreen(navController, userViewModel, dbConnection).Content()
                     }
                 }
                 composable("information") {

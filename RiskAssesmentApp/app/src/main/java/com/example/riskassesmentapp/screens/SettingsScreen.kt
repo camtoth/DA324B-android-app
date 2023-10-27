@@ -1,5 +1,8 @@
 package com.example.riskassesmentapp.screens
 
+import android.database.sqlite.SQLiteDatabase
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,16 +33,27 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.riskassesmentapp.db.UpdateUser
+import com.example.riskassesmentapp.db.deleteUser
+import com.example.riskassesmentapp.db.getUserByUsername
+import com.example.riskassesmentapp.db.updateUser
 import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.theme.Typography
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class SettingsScreen(private val navController: NavController, val user: UserViewModel) {
+class SettingsScreen(private val navController: NavController, val user: UserViewModel, databaseOpen: SQLiteDatabase) {
+
+    private val db: SQLiteDatabase = databaseOpen
 
     @Composable
     fun Content() {
@@ -98,6 +112,8 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
     @Composable
     fun PasswordDialog(onDismiss: () -> Unit) {
         val newPassword = remember { mutableStateOf("") }
+        val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -113,11 +129,24 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                         focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
                         cursorColor = MaterialTheme.colorScheme.primaryContainer)
                 )
+                Log.d("msg", newPassword.toString())
             },
             confirmButton = {
                 Button(onClick = {
-                    // handle password change logic here
-                    onDismiss()
+                    coroutineScope.launch {
+                        var userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                        val updateSuccessful = updateUser(
+                            db,
+                            curUser = UpdateUser(id = userId, pw = hashPassword(newPassword.value))
+                        )
+
+                        if (updateSuccessful) {
+                            Toast.makeText(context, "Password updated successfully", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        } else {
+                            Toast.makeText(context, "Failed to update password", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = Color.White)) {
                     Text("Confirm", style = MaterialTheme.typography.bodyLarge)
                 }
@@ -132,14 +161,25 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
     @Composable
     fun DeleteUserDialog(onDismiss: () -> Unit) {
+        val context = LocalContext.current
+
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text("Are you sure you want to delete this user?", style = MaterialTheme.typography.bodyLarge) },
             confirmButton = {
                 Button(
                     onClick = {
-                        // handle user deletion logic here
-                        onDismiss()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            var userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                            val result = deleteUser(db, userId)
+                            if (result > 0) {
+                                Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show()
+                                user.logoutUser()
+                            } else {
+                                Toast.makeText(context, "Failed to delete user", Toast.LENGTH_SHORT).show()
+                            }
+                            onDismiss()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
