@@ -174,6 +174,7 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                             val result = deleteUser(db, userId)
                             if (result > 0) {
                                 Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show()
+                                user.logoutUser()
                             } else {
                                 Toast.makeText(context, "Failed to delete user", Toast.LENGTH_SHORT).show()
                             }
