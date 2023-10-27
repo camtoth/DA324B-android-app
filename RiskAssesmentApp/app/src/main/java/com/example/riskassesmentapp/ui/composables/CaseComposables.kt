@@ -35,10 +35,10 @@ import java.util.LinkedList
 
 
 @Composable
-fun CasesList(cases: List<Case>) {
+fun CasesList(cases: List<Case>, onClick: (Case) -> Unit) {
     LazyColumn {
         items(cases) { case ->
-            CaseCard(case)
+            CaseCard(case, onClick = { onClick(case) })
         }
     }
 }
@@ -113,13 +113,14 @@ fun AddNewCase() {
 }
 
 @Composable
-fun CaseCard(case: Case) {
+fun CaseCard(case: Case, onClick: () -> Unit) {
     var isExpanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
