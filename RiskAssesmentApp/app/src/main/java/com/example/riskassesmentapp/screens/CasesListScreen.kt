@@ -1,5 +1,6 @@
 package com.example.riskassesmentapp.screens
 
+import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.compose.foundation.background
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 class CasesListScreen(private val navController: NavController, private val database: SQLiteDatabase, private val username: String) {
 
+    @SuppressLint("UnrememberedMutableState")
     @Composable
     fun Content() {
         var userId = 1L // Replace this with the actual user ID
@@ -45,7 +47,7 @@ class CasesListScreen(private val navController: NavController, private val data
             coroutineScope.launch {
                 userId = getUserByUsername(database, username)!!.id
 
-                userId?.let { id ->
+                userId.let { id ->
                     val newCase = InsertCase(
                         personnr = "196509075678",
                         caseNr = "Case2023-001",
