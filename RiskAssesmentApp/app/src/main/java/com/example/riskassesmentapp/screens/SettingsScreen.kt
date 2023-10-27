@@ -1,5 +1,6 @@
 package com.example.riskassesmentapp.screens
 
+import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.UpdateUser
 import com.example.riskassesmentapp.db.deleteUser
+import com.example.riskassesmentapp.db.exportDataAsCsv
 import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.updateUser
 import com.example.riskassesmentapp.models.UserViewModel
@@ -55,10 +58,13 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
     private val db: SQLiteDatabase = databaseOpen
 
+    @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun Content() {
+        val context = LocalContext.current
         val showDialog = remember { mutableStateOf(false) }
         val showDeleteDialog = remember { mutableStateOf(false) }
+        val showExportDialog = remember { mutableStateOf(false) }
         val username = user.currentUsername
 
         Column(
@@ -73,6 +79,8 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             SettingRow(icon = Icons.Default.AccountBox, text = "Logged in as: $username")
             Spacer(modifier = Modifier.height(8.dp))
             SettingRow(icon = Icons.Default.Lock, text = "Modify Password", onClick = { showDialog.value = true })
+            Spacer(modifier = Modifier.height(8.dp))
+            SettingRow(icon = Icons.Default.Send, text = "Export Data as CSV", onClick = { showExportDialog.value = true })
             Spacer(modifier = Modifier.height(64.dp))
             Button(
                 onClick = { showDeleteDialog.value = true },
@@ -89,7 +97,46 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             if (showDeleteDialog.value) {
                 DeleteUserDialog(onDismiss = { showDeleteDialog.value = false })
             }
+
+            if (showExportDialog.value) {
+                val coroutineScope = rememberCoroutineScope()
+                var userId = 1L
+                coroutineScope.launch {
+                    userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                }
+                ExportDataDialog(onDismiss = { showExportDialog.value = false }, userId = userId)
+            }
         }
+    }
+
+    @Composable
+    fun ExportDataDialog(onDismiss: () -> Unit, userId: Long) {
+        val context = LocalContext.current
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Export Data as CSV", style = MaterialTheme.typography.bodyLarge) },
+            text = { Text("Are you sure you want to export the data as a CSV file?", style = MaterialTheme.typography.bodyMedium) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            exportDataAsCsv(db, userId, context)
+                            Toast.makeText(context, "Data exported successfully", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(Color.Red)
+                ) {
+                    Text("Export", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
+                }
+            },
+        )
     }
 
     @Composable
