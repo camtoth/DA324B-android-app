@@ -42,10 +42,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.UpdateUser
+import com.example.riskassesmentapp.db.deleteUser
 import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.updateUser
 import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.theme.Typography
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsScreen(private val navController: NavController, val user: UserViewModel, databaseOpen: SQLiteDatabase) {
@@ -158,14 +161,24 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
     @Composable
     fun DeleteUserDialog(onDismiss: () -> Unit) {
+        val context = LocalContext.current
+
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text("Are you sure you want to delete this user?", style = MaterialTheme.typography.bodyLarge) },
             confirmButton = {
                 Button(
                     onClick = {
-                        // handle user deletion logic here
-                        onDismiss()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            var userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                            val result = deleteUser(db, userId)
+                            if (result > 0) {
+                                Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Failed to delete user", Toast.LENGTH_SHORT).show()
+                            }
+                            onDismiss()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
