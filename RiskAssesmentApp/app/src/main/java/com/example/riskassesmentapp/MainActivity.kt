@@ -160,7 +160,7 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        AddNewCaseScreen(navController).Content()
+                        AddNewCaseScreen(navController, dbConnection).Content()
                     }
                 }
                 composable("my_cases") {
@@ -182,7 +182,7 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        AssessmentScreen(navController).Content()
+                        AssessmentScreen(navController, dbConnection).Content()
                     }
                 }
                 composable("settings") {

@@ -32,6 +32,8 @@ import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
 import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
+import androidx.navigation.NavController
+import com.example.riskassesmentapp.models.Case
 import com.example.riskassesmentapp.ui.theme.BrightGreen
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import com.example.riskassesmentapp.ui.theme.LightGray
@@ -43,75 +45,6 @@ fun CasesList(cases: List<Case>, onClick: (Case) -> Unit) {
     LazyColumn {
         items(cases) { case ->
             CaseCard(case, onClick = { onClick(case) })
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddNewCase() {
-    var caseNumber by remember { mutableStateOf(0) }
-    var personnummer by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Title(title = "Add New Case", modifier = Modifier.padding(20.dp))
-        TextField(
-            value = caseNumber.toString(),
-            onValueChange = {
-                caseNumber = it.toIntOrNull() ?: 0
-            },
-            label = { Text("Case Number") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        TextField(
-            value = personnummer,
-            onValueChange = {
-                personnummer = it
-            },
-            label = { Text("Personnummer") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        TextField(
-            value = firstName,
-            onValueChange = {
-                firstName = it
-            },
-            label = { Text("First Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        TextField(
-            value = lastName,
-            onValueChange = {
-                lastName = it
-            },
-            label = { Text("Last Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        Button(
-            onClick = { /* Non-functional button */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text("Take Risk Assessment")
         }
     }
 }
