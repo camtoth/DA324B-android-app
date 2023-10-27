@@ -80,7 +80,15 @@ class CasesListScreen(private val navController: NavController, private val data
         }
 
         var searchText by remember { mutableStateOf("") }
-
+        val filteredCases by derivedStateOf {
+            if (searchText.isBlank()) {
+                cases
+            } else {
+                cases.filter { case ->
+                    case.lastName.contains(searchText, ignoreCase = true)
+                }
+            }
+        }
         Column(modifier = Modifier.padding(16.dp)) {
             TopAppBar(
                 title = { Text(text = "Cases List") },
@@ -142,7 +150,7 @@ class CasesListScreen(private val navController: NavController, private val data
 
             Text("My Cases", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
 
-            CasesList(cases, onClick = { selectedCase ->
+            CasesList(filteredCases, onClick = { selectedCase ->
                 navController.navigate("detailed_case/${selectedCase.id}")
             })
         }
