@@ -27,12 +27,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertCase
+import com.example.riskassesmentapp.db.InsertParent
 import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.db.insertNewCase
+import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +59,33 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    NewCaseCard(navController, dbConnection, user)
+                    var caseToInsert =  NewCaseCard(true)
+
+                    Text(
+                        text = "Add Parent 1",
+                        modifier = Modifier
+                            .padding(20.dp),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                    var parent1 =  NewCaseCard(false)
+                    var parent1ToInsert = InsertParent(personnr = parent1.personnr, givenNames = parent1.givenNames, lastName = parent1.lastName, gender = parent1.gender)
+                    Text(
+                        text = "Add Parent 2",
+                        modifier = Modifier
+                            .padding(20.dp),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                    var parent2 =  NewCaseCard(false)
+                    var parent2ToInsert = InsertParent(personnr = parent2.personnr, givenNames = parent2.givenNames, lastName = parent2.lastName, gender = parent2.gender)
+
+                    SaveCaseButton(
+                        dbConnection = dbConnection,
+                        navController = navController,
+                        currentUserId = user.currentUserId.value,
+                        caseToInsert = caseToInsert,
+                        parent1ToInsert = parent1ToInsert,
+                        parent2ToInsert = parent2ToInsert
+                    )
                 }
                 item {}
             }
@@ -79,13 +108,12 @@ fun myCard(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel){
+fun NewCaseCard(showCaseNumberInput: Boolean) : InsertCase{
     var caseNumber: Int by remember { mutableStateOf(0) }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var gender: String
-    var scope = rememberCoroutineScope()
+    var gender by remember { mutableStateOf("") }
     Card(modifier = Modifier
         .padding(16.dp),
         colors = CardDefaults.cardColors(
@@ -98,17 +126,18 @@ fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase, user
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            TextField(
-                value = caseNumber.toString(),
-                onValueChange = {
-                    caseNumber = it.toIntOrNull() ?: 0
-                },
-                label = { Text("Case Number") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-
+            if(showCaseNumberInput) {
+                TextField(
+                    value = caseNumber.toString(),
+                    onValueChange = {
+                        caseNumber = it.toIntOrNull() ?: 0
+                    },
+                    label = { Text("Case Number") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+            }
             TextField(
                 value = personnummer,
                 onValueChange = {
@@ -142,26 +171,9 @@ fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase, user
                     .padding(8.dp)
             )
             gender = GenderPicker()
-            Button(
-                onClick = {
-                    addCaseToDb(scope = scope, dbConnection = dbConnection, caseNumber = caseNumber.toString(), personnummer = personnummer, firstName = firstName, lastName = lastName, email = "test@test.nu", gender = gender, currentUserId = user.currentUserId.value)
-                    navController.navigate("assessment") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-            ) {
-                Text("Take Risk Assessment")
-            }
         }
     }
-}
-
-fun addCaseToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, caseNumber: String, personnummer: String, firstName: String, lastName: String, gender: String, email: String, currentUserId: Long) {
-    val insertCase = InsertCase(caseNr = caseNumber, personnr = personnummer, givenNames = firstName, lastName = lastName, email = email, gender = gender)
-    scope.launch {
-        insertNewCase(db = dbConnection, case = insertCase, currentUserId = currentUserId)
-    }
+    return InsertCase(caseNr = caseNumber.toString(), personnr = personnummer, givenNames = firstName, lastName = lastName, email = "test@test", gender = gender)
 }
 
 @Composable
@@ -195,4 +207,36 @@ fun GenderPicker() : String{
         }
     }
     return selectedOption
+}
+
+@Composable
+fun SaveCaseButton(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, caseToInsert: InsertCase, parent1ToInsert: InsertParent, parent2ToInsert: InsertParent) {
+    var scope = rememberCoroutineScope()
+    Button(
+        onClick = {
+            var caseId = addCaseToDb(dbConnection = dbConnection, caseToInsert = caseToInsert, currentUserId = currentUserId)
+            addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent1ToInsert)
+            addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent2ToInsert)
+            navController.navigate("assessment") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+    ) {
+        Text("Save")
+    }
+}
+
+fun addCaseToDb(dbConnection: SQLiteDatabase, caseToInsert: InsertCase, currentUserId: Long) : Long{
+    var newCaseId : Long
+    runBlocking {
+        newCaseId = insertNewCase(db = dbConnection, case = caseToInsert, currentUserId = currentUserId)
+    }
+    return newCaseId
+}
+
+fun addParentToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, parentToInsert: InsertParent, currentCaseId: Long) {
+    scope.launch {
+        insertNewParent(db = dbConnection, parent = parentToInsert, curCaseId = currentCaseId)
+    }
 }

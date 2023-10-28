@@ -175,13 +175,16 @@ fun MyApp() {
                         }
                     }
                 }
-                composable("assessment") {
+                composable(
+                    "assessment/{parentId}",
+                    arguments = listOf(navArgument("parentId") { type = NavType.LongType })) { backStackEntry ->
                     LaunchedEffect(key1 = isLoggedIn) {
                         if (!isLoggedIn) {
                             navController.navigate("login")
                         }
                     }
                     if (isLoggedIn) {
+                        val parentId = backStackEntry.arguments?.getLong("parentId") ?: throw IllegalArgumentException("Parent ID must be provided")
                         AssessmentScreen(navController, dbConnection).Content()
                     }
                 }
