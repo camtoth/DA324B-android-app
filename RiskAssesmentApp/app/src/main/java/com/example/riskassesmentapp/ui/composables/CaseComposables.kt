@@ -32,8 +32,6 @@ import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
 import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
-import androidx.navigation.NavController
-import com.example.riskassesmentapp.models.Case
 import com.example.riskassesmentapp.ui.theme.BrightGreen
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import com.example.riskassesmentapp.ui.theme.LightGray
