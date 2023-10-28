@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertCase
 import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.db.insertNewCase
+import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase) {
+fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel) {
     RiskAssesmentAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -55,7 +56,7 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase) {
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    NewCaseCard(navController, dbConnection)
+                    NewCaseCard(navController, dbConnection, user)
                 }
                 item {}
             }
@@ -78,7 +79,7 @@ fun myCard(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase){
+fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel){
     var caseNumber: Int by remember { mutableStateOf(0) }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
@@ -143,7 +144,7 @@ fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase){
             gender = GenderPicker()
             Button(
                 onClick = {
-                    addCaseToDb(scope = scope, dbConnection = dbConnection, caseNumber = caseNumber.toString(), personnummer = personnummer, firstName = firstName, lastName = lastName, email = "test@test.nu", gender = gender)
+                    addCaseToDb(scope = scope, dbConnection = dbConnection, caseNumber = caseNumber.toString(), personnummer = personnummer, firstName = firstName, lastName = lastName, email = "test@test.nu", gender = gender, currentUserId = user.currentUserId.value)
                     navController.navigate("assessment") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -156,10 +157,10 @@ fun NewCaseCard(navController: NavController, dbConnection: SQLiteDatabase){
     }
 }
 
-fun addCaseToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, caseNumber: String, personnummer: String, firstName: String, lastName: String, gender: String, email: String) {
+fun addCaseToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, caseNumber: String, personnummer: String, firstName: String, lastName: String, gender: String, email: String, currentUserId: Long) {
     val insertCase = InsertCase(caseNr = caseNumber, personnr = personnummer, givenNames = firstName, lastName = lastName, email = email, gender = gender)
     scope.launch {
-        insertNewCase(db = dbConnection, case = insertCase, currentUserId = 0)//TODO: pass real currentUserId
+        insertNewCase(db = dbConnection, case = insertCase, currentUserId = currentUserId)
     }
 }
 

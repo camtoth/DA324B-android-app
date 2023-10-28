@@ -160,7 +160,7 @@ fun MyApp() {
                         }
                     }
                     if (isLoggedIn) {
-                        AddNewCaseScreen(navController, dbConnection).Content()
+                        AddNewCaseScreen(navController, dbConnection, userViewModel).Content()
                     }
                 }
                 composable("my_cases") {
