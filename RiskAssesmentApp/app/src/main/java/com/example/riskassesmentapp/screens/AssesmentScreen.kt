@@ -25,7 +25,7 @@ class AssessmentScreen(private val navController: NavController, private val dbC
     fun Content() {
         FetchQuestionsFromDB()
         println(parentId)
-        Assessment(questionsList, parentId, dbConnection) //TODO: get parentId from previous screen
+        Assessment(questionsList, parentId, dbConnection, navController) //TODO: get parentId from previous screen
     }
 
     private fun FetchQuestionsFromDB (){
