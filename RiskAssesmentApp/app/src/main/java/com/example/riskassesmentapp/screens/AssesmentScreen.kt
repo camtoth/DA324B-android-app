@@ -19,12 +19,13 @@ import kotlinx.coroutines.withContext
 import java.net.IDN
 import java.util.LinkedList
 
-class AssessmentScreen(private val navController: NavController, private val dbConnection: SQLiteDatabase) {
+class AssessmentScreen(private val navController: NavController, private val dbConnection: SQLiteDatabase, private val parentId: Long) {
     private var questionsList = LinkedList<Question>()
     @Composable
     fun Content() {
         FetchQuestionsFromDB()
-        Assessment(questionsList, 0, dbConnection) //TODO: get parentId from previous screen
+        println(parentId)
+        Assessment(questionsList, parentId, dbConnection) //TODO: get parentId from previous screen
     }
 
     private fun FetchQuestionsFromDB (){

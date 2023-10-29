@@ -18,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,19 +29,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertCase
 import com.example.riskassesmentapp.db.InsertParent
-import com.example.riskassesmentapp.db.insertNewAnswer
 import com.example.riskassesmentapp.db.insertNewCase
 import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.models.UserViewModel
+import com.example.riskassesmentapp.screens.AddNewCaseScreen
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel) {
+fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel, addNewCaseScreen: AddNewCaseScreen) {
     RiskAssesmentAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -59,7 +59,7 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    var caseToInsert =  NewCaseCard(true)
+                    addNewCaseScreen.caseToInsert =  NewCaseCard(showCaseNumberInput = true, showAddAssessmentButton = false, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value, addNewCaseScreen = addNewCaseScreen)
 
                     Text(
                         text = "Add Parent 1",
@@ -67,24 +67,25 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    var parent1 =  NewCaseCard(false)
-                    var parent1ToInsert = InsertParent(personnr = parent1.personnr, givenNames = parent1.givenNames, lastName = parent1.lastName, gender = parent1.gender)
+                    addNewCaseScreen.parent1 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value , addNewCaseScreen = addNewCaseScreen)
+                    addNewCaseScreen.parent1ToInsert = InsertParent(personnr = addNewCaseScreen.parent1.personnr, givenNames = addNewCaseScreen.parent1.givenNames, lastName = addNewCaseScreen.parent1.lastName, gender = addNewCaseScreen.parent1.gender)
+
                     Text(
                         text = "Add Parent 2",
                         modifier = Modifier
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    var parent2 =  NewCaseCard(false)
-                    var parent2ToInsert = InsertParent(personnr = parent2.personnr, givenNames = parent2.givenNames, lastName = parent2.lastName, gender = parent2.gender)
+                    addNewCaseScreen.parent2 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value , addNewCaseScreen = addNewCaseScreen)
+                    addNewCaseScreen.parent2ToInsert = InsertParent(personnr = addNewCaseScreen.parent2.personnr, givenNames = addNewCaseScreen.parent2.givenNames, lastName = addNewCaseScreen.parent2.lastName, gender = addNewCaseScreen.parent2.gender)
 
                     SaveCaseButton(
                         dbConnection = dbConnection,
                         navController = navController,
                         currentUserId = user.currentUserId.value,
-                        caseToInsert = caseToInsert,
-                        parent1ToInsert = parent1ToInsert,
-                        parent2ToInsert = parent2ToInsert
+                        caseToInsert = addNewCaseScreen.caseToInsert,
+                        parent1ToInsert = addNewCaseScreen.parent1ToInsert,
+                        parent2ToInsert = addNewCaseScreen.parent2ToInsert
                     )
                 }
                 item {}
@@ -108,7 +109,7 @@ fun myCard(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewCaseCard(showCaseNumberInput: Boolean) : InsertCase{
+fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, addNewCaseScreen: AddNewCaseScreen, showCaseNumberInput: Boolean, showAddAssessmentButton: Boolean) : InsertCase{
     var caseNumber: Int by remember { mutableStateOf(0) }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
@@ -171,6 +172,15 @@ fun NewCaseCard(showCaseNumberInput: Boolean) : InsertCase{
                     .padding(8.dp)
             )
             gender = GenderPicker()
+
+            if(showAddAssessmentButton) {
+                AddAssessmentButton(
+                    dbConnection = dbConnection,
+                    navController = navController,
+                    currentUserId = currentUserId,
+                    addNewCaseScreen = addNewCaseScreen
+                )
+            }
         }
     }
     return InsertCase(caseNr = caseNumber.toString(), personnr = personnummer, givenNames = firstName, lastName = lastName, email = "test@test", gender = gender)
@@ -217,13 +227,38 @@ fun SaveCaseButton(dbConnection: SQLiteDatabase, navController: NavController, c
             var caseId = addCaseToDb(dbConnection = dbConnection, caseToInsert = caseToInsert, currentUserId = currentUserId)
             addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent1ToInsert)
             addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent2ToInsert)
-            navController.navigate("assessment") },
+            navController.navigate("my_cases") },
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
     ) {
         Text("Save")
+    }
+}
+
+@Composable
+fun AddAssessmentButton(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, addNewCaseScreen: AddNewCaseScreen) {
+    var scope = rememberCoroutineScope()
+    var parentId : Long
+    parentId = 0
+    Button(
+        onClick = {
+            if(addNewCaseScreen.caseToInsert != null) {
+                var caseId = addCaseToDb(dbConnection = dbConnection, caseToInsert = addNewCaseScreen.caseToInsert, currentUserId = currentUserId)
+                parentId = addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = addNewCaseScreen.parent1ToInsert)
+                if(addNewCaseScreen.parent2ToInsert != null) {
+                    addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = addNewCaseScreen.parent2ToInsert)
+                }
+            }
+
+            navController.navigate("assessment/$parentId") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+    ) {
+        Text("Add assessment")
     }
 }
 
@@ -235,8 +270,10 @@ fun addCaseToDb(dbConnection: SQLiteDatabase, caseToInsert: InsertCase, currentU
     return newCaseId
 }
 
-fun addParentToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, parentToInsert: InsertParent, currentCaseId: Long) {
-    scope.launch {
-        insertNewParent(db = dbConnection, parent = parentToInsert, curCaseId = currentCaseId)
+fun addParentToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, parentToInsert: InsertParent, currentCaseId: Long) : Long{
+    var newParentId : Long
+    runBlocking {
+        newParentId = insertNewParent(db = dbConnection, parent = parentToInsert, curCaseId = currentCaseId)
     }
+    return newParentId
 }

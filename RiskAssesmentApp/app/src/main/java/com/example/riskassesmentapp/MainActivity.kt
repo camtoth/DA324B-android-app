@@ -185,7 +185,7 @@ fun MyApp() {
                     }
                     if (isLoggedIn) {
                         val parentId = backStackEntry.arguments?.getLong("parentId") ?: throw IllegalArgumentException("Parent ID must be provided")
-                        AssessmentScreen(navController, dbConnection).Content()
+                        AssessmentScreen(navController, dbConnection, parentId).Content()
                     }
                 }
                 composable("settings") {
