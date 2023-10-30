@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.riskassesmentapp.screens.hashPassword
 import kotlinx.coroutines.CoroutineScope
@@ -460,7 +461,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
     suspend fun insertTestData(db: SQLiteDatabase) {
         val testUser = insertNewUser(db, InsertUser(
             username = "testUser",
-            pw = "test",
+            pw = hashPassword("test"),
             givenNames = "test",
             lastName = "user",
             isAdmin = false
