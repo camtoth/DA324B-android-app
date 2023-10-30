@@ -10,24 +10,27 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
@@ -174,8 +177,10 @@ fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onTog
 
 @Composable
 fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
+    var sectionVisibility = remember { mutableStateMapOf("Försummelse" to false, "Fysisk Skada" to false) }
     var areQuestionsVisible by remember { mutableStateOf(false) }
-
+    print("Inside Risk Details")
+    print("$areQuestionsVisible")
     Row {
         Text(
             "Riskrekommendationer",
@@ -211,9 +216,20 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
                     modifier = Modifier
                         .padding(8.dp, 4.dp)
                         .clickable {
-                            areQuestionsVisible = true
+                            sectionVisibility["Försummelse"] = true
                         }
                 )
+                if (sectionVisibility["Försummelse"] == true) {
+                    ShowSectionAnswers(
+                        section = "Försummelse",
+                        parent = parent,
+                        db = db,
+                        isVisible = sectionVisibility["Försummelse"] == true,
+                        onDismiss = {
+                            sectionVisibility["Försummelse"] = false
+                        }
+                    )
+                }
             }
         }
         Row(
@@ -233,7 +249,7 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Uppfattad Risk",
+                text = "Uppfattad Risk ${parent.estHighRiskNeglect}",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.estHighRiskNeglect?.let { RiskLevel(highRisk = it) }
@@ -266,17 +282,17 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
                     modifier = Modifier
                         .padding(8.dp, 4.dp)
                         .clickable {
-                            areQuestionsVisible = true
+                            sectionVisibility["Fysisk Skada"] = true
                         }
                 )
-                if (areQuestionsVisible) {
+                if (sectionVisibility["Fysisk Skada"] == true) {
                     ShowSectionAnswers(
-                        section = "pca",
+                        section = "Fysisk Skada",
                         parent = parent,
                         db = db,
-                        isVisible = areQuestionsVisible,
+                        isVisible = sectionVisibility["Fysisk Skada"] == true,
                         onDismiss = {
-                            areQuestionsVisible = false
+                            sectionVisibility["Fysisk Skada"] = false
                         }
                     )
                 }
@@ -299,7 +315,7 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Upfattad Risk",
+                text = "Upfattad Risk ${parent.estHighRiskPca}",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.estHighRiskPca?.let { RiskLevel(highRisk = it) }
@@ -318,41 +334,62 @@ fun ShowSectionAnswers(  section: String,
         Dialog(
             onDismissRequest = {
                 onDismiss() // Call the callback to dismiss the dialog
-            }
+            },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+
         ) {
             Box(
                 modifier = Modifier
-                    .width(300.dp)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .fillMaxWidth()
+                    .fillMaxHeight(.9f)// Make it full width
+                    .background(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        shape = RoundedCornerShape(8.dp)
+                    )
                     .padding(16.dp)
+
             ) {
                 Column {
+                    print("Inside ShowSection Answers")
                     var allQuestions by remember { mutableStateOf<List<QuestionWithAnswer>?>(null) }
+
+                    // Launch a coroutine to fetch questions
                     LaunchedEffect(db, parent.id) {
+                        var neglectQuestions = LinkedList<QuestionWithAnswer>()
                         val questions = getQuestionsWithAnswerByParent(db, parent.id)
                         allQuestions = questions
-                    }
-                    val neglectQuestions = LinkedList<QuestionWithAnswer>()
-                    for (question in allQuestions!!) {
-                        if (question.rNeglect != null) {
-                            neglectQuestions.add(question)
+
+                        // Process questions if needed
+                        for (question in allQuestions!!) {
+                            if (question.rNeglect != null) {
+                                neglectQuestions.add(question)
+                            }
                         }
-                        // Close button (X)
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close Icon",
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .clickable {
-                                    onDismiss() // Call the callback to dismiss the dialog
-                                }
-                        )
-                        // Convert the linked list to a readable text
-                        Text(
-                            text = if (section == "N") neglectQuestions.joinToString(separator = "\n")
-                            else allQuestions!!.joinToString(separator = "\n"),
-                            modifier = Modifier.padding(8.dp)
-                        )
+
+                        if (section == "Försummelse") {
+                            allQuestions = neglectQuestions
+                        }
+                    }
+
+                    // Close button (X)
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close Icon",
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .clickable {
+                                onDismiss() // Call the callback to dismiss the dialog
+                            }
+                    )
+
+                    // Convert the linked list to a readable text
+                    LazyColumn {
+                        item {
+                            allQuestions?.let { ModifyQuestionView(section =section , answers = it) }
+                        }
                     }
                 }
             }
@@ -361,16 +398,109 @@ fun ShowSectionAnswers(  section: String,
 }
 
 @Composable
+fun ModifyQuestionView(section: String, answers: List<QuestionWithAnswer>){
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold,
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                color = MaterialTheme.colorScheme.onTertiaryContainer)) {
+                append("$section \n")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            for (question in answers) {
+                var selectedAnswer = ""
+                if (question.optNo){ selectedAnswer = "Nej"}
+                if (question.optMiddle) {selectedAnswer = "Oklart"}
+                if (question.optYes) {selectedAnswer = "Ja"}
+                withStyle(style = SpanStyle(
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer)) {
+                    append("Fråga: ${question.titleSe}\nSvar: ${selectedAnswer}\n\n")
+                }
+            }
+            if (answers?.isEmpty() == true) {append("\n Inga Svar")}
+        },
+        modifier = Modifier.padding(8.dp)
+    )
+}
+@Composable
 fun ReviewSection(parent: Parent){
+    var isDialogOpen by remember { mutableStateOf(false) }
     Row (
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically) {
-//        Text(text = "Redigera Assessment",
-//            style = MaterialTheme.typography.labelMedium)
-        //EstimatedRisk(parent = parent)
+        Icon(imageVector = Icons.Default.Delete, contentDescription = "Trash Can",
+                modifier = Modifier
+                    .size(35.dp)
+                    .clickable
+                    {
+                        isDialogOpen = true
+                    },
+            tint = MaterialTheme.colorScheme.error)
+        if (isDialogOpen) {
+            ShowConfirmationDialog(
+                onConfirm = {
+                    // Perform the delete action here
+                    isDialogOpen = false
+                },
+                onCancel = {
+                    isDialogOpen = false
+                }
+            )
+        }
         ReviewButton(parent = parent)
     }
+    Spacer(modifier = Modifier.height(16.dp))
+
+}
+
+@Composable
+fun ShowConfirmationDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
+    Dialog(
+        onDismissRequest = { onCancel() }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.tertiaryContainer)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "Bekräfta radering",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer)
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            onConfirm()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    ) {
+                        Text(text = "Bekräfta",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            onCancel()
+                        }
+                    ) {
+                        Text(text = "Annullera",
+                            style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 @Composable

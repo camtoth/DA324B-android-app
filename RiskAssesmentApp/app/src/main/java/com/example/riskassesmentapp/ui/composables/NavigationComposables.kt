@@ -68,21 +68,21 @@ fun BottomNav(navController: NavController) {
                 isSelected = currentRoute == "home",
                 onClick = { if (currentRoute != "home") navController.navigate("home") },
                 icon = Icons.Default.Home,
-                text = "Home"
+                text = "Hem"
             )
 
             BottomNavButton(
                 isSelected = currentRoute == "my_cases",
                 onClick = { if (currentRoute != "my_cases") navController.navigate("my_cases") },
                 icon = Icons.Default.Star,
-                text = "My Cases"
+                text = "Mina Ärenden"
             )
 
             BottomNavButton(
                 isSelected = currentRoute == "settings",
                 onClick = { if (currentRoute != "settings") navController.navigate("settings") },
                 icon = Icons.Default.Settings,
-                text = "Settings",
+                text = "Inställningar",
             )
         }
     }
