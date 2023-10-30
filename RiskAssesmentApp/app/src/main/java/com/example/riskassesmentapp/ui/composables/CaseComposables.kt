@@ -15,15 +15,12 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +39,6 @@ import com.example.riskassesmentapp.ui.theme.BrightGreen
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import com.example.riskassesmentapp.ui.theme.LightGray
 import java.util.LinkedList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -364,7 +358,7 @@ fun ShowSectionAnswers(  section: String,
 
                     // Launch a coroutine to fetch questions
                     LaunchedEffect(db, parent.id) {
-                        val neglectQuestions = LinkedList<QuestionWithAnswer>()
+                        var neglectQuestions = LinkedList<QuestionWithAnswer>()
                         val questions = getQuestionsWithAnswerByParent(db, parent.id)
                         allQuestions = questions
 
@@ -373,6 +367,10 @@ fun ShowSectionAnswers(  section: String,
                             if (question.rNeglect != null) {
                                 neglectQuestions.add(question)
                             }
+                        }
+
+                        if (section == "Försummelse") {
+                            allQuestions = neglectQuestions
                         }
                     }
 
@@ -390,29 +388,7 @@ fun ShowSectionAnswers(  section: String,
                     // Convert the linked list to a readable text
                     LazyColumn {
                         item {
-                            Text(
-                                text = buildAnnotatedString {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold,
-                                        fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                                        color = MaterialTheme.colorScheme.onTertiaryContainer)) {
-                                        append("$section \n")
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    for (question in allQuestions ?: emptyList()) {
-                                        var selectedAnswer = ""
-                                        if (question.optNo){ selectedAnswer = "Nej"}
-                                        if (question.optMiddle) {selectedAnswer = "Oklart"}
-                                        if (question.optYes) {selectedAnswer = "Ja"}
-                                        withStyle(style = SpanStyle(
-                                            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                                            color = MaterialTheme.colorScheme.onTertiaryContainer)) {
-                                            append("Fråga: ${question.titleSe}\nSvar: ${selectedAnswer}\n\n")
-                                        }
-                                    }
-                                    if (allQuestions?.isEmpty() == true) {append("\n Inga Svar")}
-                                },
-                                modifier = Modifier.padding(8.dp)
-                            )
+                            allQuestions?.let { ModifyQuestionView(section =section , answers = it) }
                         }
                     }
                 }
@@ -422,6 +398,32 @@ fun ShowSectionAnswers(  section: String,
 }
 
 @Composable
+fun ModifyQuestionView(section: String, answers: List<QuestionWithAnswer>){
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold,
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                color = MaterialTheme.colorScheme.onTertiaryContainer)) {
+                append("$section \n")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            for (question in answers) {
+                var selectedAnswer = ""
+                if (question.optNo){ selectedAnswer = "Nej"}
+                if (question.optMiddle) {selectedAnswer = "Oklart"}
+                if (question.optYes) {selectedAnswer = "Ja"}
+                withStyle(style = SpanStyle(
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer)) {
+                    append("Fråga: ${question.titleSe}\nSvar: ${selectedAnswer}\n\n")
+                }
+            }
+            if (answers?.isEmpty() == true) {append("\n Inga Svar")}
+        },
+        modifier = Modifier.padding(8.dp)
+    )
+}
+@Composable
 fun ReviewSection(parent: Parent){
     var isDialogOpen by remember { mutableStateOf(false) }
     Row (
@@ -429,11 +431,12 @@ fun ReviewSection(parent: Parent){
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically) {
         Icon(imageVector = Icons.Default.Delete, contentDescription = "Trash Can",
-                modifier = Modifier.size(35.dp)
+                modifier = Modifier
+                    .size(35.dp)
                     .clickable
                     {
-            isDialogOpen = true
-        },
+                        isDialogOpen = true
+                    },
             tint = MaterialTheme.colorScheme.error)
         if (isDialogOpen) {
             ShowConfirmationDialog(
@@ -458,7 +461,8 @@ fun ShowConfirmationDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
         onDismissRequest = { onCancel() }
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.tertiaryContainer)
         ) {
             Column(
