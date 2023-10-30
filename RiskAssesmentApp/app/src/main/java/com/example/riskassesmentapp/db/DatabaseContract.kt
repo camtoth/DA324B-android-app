@@ -27,7 +27,7 @@ object DatabaseContract {
     const val SQL_CREATE_CASES = "CREATE TABLE IF NOT EXISTS Cases (" +
             "case_id INTEGER PRIMARY KEY NOT NULL, " +
             "personnr VARCHAR(13) NOT NULL UNIQUE, " +
-            "case_nr VARCHAR(15) NOT NULL UNIQUE, " +
+            "case_nr VARCHAR(15) NOT NULL, " +
             "email VARCHAR(100) NOT NULL, " +
             "gender VARCHAR(1) NOT NULL, " +
             "given_names VARCHAR(150) NOT NULL, " +
