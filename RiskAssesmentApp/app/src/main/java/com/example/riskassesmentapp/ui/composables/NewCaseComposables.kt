@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertCase
@@ -110,7 +112,7 @@ fun myCard(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, addNewCaseScreen: AddNewCaseScreen, showCaseNumberInput: Boolean, showAddAssessmentButton: Boolean) : InsertCase{
-    var caseNumber: Int by remember { mutableStateOf(0) }
+    var caseNumber by remember { mutableStateOf("") }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -129,9 +131,9 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
         ) {
             if(showCaseNumberInput) {
                 TextField(
-                    value = caseNumber.toString(),
+                    value = caseNumber,
                     onValueChange = {
-                        caseNumber = it.toIntOrNull() ?: 0
+                        caseNumber = it
                     },
                     label = { Text("Case Number") },
                     modifier = Modifier
@@ -174,12 +176,12 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
             gender = GenderPicker()
 
             if(showAddAssessmentButton) {
-                AddAssessmentButton(
+                /*AddAssessmentButton(
                     dbConnection = dbConnection,
                     navController = navController,
                     currentUserId = currentUserId,
                     addNewCaseScreen = addNewCaseScreen
-                )
+                )*/
             }
         }
     }
@@ -205,6 +207,10 @@ fun GenderPicker() : String{
             ) {
                 androidx.compose.material3.RadioButton(
                     selected = (text == selectedOption),
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.onPrimary,
+                        unselectedColor = MaterialTheme.colorScheme.onTertiary,
+                    ),
                     onClick = {
                         onOptionSelected(text)
                     }
@@ -222,12 +228,21 @@ fun GenderPicker() : String{
 @Composable
 fun SaveCaseButton(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, caseToInsert: InsertCase, parent1ToInsert: InsertParent, parent2ToInsert: InsertParent) {
     var scope = rememberCoroutineScope()
+    var showInvalidInputCard = remember{ mutableStateOf(false)}
+    if(showInvalidInputCard.value) {
+        InvalidInputCard()
+    }
     Button(
         onClick = {
-            var caseId = addCaseToDb(dbConnection = dbConnection, caseToInsert = caseToInsert, currentUserId = currentUserId)
-            addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent1ToInsert)
-            addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent2ToInsert)
-            navController.navigate("my_cases") },
+            if(isNewCaseInputValid(newCase = caseToInsert, parent1 = parent1ToInsert, parent2 = parent2ToInsert)) {
+                showInvalidInputCard.value = false
+                var caseId = addCaseToDb(dbConnection = dbConnection, caseToInsert = caseToInsert, currentUserId = currentUserId)
+                addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent1ToInsert)
+                addParentToDb(scope = scope, dbConnection = dbConnection, currentCaseId = caseId, parentToInsert = parent2ToInsert)
+                navController.navigate("my_cases")
+            } else {
+                showInvalidInputCard.value = true
+            }},
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
@@ -235,6 +250,31 @@ fun SaveCaseButton(dbConnection: SQLiteDatabase, navController: NavController, c
     ) {
         Text("Save")
     }
+}
+
+@Composable
+fun InvalidInputCard() {
+    Card(modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 2.dp)
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    ) {
+        Text(text = "Fill in all input fields.",
+            modifier = Modifier
+                .padding(10.dp),
+            style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+//Checks that case and both parents have been fully filled and returns a bool
+fun isNewCaseInputValid(newCase: InsertCase, parent1: InsertParent, parent2: InsertParent) : Boolean{
+    val isNewCaseValid = !(newCase.caseNr.isNullOrBlank() || newCase.gender.isNullOrBlank() || newCase.email.isNullOrBlank() || newCase.lastName.isNullOrBlank() || newCase.givenNames.isNullOrBlank() || newCase.personnr.isNullOrBlank())
+    val isParent1Valid = !(parent1.gender.isNullOrBlank() || parent1.givenNames.isNullOrBlank() || parent1.lastName.isNullOrBlank() || parent1.personnr.isNullOrBlank())
+    val isParent2Valid = !(parent2.gender.isNullOrBlank() || parent2.givenNames.isNullOrBlank() || parent2.lastName.isNullOrBlank() || parent2.personnr.isNullOrBlank())
+    return (isNewCaseValid && isParent1Valid && isParent2Valid)
 }
 
 @Composable

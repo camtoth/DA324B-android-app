@@ -207,6 +207,10 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selec
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.onPrimary,
+                        unselectedColor = MaterialTheme.colorScheme.onTertiary,
+                    ),
                     onClick = {
                         onOptionSelected(text)
                         answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
