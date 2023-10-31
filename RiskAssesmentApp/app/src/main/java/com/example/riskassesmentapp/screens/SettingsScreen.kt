@@ -91,6 +91,14 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                 Text("Delete User", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
             }
 
+            Button(
+                onClick = { user.logoutUser() },
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer),
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Text("Logout User", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
+            }
+
             if (showDialog.value) {
                 PasswordDialog(onDismiss = { showDialog.value = false })
             }
