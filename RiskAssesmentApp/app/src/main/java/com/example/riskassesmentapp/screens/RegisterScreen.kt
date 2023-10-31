@@ -213,7 +213,7 @@ class RegisterScreen(
                                 userViewModel.registerUser(db, username, password, givenNames, lastName) // register the user
                                 val user = authenticateUser(db, username, password) // Authenticate the user
                                 if (user != null) {
-                                    userViewModel.loginUser(username)
+                                    userViewModel.loginUser(user)
                                     onRegisterSuccessful(username)
                                 } else {
                                     showError = true
