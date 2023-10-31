@@ -9,7 +9,10 @@ import com.example.riskassesmentapp.ui.composables.Assessment
 import kotlinx.coroutines.runBlocking
 import java.util.LinkedList
 
-class AssessmentScreen(private val navController: NavController, private val dbConnection: SQLiteDatabase, private val parentId: Long) {
+class AssessmentScreen(
+    private val navController: NavController,
+    private val dbConnection: SQLiteDatabase,
+    private val parentId: Long) {
     private var questionsList = LinkedList<Question>()
     @Composable
     fun Content() {

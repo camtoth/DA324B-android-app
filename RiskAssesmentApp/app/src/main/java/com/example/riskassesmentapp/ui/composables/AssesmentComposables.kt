@@ -28,7 +28,10 @@ import kotlinx.coroutines.runBlocking
 import java.util.LinkedList
 
 @Composable
-fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase, navController: NavController) {
+fun Assessment(
+    questionsList : LinkedList<Question>,
+    parentId: Long, dbConnection: SQLiteDatabase,
+    navController: NavController) {
     val showDialog = remember { mutableStateOf(false) }
     val answersLoaded = remember { mutableStateOf(false) }
     val answersMap = remember { mutableStateOf(HashMap<Long, UpdateAnswer>()) }
@@ -76,9 +79,14 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
     }
 }
 
-suspend fun getAnswerMap(dbConnection: SQLiteDatabase, parentId: Long, questionsList: LinkedList<Question>): HashMap<Long, UpdateAnswer> {
+suspend fun getAnswerMap(
+    dbConnection: SQLiteDatabase,
+    parentId: Long,
+    questionsList: LinkedList<Question>)
+    : HashMap<Long, UpdateAnswer> {
     var answerMap = HashMap<Long, UpdateAnswer>()
     val questionsWithAnswers = getQuestionsWithAnswerByParent(dbConnection, parentId)
+
     if (questionsWithAnswers.size == 0) answerMap = handleNotAnsweredQuestions(dbConnection, parentId, questionsList)
     else {
         for (qWithA in questionsWithAnswers) {
@@ -93,8 +101,13 @@ suspend fun getAnswerMap(dbConnection: SQLiteDatabase, parentId: Long, questions
     return answerMap
 }
 
-suspend fun handleNotAnsweredQuestions(dbConnection: SQLiteDatabase, parentId: Long, questionsList: LinkedList<Question>): HashMap<Long, UpdateAnswer> {
+suspend fun handleNotAnsweredQuestions(
+    dbConnection: SQLiteDatabase,
+    parentId: Long,
+    questionsList: LinkedList<Question>
+    ) : HashMap<Long, UpdateAnswer> {
     val answerMap = HashMap<Long, UpdateAnswer>()
+
     for (question in questionsList) {
         val newAnswerId = insertNewAnswer(
             db = dbConnection,
@@ -106,14 +119,22 @@ suspend fun handleNotAnsweredQuestions(dbConnection: SQLiteDatabase, parentId: L
     return answerMap
 }
 
-suspend fun sendAnswersToDB(dbConnection: SQLiteDatabase, answersMap: HashMap<Long, UpdateAnswer>, parentId: Long) {
+suspend fun sendAnswersToDB(
+    dbConnection: SQLiteDatabase,
+    answersMap: HashMap<Long,UpdateAnswer>,
+    parentId: Long
+    ) {
     for(answer in answersMap) {
         updateAnswer(dbConnection, answer.value, parentId)
     }
 }
 
 @Composable
-fun QuestionCard(question: Question, answersMap: HashMap<Long, UpdateAnswer>,modifier: Modifier = Modifier) {
+fun QuestionCard(
+    question: Question,
+    answersMap: HashMap<Long, UpdateAnswer>,
+    modifier: Modifier = Modifier
+    ) {
     Card(modifier = modifier
         .padding(16.dp),
         colors = CardDefaults.cardColors(
@@ -136,10 +157,16 @@ fun QuestionCard(question: Question, answersMap: HashMap<Long, UpdateAnswer>,mod
 }
 
 @Composable
-fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selectedOptionIndex : Int = 1) {
+fun RadioButton(
+    questionId: Long,
+    answersMap: HashMap<Long, UpdateAnswer>,
+    selectedOptionIndex : Int = 1
+    ) {
+
     val answerChanged = remember { mutableStateOf(false) }
     val radioOptions = listOf("-1", "0", "1")
     var selectedOptionFromMap = -1
+
     if(answersMap[questionId] != null && !answerChanged.value) {
         selectedOptionFromMap = getAnswerIndex(answersMap[questionId]);
     }
@@ -250,7 +277,14 @@ fun AlertDialogExample(
 }
 
 @Composable
-fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, UpdateAnswer>, parentId: Long, navController: NavController) {
+fun DialogExamples(
+    dialogIsOpen: MutableState<Boolean>,
+    dbConnection: SQLiteDatabase,
+    scope: CoroutineScope,
+    answersMap: HashMap<Long, UpdateAnswer>,
+    parentId: Long,
+    navController: NavController
+    ) {
     // ...
     when {
         // ...

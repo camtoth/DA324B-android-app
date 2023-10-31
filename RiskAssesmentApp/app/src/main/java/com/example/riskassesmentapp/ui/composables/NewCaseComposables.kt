@@ -39,7 +39,12 @@ import kotlinx.coroutines.runBlocking
 
 
 @Composable
-fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user: UserViewModel, addNewCaseScreen: AddNewCaseScreen) {
+fun AddNewCase(
+    navController: NavController,
+    dbConnection: SQLiteDatabase,
+    user: UserViewModel,
+    addNewCaseScreen: AddNewCaseScreen
+    ) {
     RiskAssesmentAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -223,7 +228,13 @@ fun GenderPicker() : String{
 }
 
 @Composable
-fun SaveCaseButton(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, caseToInsert: InsertCase, parent1ToInsert: InsertParent, parent2ToInsert: InsertParent) {
+fun SaveCaseButton(
+    dbConnection: SQLiteDatabase,
+    navController: NavController,
+    currentUserId: Long,
+    caseToInsert: InsertCase,
+    parent1ToInsert: InsertParent,
+    parent2ToInsert: InsertParent) {
     var scope = rememberCoroutineScope()
     var showInvalidInputCard = remember{ mutableStateOf(false)}
     if(showInvalidInputCard.value) {
@@ -274,8 +285,13 @@ fun isNewCaseInputValid(newCase: InsertCase, parent1: InsertParent, parent2: Ins
     return (isNewCaseValid && isParent1Valid && isParent2Valid)
 }
 
+// Scrapped feature
 @Composable
-fun AddAssessmentButton(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, addNewCaseScreen: AddNewCaseScreen) {
+fun AddAssessmentButton(
+    dbConnection: SQLiteDatabase,
+    navController: NavController,
+    currentUserId: Long,
+    addNewCaseScreen: AddNewCaseScreen) {
     var scope = rememberCoroutineScope()
     var parentId : Long
     parentId = 0
@@ -299,7 +315,11 @@ fun AddAssessmentButton(dbConnection: SQLiteDatabase, navController: NavControll
     }
 }
 
-fun addCaseToDb(dbConnection: SQLiteDatabase, caseToInsert: InsertCase, currentUserId: Long) : Long{
+fun addCaseToDb(
+    dbConnection: SQLiteDatabase,
+    caseToInsert: InsertCase,
+    currentUserId: Long
+    ) : Long{
     var newCaseId : Long
     runBlocking {
         newCaseId = insertNewCase(db = dbConnection, case = caseToInsert, currentUserId = currentUserId)
@@ -307,7 +327,12 @@ fun addCaseToDb(dbConnection: SQLiteDatabase, caseToInsert: InsertCase, currentU
     return newCaseId
 }
 
-fun addParentToDb(scope: CoroutineScope, dbConnection: SQLiteDatabase, parentToInsert: InsertParent, currentCaseId: Long) : Long{
+fun addParentToDb(
+    scope: CoroutineScope,
+    dbConnection: SQLiteDatabase,
+    parentToInsert: InsertParent,
+    currentCaseId: Long
+    ) : Long{
     var newParentId : Long
     runBlocking {
         newParentId = insertNewParent(db = dbConnection, parent = parentToInsert, curCaseId = currentCaseId)

@@ -8,7 +8,10 @@ import com.example.riskassesmentapp.db.InsertParent
 import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.ui.composables.AddNewCase
 
-class AddNewCaseScreen(private val navController: NavController, private val dbConnection: SQLiteDatabase, private val user: UserViewModel) {
+class AddNewCaseScreen(
+    private val navController: NavController,
+    private val dbConnection: SQLiteDatabase,
+    private val user: UserViewModel) {
     public lateinit var caseToInsert: InsertCase
     public lateinit var parent1: InsertCase
     public lateinit var parent1ToInsert: InsertParent
