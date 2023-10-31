@@ -157,7 +157,7 @@ class LoginPage(
                         try {
                             val user = authenticateUser(db, username, password)
                             if (user != null) {
-                                userViewModel.loginUser(username) // Utilize the provided ViewModel instance
+                                userViewModel.loginUser(user) // Utilize the provided ViewModel instance
                                 onLoginSuccessful(username)
                             } else {
                                 showError = true

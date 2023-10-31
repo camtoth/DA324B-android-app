@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,10 +82,17 @@ class DetailedCaseScreen(private val navController: NavController,
                 modifier = Modifier.padding(16.dp)
             ) {
                 item {
-                    Text(" Ärendenummer | ${case?.caseNr}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(10.dp))
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Face, contentDescription = "Icon Face",
+                            modifier = Modifier
+                                .size(35.dp))
+                        Text(
+                            " Ärendenummer: ${case?.caseNr}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
                 }
                 item {
                     Column (

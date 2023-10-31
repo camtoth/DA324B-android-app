@@ -99,12 +99,8 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             }
 
             if (showExportDialog.value) {
-                val coroutineScope = rememberCoroutineScope()
-                var userId = 1L
-                coroutineScope.launch {
-                    userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
-                }
-                ExportDataDialog(onDismiss = { showExportDialog.value = false }, userId = userId)
+                val userId = user.currentUser.value?.id
+                if (userId != null) ExportDataDialog(onDismiss = { showExportDialog.value = false }, userId = userId)
             }
         }
     }
