@@ -46,6 +46,8 @@ import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.UpdateUser
 import com.example.riskassesmentapp.db.deleteUser
 import com.example.riskassesmentapp.db.exportDataAsCsv
+import com.example.riskassesmentapp.db.getAllUsernames
+import com.example.riskassesmentapp.db.getPwByUsername
 import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.updateUser
 import com.example.riskassesmentapp.models.UserViewModel
@@ -61,7 +63,6 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun Content() {
-        val context = LocalContext.current
         val showDialog = remember { mutableStateOf(false) }
         val showDeleteDialog = remember { mutableStateOf(false) }
         val showExportDialog = remember { mutableStateOf(false) }
@@ -99,8 +100,8 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             }
 
             if (showExportDialog.value) {
-                val userId = user.currentUser.value?.id
-                if (userId != null) ExportDataDialog(onDismiss = { showExportDialog.value = false }, userId = userId)
+                val userId = user.currentUser.value!!.id
+                ExportDataDialog(onDismiss = { showExportDialog.value = false }, userId = userId)
             }
         }
     }
@@ -116,7 +117,7 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             confirmButton = {
                 Button(
                     onClick = {
-                        CoroutineScope(Dispatchers.Main).launch {
+                        CoroutineScope(Dispatchers.IO).launch {
                             exportDataAsCsv(db, userId, context)
                             Toast.makeText(context, "Data exported successfully", Toast.LENGTH_SHORT).show()
                             onDismiss()
@@ -177,12 +178,11 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
             confirmButton = {
                 Button(onClick = {
                     coroutineScope.launch {
-                        var userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                        var userId = user.currentUser.value!!.id
                         val updateSuccessful = updateUser(
                             db,
                             curUser = UpdateUser(id = userId, pw = hashPassword(newPassword.value))
                         )
-
                         if (updateSuccessful) {
                             Toast.makeText(context, "Password updated successfully", Toast.LENGTH_SHORT).show()
                             onDismiss()
@@ -213,7 +213,7 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                 Button(
                     onClick = {
                         CoroutineScope(Dispatchers.Main).launch {
-                            var userId = user.currentUsername?.let { getUserByUsername(db, it) }!!.id
+                            var userId = user.currentUser.value!!.id
                             val result = deleteUser(db, userId)
                             if (result > 0) {
                                 Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show()
