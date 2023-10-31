@@ -465,8 +465,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             givenNames = "test",
             lastName = "user",
             isAdmin = false
-        )
-        )
+        ))
         val caseId = insertNewCase(db, InsertCase(
             personnr = "20090101-1234",
             caseNr = "1",
@@ -516,6 +515,32 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         insertNewAnswer(db, InsertAnswer(false, true, false), 27, testParent1)
         insertNewAnswer(db, InsertAnswer(false, true, false), 28, testParent1)
         insertNewAnswer(db, InsertAnswer(false, true, false), 29, testParent1)
+
+        val newCase = InsertCase(
+            personnr = "196509075678",
+            caseNr = "Case2023-001",
+            email = "john.doe@example.com",
+            gender = "Male",
+            givenNames = "John",
+            lastName = "Doe"
+        )
+        val case2Id = insertNewCase(db, newCase, testUser)
+
+        val newParent1 = InsertParent(
+            personnr = "194503012345",
+            givenNames = "Mary",
+            lastName = "Johnson",
+            gender = "Female"
+        )
+        insertNewParent(db, newParent1, case2Id)
+
+        val newParent2 = InsertParent(
+            personnr = "194807092345",
+            givenNames = "Robert",
+            lastName = "Johnson",
+            gender = "Male"
+        )
+        insertNewParent(db, newParent2, case2Id)
     }
 }
 

@@ -40,5 +40,5 @@ suspend fun deleteParentsByCase(db: SQLiteDatabase, caseId: Long): Int {
 
 suspend fun deleteCaseById(db: SQLiteDatabase, caseId: Long): Int {
     deleteParentsByCase(db, caseId)
-    return db.delete("Case", "case_id LIKE ?", arrayOf(caseId.toString()))
+    return db.delete("Cases", "case_id LIKE ?", arrayOf(caseId.toString()))
 }

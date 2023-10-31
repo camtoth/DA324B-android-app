@@ -26,6 +26,7 @@ import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.insertNewCase
 import com.example.riskassesmentapp.db.insertNewParent
 import com.example.riskassesmentapp.models.Case
+import com.example.riskassesmentapp.models.UserViewModel
 import com.example.riskassesmentapp.models.Username
 import com.example.riskassesmentapp.ui.composables.CasesList
 //import com.example.riskassesmentapp.ui.composables.ShowDetailedCaseCard
@@ -34,50 +35,18 @@ import com.example.riskassesmentapp.ui.composables.Title
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-class CasesListScreen(private val navController: NavController, private val database: SQLiteDatabase, private val username: String) {
+class CasesListScreen(private val navController: NavController, private val database: SQLiteDatabase, private val userViewModel: UserViewModel) {
 
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun Content() {
-        var userId = 1L // Replace this with the actual user ID
+        var userId = userViewModel.currentUser.value!!.id
         val coroutineScope = rememberCoroutineScope()
         var cases by remember { mutableStateOf<List<com.example.riskassesmentapp.db.Case>>(emptyList()) }
 
         LaunchedEffect(Unit) {
             coroutineScope.launch {
-                userId = getUserByUsername(database, username)!!.id
-
-                userId.let { id ->
-                    val newCase = InsertCase(
-                        personnr = "196509075678",
-                        caseNr = "Case2023-001",
-                        email = "john.doe@example.com",
-                        gender = "Male",
-                        givenNames = "John",
-                        lastName = "Doe"
-                    )
-                    val caseId = insertNewCase(database, newCase, id)
-
-                    val newParent1 = InsertParent(
-                        personnr = "194503012345",
-                        givenNames = "Mary",
-                        lastName = "Johnson",
-                        gender = "Female"
-                    )
-                    insertNewParent(database, newParent1, caseId)
-
-                    val newParent2 = InsertParent(
-                        personnr = "194807092345",
-                        givenNames = "Robert",
-                        lastName = "Johnson",
-                        gender = "Male"
-                    )
-                    insertNewParent(database, newParent2, caseId)
-
-                }
-
                 cases = getCasesByUser(database, userId)
-
             }
         }
 
@@ -150,7 +119,7 @@ class CasesListScreen(private val navController: NavController, private val data
 
 
 
-            Text("My Cases", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
+            Text("Mina ärenden", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(vertical = 16.dp))
 
             CasesList(filteredCases, onClick = { selectedCase ->
                 navController.navigate("detailed_case/${selectedCase.id}")
