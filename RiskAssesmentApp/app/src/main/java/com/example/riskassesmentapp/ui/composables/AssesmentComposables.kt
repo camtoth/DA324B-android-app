@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
 import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.QuestionWithAnswer
@@ -25,7 +26,7 @@ import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 @Composable
-fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase) {
+fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase, navController: NavController) {
     val showDialog = remember { mutableStateOf(false) }
     val answersMap = HashMap<Long, InsertAnswer>()
     var scope = rememberCoroutineScope()
@@ -36,7 +37,7 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
             color = MaterialTheme.colorScheme.background
         ) {
             if (showDialog.value) {
-                DialogExamples(showDialog)
+                DialogExamples(showDialog, answersMap = answersMap, scope = scope, parentId = parentId, dbConnection = dbConnection, navController = navController)
             }
             Column {
                 LazyColumn(
@@ -55,7 +56,6 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
                                 .fillMaxWidth(1f),
                             onClick = {
                                 showDialog.value = true
-                                SendAnswersToDB(dbConnection, scope, answersMap, parentId)
                             }) {
                             Text(text = "Show result")
                         }
@@ -243,7 +243,7 @@ fun AlertDialogExample(
 }
 
 @Composable
-fun DialogExamples(dialogIsOpen: MutableState<Boolean>) {
+fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, InsertAnswer>, parentId: Long, navController: NavController) {
     // ...
     when {
         // ...
@@ -252,7 +252,8 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>) {
                 onDismissRequest = { dialogIsOpen.value = false },
                 onConfirmation = {
                     dialogIsOpen.value = false
-                    println("Confirmation registered") // Add logic here to handle confirmation.
+                    SendAnswersToDB(dbConnection, scope, answersMap, parentId)
+                    navController.navigate("my_cases")
                 },
                 dialogTitle = "Alert dialog example",
                 dialogText = "This is an example of an alert dialog with buttons.",
