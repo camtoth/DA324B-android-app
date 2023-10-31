@@ -59,7 +59,7 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    addNewCaseScreen.caseToInsert =  NewCaseCard(showCaseNumberInput = true, showAddAssessmentButton = false, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value, addNewCaseScreen = addNewCaseScreen)
+                    addNewCaseScreen.caseToInsert =  NewCaseCard(showCaseNumberInput = true, showAddAssessmentButton = false, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id, addNewCaseScreen = addNewCaseScreen)
 
                     Text(
                         text = "Add Parent 1",
@@ -67,7 +67,7 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    addNewCaseScreen.parent1 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value , addNewCaseScreen = addNewCaseScreen)
+                    addNewCaseScreen.parent1 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id , addNewCaseScreen = addNewCaseScreen)
                     addNewCaseScreen.parent1ToInsert = InsertParent(personnr = addNewCaseScreen.parent1.personnr, givenNames = addNewCaseScreen.parent1.givenNames, lastName = addNewCaseScreen.parent1.lastName, gender = addNewCaseScreen.parent1.gender)
 
                     Text(
@@ -76,13 +76,13 @@ fun AddNewCase(navController: NavController, dbConnection: SQLiteDatabase, user:
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
-                    addNewCaseScreen.parent2 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUserId.value , addNewCaseScreen = addNewCaseScreen)
+                    addNewCaseScreen.parent2 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id , addNewCaseScreen = addNewCaseScreen)
                     addNewCaseScreen.parent2ToInsert = InsertParent(personnr = addNewCaseScreen.parent2.personnr, givenNames = addNewCaseScreen.parent2.givenNames, lastName = addNewCaseScreen.parent2.lastName, gender = addNewCaseScreen.parent2.gender)
 
                     SaveCaseButton(
                         dbConnection = dbConnection,
                         navController = navController,
-                        currentUserId = user.currentUserId.value,
+                        currentUserId = user.currentUser.value!!.id,
                         caseToInsert = addNewCaseScreen.caseToInsert,
                         parent1ToInsert = addNewCaseScreen.parent1ToInsert,
                         parent2ToInsert = addNewCaseScreen.parent2ToInsert
