@@ -142,7 +142,8 @@ class DetailedCaseScreen(private val navController: NavController,
                         isExpanded = parentShowDetails[parent] ?: false,
                         onToggle = {
                             parentShowDetails[parent] = !parentShowDetails[parent]!!
-                        }
+                        },
+                        navController = navController
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }

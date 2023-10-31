@@ -23,12 +23,11 @@ class AssessmentScreen(private val navController: NavController, private val dbC
     private var questionsList = LinkedList<Question>()
     @Composable
     fun Content() {
-        FetchQuestionsFromDB()
-        println(parentId)
-        Assessment(questionsList, parentId, dbConnection, navController) //TODO: get parentId from previous screen
+        fetchQuestionsFromDB()
+        Assessment(questionsList, parentId, dbConnection, navController)
     }
 
-    private fun FetchQuestionsFromDB (){
+    private fun fetchQuestionsFromDB (){
         runBlocking {
             questionsList = getAllQuestions(dbConnection)
         }
