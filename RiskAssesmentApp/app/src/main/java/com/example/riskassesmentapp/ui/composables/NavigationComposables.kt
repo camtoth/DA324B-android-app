@@ -37,7 +37,7 @@ fun BottomNavButton(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally ,
-            modifier = Modifier.size(width = 100.dp, height = 56.dp) // Add this line
+            modifier = Modifier.size(width = 120.dp, height = 56.dp) // Add this line
         ) {
             Icon(
                 imageVector = icon,
