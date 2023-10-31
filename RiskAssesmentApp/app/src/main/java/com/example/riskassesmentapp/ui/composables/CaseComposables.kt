@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
@@ -131,7 +132,7 @@ fun ParentInfo(parent: Parent) {
     }
 
 @Composable
-fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onToggle: () -> Unit) {
+fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onToggle: () -> Unit, navController: NavController) {
     Column(
         modifier = Modifier
             .background(
@@ -169,7 +170,7 @@ fun ParentSection(parent: Parent, db: SQLiteDatabase, isExpanded: Boolean, onTog
                         .align(Alignment.CenterHorizontally)
                 )
                 RiskDetails(parent = parent, db = db)
-                ReviewSection(parent = parent)
+                ReviewSection(parent = parent, navController = navController)
             }
         }
     }
@@ -424,7 +425,7 @@ fun ModifyQuestionView(section: String, answers: List<QuestionWithAnswer>){
     )
 }
 @Composable
-fun ReviewSection(parent: Parent){
+fun ReviewSection(parent: Parent, navController: NavController) {
     var isDialogOpen by remember { mutableStateOf(false) }
     Row (
         modifier = Modifier.fillMaxWidth(),
@@ -449,7 +450,7 @@ fun ReviewSection(parent: Parent){
                 }
             )
         }
-        ReviewButton(parent = parent)
+        ReviewButton(parent = parent, navController = navController)
     }
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -504,9 +505,9 @@ fun ShowConfirmationDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
 }
 
 @Composable
-fun ReviewButton(parent: Parent){
+fun ReviewButton(parent: Parent, navController: NavController){
     Button(
-        onClick = { /* Handle button click action */ },
+        onClick = { navController.navigate("assessment/${parent.id}") },
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Row(

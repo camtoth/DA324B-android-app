@@ -33,12 +33,17 @@ import java.util.LinkedList
 @Composable
 fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase, navController: NavController) {
     val showDialog = remember { mutableStateOf(false) }
-    var answersMap: HashMap<Long, UpdateAnswer>
+    val answersLoaded = remember { mutableStateOf(false) }
+    val answersMap = remember { mutableStateOf(HashMap<Long, UpdateAnswer>()) }
     val scope = rememberCoroutineScope()
 
-    runBlocking {
-        answersMap = getAnswerMap(dbConnection, parentId, questionsList)
+    if (!answersLoaded.value) {
+        runBlocking {
+            answersMap.value = getAnswerMap(dbConnection, parentId, questionsList)
+            answersLoaded.value = true
+        }
     }
+    Log.i("db", "answerMap after loading: " + answersMap.value.toString())
 
     RiskAssesmentAppTheme {
         Surface(
@@ -46,7 +51,7 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
             color = MaterialTheme.colorScheme.background
         ) {
             if (showDialog.value) {
-                DialogExamples(showDialog, answersMap = answersMap, scope = scope, parentId = parentId, dbConnection = dbConnection, navController = navController)
+                DialogExamples(showDialog, answersMap = answersMap.value, scope = scope, parentId = parentId, dbConnection = dbConnection, navController = navController)
             }
             Column {
                 LazyColumn(
@@ -55,7 +60,7 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
                         .padding(16.dp)
                 ) {
                     items(questionsList.size){ i ->
-                        QuestionCard(questionsList[i], answersMap)
+                        QuestionCard(questionsList[i], answersMap.value)
                     }
                     item {
                         Button(
@@ -178,15 +183,16 @@ fun AnswerChoice(answer: String) {
 
 @Composable
 fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selectedOptionIndex : Int = 1) {
+    val answerChanged = remember { mutableStateOf(false) }
     val radioOptions = listOf("Yes", "Middle", "No")
     var selectedOptionFromMap = -1
-    if(answersMap[questionId] != null) {
+    if(answersMap[questionId] != null && !answerChanged.value) {
         selectedOptionFromMap = getAnswerIndex(answersMap[questionId]);
     }
     if(selectedOptionFromMap == -1) {
         selectedOptionFromMap = selectedOptionIndex
     }
-    answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
+    if(!answerChanged.value) answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
@@ -197,6 +203,8 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selec
                         selected = (text == selectedOption),
                         onClick = {
                             onOptionSelected(text)
+                            answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
+                            answerChanged.value = true
                         }
                     )
                     .padding(horizontal = 16.dp)
@@ -206,6 +214,7 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selec
                     onClick = {
                         onOptionSelected(text)
                         answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
+                        answerChanged.value = true
                     }
                 )
                 Text(
