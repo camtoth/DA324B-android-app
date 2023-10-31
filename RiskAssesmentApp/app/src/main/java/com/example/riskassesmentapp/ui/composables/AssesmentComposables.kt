@@ -2,7 +2,6 @@ package com.example.riskassesmentapp.ui.composables
 
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -18,25 +17,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
-import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Question
-import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.UpdateAnswer
 import com.example.riskassesmentapp.db.UpdateParent
 import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import com.example.riskassesmentapp.db.insertNewAnswer
-import com.example.riskassesmentapp.db.updateCase
+import com.example.riskassesmentapp.db.updateAnswer
 import com.example.riskassesmentapp.db.updateParent
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.coroutines.runBlocking
 import java.util.LinkedList
 
 @Composable
 fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnection: SQLiteDatabase, navController: NavController) {
     val showDialog = remember { mutableStateOf(false) }
-    val answersMap = HashMap<Long, InsertAnswer>()
-    var scope = rememberCoroutineScope()
+    var answersMap: HashMap<Long, UpdateAnswer>
+    val scope = rememberCoroutineScope()
+
+    runBlocking {
+        answersMap = getAnswerMap(dbConnection, parentId, questionsList)
+    }
 
     RiskAssesmentAppTheme {
         Surface(
@@ -73,15 +75,47 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
     }
 }
 
-suspend fun SendAnswersToDB(dbConnection: SQLiteDatabase, answersMap: HashMap<Long, InsertAnswer>, parentId: Long) {
+suspend fun getAnswerMap(dbConnection: SQLiteDatabase, parentId: Long, questionsList: LinkedList<Question>): HashMap<Long, UpdateAnswer> {
+    var answerMap = HashMap<Long, UpdateAnswer>()
+    val questionsWithAnswers = getQuestionsWithAnswerByParent(dbConnection, parentId)
+    if (questionsWithAnswers.size == 0) answerMap = handleNotAnsweredQuestions(dbConnection, parentId, questionsList)
+    else {
+        for (qWithA in questionsWithAnswers) {
+            answerMap[qWithA.questionId] = UpdateAnswer(
+                id = qWithA.answerId,
+                optYes = qWithA.optYes,
+                optMiddle = qWithA.optMiddle,
+                optNo = qWithA.optNo
+            )
+        }
+    }
+    Log.i("db", "getAnswerMap: " + answerMap.toString())
+    return answerMap
+}
+
+suspend fun handleNotAnsweredQuestions(dbConnection: SQLiteDatabase, parentId: Long, questionsList: LinkedList<Question>): HashMap<Long, UpdateAnswer> {
+    val answerMap = HashMap<Long, UpdateAnswer>()
+    for (question in questionsList) {
+        val newAnswerId = insertNewAnswer(
+            db = dbConnection,
+            newAnswer = InsertAnswer(optYes = false, optMiddle = false, optNo = false),
+            questionId = question.id,
+            parentId = parentId)
+        answerMap[question.id] = UpdateAnswer(id = newAnswerId, optYes = false, optMiddle = false, optNo = false)
+    }
+    Log.i("db", "handleNotAnswered" + answerMap.toString())
+    return answerMap
+}
+
+suspend fun sendAnswersToDB(dbConnection: SQLiteDatabase, answersMap: HashMap<Long, UpdateAnswer>, parentId: Long) {
     Log.i("db", "answermap: " + answersMap.toString())
     for(answer in answersMap) {
-        insertNewAnswer(dbConnection, answer.value, answer.key, parentId)
+        updateAnswer(dbConnection, answer.value, parentId)
     }
 }
 
 @Composable
-fun QuestionCard(question: Question, answersMap: HashMap<Long, InsertAnswer>,modifier: Modifier = Modifier) {
+fun QuestionCard(question: Question, answersMap: HashMap<Long, UpdateAnswer>,modifier: Modifier = Modifier) {
     Card(modifier = modifier
         .padding(16.dp),
         colors = CardDefaults.cardColors(
@@ -143,7 +177,7 @@ fun AnswerChoice(answer: String) {
 }
 
 @Composable
-fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selectedOptionIndex : Int = 0) {
+fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selectedOptionIndex : Int = 1) {
     val radioOptions = listOf("Yes", "Middle", "No")
     var selectedOptionFromMap = -1
     if(answersMap[questionId] != null) {
@@ -152,7 +186,7 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selec
     if(selectedOptionFromMap == -1) {
         selectedOptionFromMap = selectedOptionIndex
     }
-    answersMap[questionId] = AnswerStringToInsertAnswer(radioOptions[selectedOptionFromMap])
+    answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
@@ -171,7 +205,7 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selec
                     selected = (text == selectedOption),
                     onClick = {
                         onOptionSelected(text)
-                        answersMap[questionId] = AnswerStringToInsertAnswer(text)
+                        answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
                     }
                 )
                 Text(
@@ -183,25 +217,25 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selec
     }
 }
 
-fun AnswerStringToInsertAnswer(stringAnswer: String) : InsertAnswer{ //TODO: remove hardcoded stringAnswer and use the correctly localized version
-    val newInsertAnswer: InsertAnswer = when (stringAnswer) {
-        "Yes" -> InsertAnswer(optYes = true, optMiddle = false, optNo = false)
-        "Middle" -> InsertAnswer(optYes = false, optMiddle = true, optNo = false)
-        else -> InsertAnswer(optYes = false, optMiddle = false, optNo = true)
+fun answerStringToUpdateAnswer(stringAnswer: String, answerId: Long) : UpdateAnswer{ //TODO: remove hardcoded stringAnswer and use the correctly localized version
+    val newUpdateAnswer: UpdateAnswer = when (stringAnswer) {
+        "Yes" -> UpdateAnswer(id = answerId, optYes = true, optMiddle = false, optNo = false)
+        "Middle" -> UpdateAnswer(id = answerId, optYes = false, optMiddle = true, optNo = false)
+        else -> UpdateAnswer(id = answerId, optYes = false, optMiddle = false, optNo = true)
     }
-    return newInsertAnswer
+    return newUpdateAnswer
 }
 
-fun getAnswerIndex(answer: InsertAnswer?) : Int{
+fun getAnswerIndex(answer: UpdateAnswer?) : Int{
     if(answer == null) {
         return -1
     }
-    var index: Int = if(answer.optYes) {
+    val index: Int = if(answer.optYes) {
         0;
-    } else if(answer.optMiddle) {
-        1;
-    } else {
+    } else if(answer.optNo) {
         2;
+    } else {
+        1;
     }
     return index
 }
@@ -250,7 +284,7 @@ fun AlertDialogExample(
 }
 
 @Composable
-fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, InsertAnswer>, parentId: Long, navController: NavController) {
+fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, UpdateAnswer>, parentId: Long, navController: NavController) {
     // ...
     when {
         // ...
@@ -260,7 +294,7 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteData
                 onConfirmation = {
                     dialogIsOpen.value = false
                     scope.launch {
-                        SendAnswersToDB(dbConnection, answersMap, parentId)
+                        sendAnswersToDB(dbConnection, answersMap, parentId)
                         Log.i("db", "Answers in db")
                         makeRiskAssessment(dbConnection, parentId)
                         navController.navigate("my_cases")
