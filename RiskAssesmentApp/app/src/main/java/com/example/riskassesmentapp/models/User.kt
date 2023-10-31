@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.riskassesmentapp.db.InsertUser
+import com.example.riskassesmentapp.db.User
 import com.example.riskassesmentapp.db.insertNewUser
 import com.example.riskassesmentapp.screens.hashPassword
 
@@ -15,12 +16,10 @@ data class Username(val username: String)
 
 class UserViewModel : ViewModel() {
     // MutableState to hold User data and observe changes across composables.
-    val currentUser: MutableState<Username?> = mutableStateOf(null)
-    var currentUserId: MutableState<Long> = mutableStateOf(0)
+    val currentUser: MutableState<User?> = mutableStateOf(null)
 
-    fun loginUser(username: String, userId: Long) {
-        currentUser.value = Username(username)
-        currentUserId.value = userId
+    fun loginUser(username: User) {
+        currentUser.value = username
     }
 
     suspend fun registerUser(db: SQLiteDatabase, username: String, password: String, givenNames: String, lastName: String){
@@ -34,6 +33,6 @@ class UserViewModel : ViewModel() {
     val isLoggedIn: Boolean
         get() = currentUser.value != null
 
-    val currentUsername: String?
+    val currentUsername: String
         get() = currentUser.value?.username ?: "Guest"
 }

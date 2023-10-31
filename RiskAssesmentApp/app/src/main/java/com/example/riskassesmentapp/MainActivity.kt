@@ -171,7 +171,7 @@ fun MyApp() {
                     }
                     if (isLoggedIn) {
                         if (username != null) {
-                            CasesListScreen(navController, dbConnection, username).Content()
+                            CasesListScreen(navController, dbConnection, userViewModel).Content()
                         }
                     }
                 }
