@@ -36,7 +36,8 @@ fun BottomNavButton(
             .fillMaxHeight()
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.size(width = 100.dp, height = 56.dp) // Add this line
         ) {
             Icon(
                 imageVector = icon,
@@ -62,7 +63,7 @@ fun BottomNav(navController: NavController) {
                 .fillMaxWidth()
                 .weight(33f)
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             BottomNavButton(
                 isSelected = currentRoute == "home",
