@@ -1,7 +1,6 @@
 package com.example.riskassesmentapp.ui.composables
 
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -9,12 +8,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
 import com.example.riskassesmentapp.db.Question
@@ -139,45 +136,6 @@ fun QuestionCard(question: Question, answersMap: HashMap<Long, UpdateAnswer>,mod
 }
 
 @Composable
-fun QuestionAndAnswers(question: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = question,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        val answerOptions = listOf("Answer 1", "Answer 2", "Answer 3")
-
-        for (answer in answerOptions) {
-            AnswerChoice(answer)
-        }
-    }
-}
-
-@Composable
-fun AnswerChoice(answer: String) {
-    var isChecked by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = { isChecked = it },
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Text(text = answer)
-    }
-}
-
-@Composable
 fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selectedOptionIndex : Int = 1) {
     val answerChanged = remember { mutableStateOf(false) }
     val radioOptions = listOf("-1", "0", "1")
@@ -249,7 +207,6 @@ fun getAnswerIndex(answer: UpdateAnswer?) : Int{
     return index
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertDialogExample(
     onDismissRequest: () -> Unit,
