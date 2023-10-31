@@ -1,6 +1,7 @@
 package com.example.riskassesmentapp.ui.composables
 
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,12 +18,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
+import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.UpdateParent
+import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import com.example.riskassesmentapp.db.insertNewAnswer
+import com.example.riskassesmentapp.db.updateCase
+import com.example.riskassesmentapp.db.updateParent
 import com.example.riskassesmentapp.ui.theme.RiskAssesmentAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.LinkedList
 
 @Composable
@@ -66,11 +73,10 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
     }
 }
 
-fun SendAnswersToDB(dbConnection: SQLiteDatabase, scope: CoroutineScope, answersMap: HashMap<Long, InsertAnswer>, parentId: Long) {
+suspend fun SendAnswersToDB(dbConnection: SQLiteDatabase, answersMap: HashMap<Long, InsertAnswer>, parentId: Long) {
+    Log.i("db", "answermap: " + answersMap.toString())
     for(answer in answersMap) {
-        scope.launch {
-            insertNewAnswer(dbConnection, answer.value, answer.key, parentId)
-        }
+        insertNewAnswer(dbConnection, answer.value, answer.key, parentId)
     }
 }
 
@@ -85,7 +91,7 @@ fun QuestionCard(question: Question, answersMap: HashMap<Long, InsertAnswer>,mod
     ){
         Column {
             Text(
-                text = question.textEn,
+                text = question.textSe,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.headlineLarge
@@ -146,6 +152,7 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, InsertAnswer>, selec
     if(selectedOptionFromMap == -1) {
         selectedOptionFromMap = selectedOptionIndex
     }
+    answersMap[questionId] = AnswerStringToInsertAnswer(radioOptions[selectedOptionFromMap])
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
@@ -252,8 +259,12 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteData
                 onDismissRequest = { dialogIsOpen.value = false },
                 onConfirmation = {
                     dialogIsOpen.value = false
-                    SendAnswersToDB(dbConnection, scope, answersMap, parentId)
-                    navController.navigate("my_cases")
+                    scope.launch {
+                        SendAnswersToDB(dbConnection, answersMap, parentId)
+                        Log.i("db", "Answers in db")
+                        makeRiskAssessment(dbConnection, parentId)
+                        navController.navigate("my_cases")
+                    }
                 },
                 dialogTitle = "Alert dialog example",
                 dialogText = "This is an example of an alert dialog with buttons.",
@@ -261,4 +272,38 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteData
             )
         }
     }
+}
+
+
+suspend fun makeRiskAssessment(dbConnection: SQLiteDatabase, parentId: Long) {
+    val questionsWithAnswers = getQuestionsWithAnswerByParent(dbConnection, parentId)
+    Log.i("db", "length qwitha: " + questionsWithAnswers.size.toString())
+    if (questionsWithAnswers.size == 0) return
+    var countRiskFactorsPca = 0.0
+    var countPositiveFactorsPca = 0.0
+    var countRiskFactorsNeglect = 0.0
+    var countPositiveFactorsNeglect = 0.0
+    for (qWithA in questionsWithAnswers) {
+        if (qWithA.rPca != null) {
+            if (qWithA.rPca > 0.0 && qWithA.optYes) countRiskFactorsPca += qWithA.weightYesPca!!
+            if (qWithA.rPca > 0.0 && qWithA.optMiddle) countRiskFactorsPca += qWithA.weightMiddlePca!!
+            if (qWithA.rPca > 0.0 && qWithA.optNo) countRiskFactorsPca += qWithA.weightNoPca!!
+            if (qWithA.rPca <= 0.0 && qWithA.optYes) countPositiveFactorsPca += qWithA.weightYesPca!!
+            if (qWithA.rPca <= 0.0 && qWithA.optMiddle) countPositiveFactorsPca += qWithA.weightMiddlePca!!
+            if (qWithA.rPca <= 0.0 && qWithA.optNo) countPositiveFactorsPca += qWithA.weightNoPca!!
+        }
+        if (qWithA.rNeglect != null) {
+            if (qWithA.rNeglect > 0.0 && qWithA.optYes) countRiskFactorsNeglect += qWithA.weightYesNeglect!!
+            if (qWithA.rNeglect > 0.0 && qWithA.optMiddle) countRiskFactorsNeglect += qWithA.weightMiddleNeglect!!
+            if (qWithA.rNeglect > 0.0 && qWithA.optNo) countRiskFactorsNeglect += qWithA.weightNoNeglect!!
+            if (qWithA.rNeglect <= 0.0 && qWithA.optYes) countPositiveFactorsNeglect += qWithA.weightYesNeglect!!
+            if (qWithA.rNeglect <= 0.0 && qWithA.optMiddle) countPositiveFactorsNeglect += qWithA.weightMiddleNeglect!!
+            if (qWithA.rNeglect <= 0.0 && qWithA.optNo) countPositiveFactorsNeglect += qWithA.weightNoNeglect!!
+        }
+    }
+    updateParent(dbConnection, UpdateParent(
+        id = parentId,
+        highRiskPca = (countRiskFactorsPca - countPositiveFactorsPca) >= 4.0,
+        highRiskNeglect = (countRiskFactorsNeglect - countPositiveFactorsNeglect) >= 4.0
+    ))
 }
