@@ -43,7 +43,6 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
             answersLoaded.value = true
         }
     }
-    Log.i("db", "answerMap after loading: " + answersMap.value.toString())
 
     RiskAssesmentAppTheme {
         Surface(
@@ -71,7 +70,7 @@ fun Assessment(questionsList : LinkedList<Question>, parentId: Long, dbConnectio
                             onClick = {
                                 showDialog.value = true
                             }) {
-                            Text(text = "Show result")
+                            Text(text = "Spara och visa resultat")
                         }
                     }
                 }
@@ -94,7 +93,6 @@ suspend fun getAnswerMap(dbConnection: SQLiteDatabase, parentId: Long, questions
             )
         }
     }
-    Log.i("db", "getAnswerMap: " + answerMap.toString())
     return answerMap
 }
 
@@ -108,12 +106,10 @@ suspend fun handleNotAnsweredQuestions(dbConnection: SQLiteDatabase, parentId: L
             parentId = parentId)
         answerMap[question.id] = UpdateAnswer(id = newAnswerId, optYes = false, optMiddle = false, optNo = false)
     }
-    Log.i("db", "handleNotAnswered" + answerMap.toString())
     return answerMap
 }
 
 suspend fun sendAnswersToDB(dbConnection: SQLiteDatabase, answersMap: HashMap<Long, UpdateAnswer>, parentId: Long) {
-    Log.i("db", "answermap: " + answersMap.toString())
     for(answer in answersMap) {
         updateAnswer(dbConnection, answer.value, parentId)
     }
@@ -184,7 +180,7 @@ fun AnswerChoice(answer: String) {
 @Composable
 fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selectedOptionIndex : Int = 1) {
     val answerChanged = remember { mutableStateOf(false) }
-    val radioOptions = listOf("Yes", "Middle", "No")
+    val radioOptions = listOf("-1", "0", "1")
     var selectedOptionFromMap = -1
     if(answersMap[questionId] != null && !answerChanged.value) {
         selectedOptionFromMap = getAnswerIndex(answersMap[questionId]);
@@ -226,10 +222,10 @@ fun RadioButton(questionId: Long, answersMap: HashMap<Long, UpdateAnswer>, selec
     }
 }
 
-fun answerStringToUpdateAnswer(stringAnswer: String, answerId: Long) : UpdateAnswer{ //TODO: remove hardcoded stringAnswer and use the correctly localized version
+fun answerStringToUpdateAnswer(stringAnswer: String, answerId: Long) : UpdateAnswer{
     val newUpdateAnswer: UpdateAnswer = when (stringAnswer) {
-        "Yes" -> UpdateAnswer(id = answerId, optYes = true, optMiddle = false, optNo = false)
-        "Middle" -> UpdateAnswer(id = answerId, optYes = false, optMiddle = true, optNo = false)
+        "1" -> UpdateAnswer(id = answerId, optYes = true, optMiddle = false, optNo = false)
+        "0" -> UpdateAnswer(id = answerId, optYes = false, optMiddle = true, optNo = false)
         else -> UpdateAnswer(id = answerId, optYes = false, optMiddle = false, optNo = true)
     }
     return newUpdateAnswer
@@ -239,9 +235,9 @@ fun getAnswerIndex(answer: UpdateAnswer?) : Int{
     if(answer == null) {
         return -1
     }
-    val index: Int = if(answer.optYes) {
+    val index: Int = if(answer.optNo) {
         0;
-    } else if(answer.optNo) {
+    } else if(answer.optYes) {
         2;
     } else {
         1;
@@ -277,7 +273,7 @@ fun AlertDialogExample(
                     onConfirmation()
                 }
             ) {
-                Text("Confirm")
+                Text("Bekräfta")
             }
         },
         dismissButton = {
@@ -286,7 +282,7 @@ fun AlertDialogExample(
                     onDismissRequest()
                 }
             ) {
-                Text("Dismiss")
+                Text("Avbruta")
             }
         }
     )
@@ -304,13 +300,12 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteData
                     dialogIsOpen.value = false
                     scope.launch {
                         sendAnswersToDB(dbConnection, answersMap, parentId)
-                        Log.i("db", "Answers in db")
                         makeRiskAssessment(dbConnection, parentId)
                         navController.navigate("my_cases")
                     }
                 },
-                dialogTitle = "Alert dialog example",
-                dialogText = "This is an example of an alert dialog with buttons.",
+                dialogTitle = "Spara svarar",
+                dialogText = "Du redigeras till dina ärenden.",
                 icon = Icons.Default.Info
             )
         }
@@ -320,7 +315,6 @@ fun DialogExamples(dialogIsOpen: MutableState<Boolean>, dbConnection: SQLiteData
 
 suspend fun makeRiskAssessment(dbConnection: SQLiteDatabase, parentId: Long) {
     val questionsWithAnswers = getQuestionsWithAnswerByParent(dbConnection, parentId)
-    Log.i("db", "length qwitha: " + questionsWithAnswers.size.toString())
     if (questionsWithAnswers.size == 0) return
     var countRiskFactorsPca = 0.0
     var countPositiveFactorsPca = 0.0
