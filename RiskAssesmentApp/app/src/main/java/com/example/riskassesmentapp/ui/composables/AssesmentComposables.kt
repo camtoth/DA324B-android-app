@@ -104,9 +104,9 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
     }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[previousAnswerIndex] ) }
     var questionText : String = if (toEvaluate == "rPca"){
-        "Tycker du att det finns högt risk för fysisk skada?"
+        "Tycker du att det finns hög risk för fysisk barnmisshandelse?"
     } else {
-        "Tycker du att det finns högt risk för försummelse?"
+        "Tycker du att det finns hög risk för försummelse?"
     }
 
     Card(
@@ -251,7 +251,7 @@ fun RadioButton(
     ) {
 
     val answerChanged = remember { mutableStateOf(false) }
-    val radioOptions = listOf("-1", "0", "1")
+    val radioOptions = listOf("Nej", "Oklart", "Ja")
     var selectedOptionFromMap = -1
 
     if(answersMap[questionId] != null && !answerChanged.value) {
@@ -260,7 +260,7 @@ fun RadioButton(
     if(selectedOptionFromMap == -1) {
         selectedOptionFromMap = selectedOptionIndex
     }
-    //if(!answerChanged.value) answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
+    if(!answerChanged.value) answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
@@ -301,8 +301,8 @@ fun RadioButton(
 
 fun answerStringToUpdateAnswer(stringAnswer: String, answerId: Long) : UpdateAnswer{
     val newUpdateAnswer: UpdateAnswer = when (stringAnswer) {
-        "1" -> UpdateAnswer(id = answerId, optYes = true, optMiddle = false, optNo = false)
-        "0" -> UpdateAnswer(id = answerId, optYes = false, optMiddle = true, optNo = false)
+        "Ja" -> UpdateAnswer(id = answerId, optYes = true, optMiddle = false, optNo = false)
+        "Oklart" -> UpdateAnswer(id = answerId, optYes = false, optMiddle = true, optNo = false)
         else -> UpdateAnswer(id = answerId, optYes = false, optMiddle = false, optNo = true)
     }
     return newUpdateAnswer
