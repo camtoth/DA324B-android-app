@@ -413,7 +413,6 @@ fun ModifyQuestionView(section: String, answers: List<QuestionWithAnswer>){
                 if (question.optNo){ selectedAnswer = "Nej"}
                 if (question.optMiddle) {selectedAnswer = "Oklart"}
                 if (question.optYes) {selectedAnswer = "Ja"}
-                selectedAnswer += " (${getRiskScore(section, question)})"
                 withStyle(style = SpanStyle(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     color = MaterialTheme.colorScheme.onTertiaryContainer)) {
@@ -425,19 +424,6 @@ fun ModifyQuestionView(section: String, answers: List<QuestionWithAnswer>){
         modifier = Modifier.padding(8.dp)
     )
 }
-
-fun getRiskScore(section: String, answer: QuestionWithAnswer): String {
-    var factor = 0.0
-    if (answer.optYes) factor = 1.0
-    if (answer.optMiddle) factor = 0.5
-    if (section == "Försummelse") {
-        if (!answer.optNo && answer.rNeglect != null && answer.rNeglect < 0.0) factor = -factor
-    } else {
-        if(!answer.optNo && answer.rPca != null && answer.rPca < 0.0) factor = -factor
-    }
-    return factor.toString()
-}
-
 @Composable
 fun ReviewSection(parent: Parent, navController: NavController) {
     var isDialogOpen by remember { mutableStateOf(false) }
