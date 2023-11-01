@@ -471,7 +471,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             personnr = "20090101-1234",
             caseNr = "1",
             email = "firstCase@test.com",
-            gender = "M",
+            gender = "Man",
             givenNames = "First",
             lastName = "Test"
         ), testUser)
@@ -479,13 +479,13 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             personnr = "19800303-1234",
             givenNames = "Parent",
             lastName = "One",
-            gender = "m"
+            gender = "Man"
         ), caseId)
         val testParent2 = insertNewParent(db, InsertParent(
             personnr = "19760405-1234",
             givenNames = "Parent",
             lastName = "Two",
-            gender = "f"
+            gender = "Kvinna"
         ), caseId)
         insertNewAnswer(db, InsertAnswer(true, false, false), 1, testParent1)
         insertNewAnswer(db, InsertAnswer(false, true, false), 2, testParent1)
@@ -521,7 +521,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             personnr = "196509075678",
             caseNr = "Case2023-001",
             email = "john.doe@example.com",
-            gender = "Male",
+            gender = "Man",
             givenNames = "John",
             lastName = "Doe"
         )
@@ -531,7 +531,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             personnr = "194503012345",
             givenNames = "Mary",
             lastName = "Johnson",
-            gender = "Female"
+            gender = "Kvinna"
         )
         insertNewParent(db, newParent1, case2Id)
 
@@ -539,7 +539,7 @@ class DatabaseOpenHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             personnr = "194807092345",
             givenNames = "Robert",
             lastName = "Johnson",
-            gender = "Male"
+            gender = "Man"
         )
         insertNewParent(db, newParent2, case2Id)
     }
