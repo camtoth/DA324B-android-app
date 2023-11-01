@@ -127,9 +127,9 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             exportDataAsCsv(db, userId, context)
-                            Toast.makeText(context, "Data exporterat till Downloads", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         }
+                        Toast.makeText(context, "Data exporterat till Downloads", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
