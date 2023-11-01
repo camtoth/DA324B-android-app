@@ -14,10 +14,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertCase
@@ -60,24 +64,29 @@ fun AddNewCase(
                     Text(
                         text = "Lägg till nytt ärende",
                         modifier = Modifier
-                            .padding(20.dp),
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 12.dp),
                         style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
                     )
                     addNewCaseScreen.caseToInsert =  NewCaseCard(showCaseNumberInput = true, showAddAssessmentButton = false, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id, addNewCaseScreen = addNewCaseScreen)
 
                     Text(
-                        text = "Läg till förälder 1",
+                        text = "Lägg till förälder 1",
                         modifier = Modifier
-                            .padding(20.dp),
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 12.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
                     addNewCaseScreen.parent1 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id , addNewCaseScreen = addNewCaseScreen)
                     addNewCaseScreen.parent1ToInsert = InsertParent(personnr = addNewCaseScreen.parent1.personnr, givenNames = addNewCaseScreen.parent1.givenNames, lastName = addNewCaseScreen.parent1.lastName, gender = addNewCaseScreen.parent1.gender)
 
                     Text(
-                        text = "Läg till förälder 2",
+                        text = "Lägg till förälder 2",
                         modifier = Modifier
-                            .padding(20.dp),
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 12.dp),
                         style = MaterialTheme.typography.headlineLarge,
                     )
                     addNewCaseScreen.parent2 =  NewCaseCard(showCaseNumberInput = false, showAddAssessmentButton = true, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id , addNewCaseScreen = addNewCaseScreen)
@@ -138,7 +147,7 @@ fun NewCaseCard(
                 .padding(16.dp)
         ) {
             if(showCaseNumberInput) {
-                TextField(
+                OutlinedTextField(
                     value = caseNumber,
                     onValueChange = {
                         caseNumber = it
@@ -146,7 +155,12 @@ fun NewCaseCard(
                     label = { Text("Ärendenummer") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        cursorColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        focusedBorderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
                 )
                 Text(
                     text = "Barnets information",
@@ -163,7 +177,10 @@ fun NewCaseCard(
                 label = { Text("Personnummer") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(8.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    cursorColor = MaterialTheme.colorScheme.onSecondaryContainer)
             )
 
             TextField(
@@ -174,7 +191,10 @@ fun NewCaseCard(
                 label = { Text("Förnamn") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(8.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    cursorColor = MaterialTheme.colorScheme.onSecondaryContainer)
             )
 
             TextField(
@@ -185,7 +205,10 @@ fun NewCaseCard(
                 label = { Text("Efternamn") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(8.dp),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    cursorColor = MaterialTheme.colorScheme.onSecondaryContainer)
             )
             gender = GenderPicker()
 
@@ -281,8 +304,8 @@ fun SaveCaseButton(
 @Composable
 fun InvalidInputCard() {
     Card(modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 2.dp)
-            .fillMaxWidth(),
+        .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 2.dp)
+        .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             contentColor = MaterialTheme.colorScheme.onTertiaryContainer

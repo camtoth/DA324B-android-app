@@ -8,13 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
-import com.example.riskassesmentapp.db.InsertParent
 import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.UpdateAnswer
 import com.example.riskassesmentapp.db.UpdateParent
@@ -54,7 +54,7 @@ fun Assessment(
             color = MaterialTheme.colorScheme.background
         ) {
             if (showDialog.value) {
-                DialogExamples(showDialog,
+                Dialog(showDialog,
                     answersMap = answersMap.value,
                     scope = scope,
                     parentId = parentId,
@@ -85,7 +85,10 @@ fun Assessment(
                             onClick = {
                                 showDialog.value = true
                             }) {
-                            Text(text = "Spara och visa resultat")
+                            Text(text = "Spara och visa resultat",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }
@@ -117,12 +120,16 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
         ){
-        Column {
+        Column(
+            Modifier
+                .padding(12.dp)
+        ) {
             Text(
                 text = questionText,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.headlineLarge
+                //textAlign = TextAlign.Justify,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),
+                style = MaterialTheme.typography.headlineSmall
             )
             Row {
                 Column {
@@ -136,10 +143,10 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
                                         onOptionSelected(text)
                                     }
                                 )
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-
                                 selected = (text == selectedOption),
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = MaterialTheme.colorScheme.onPrimary,
@@ -151,7 +158,9 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
                             )
                             Text(
                                 text = text,
-                                modifier = Modifier.padding(12.dp)
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .padding(start = 12.dp, bottom = 2.dp)
                             )
                         }
                     }
@@ -229,12 +238,15 @@ fun QuestionCard(
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
     ){
-        Column {
+        Column(modifier = modifier
+            .padding(12.dp),
+        ) {
             Text(
                 text = question.textSe,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.headlineLarge
+                //textAlign = TextAlign.Justify,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp),
+                style = MaterialTheme.typography.headlineSmall
             )
             Row {
                 RadioButton(question.id, answersMap)
@@ -276,7 +288,8 @@ fun RadioButton(
                             answerChanged.value = true
                         }
                     )
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
@@ -284,6 +297,7 @@ fun RadioButton(
                         selectedColor = MaterialTheme.colorScheme.onPrimary,
                         unselectedColor = MaterialTheme.colorScheme.onTertiary,
                     ),
+
                     onClick = {
                         onOptionSelected(text)
                         answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
@@ -292,7 +306,8 @@ fun RadioButton(
                 )
                 Text(
                     text = text,
-                    modifier = Modifier.padding(12.dp)
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 12.dp, bottom = 2.dp)
                 )
             }
         }
@@ -323,7 +338,7 @@ fun getAnswerIndex(answer: UpdateAnswer?) : Int{
 }
 
 @Composable
-fun AlertDialogExample(
+fun AlertDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
@@ -331,11 +346,17 @@ fun AlertDialogExample(
     icon: ImageVector,
     ) {
     AlertDialog(
+        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+        iconContentColor = MaterialTheme.colorScheme.onTertiary,
+        titleContentColor = MaterialTheme.colorScheme.onTertiary,
+        textContentColor = MaterialTheme.colorScheme.onTertiary,
         icon = {
             Icon(icon, contentDescription = "Example Icon")
         },
         title = {
-            Text(text = dialogTitle)
+            Text(
+                text = dialogTitle,
+                style = MaterialTheme.typography.headlineMedium)
         },
         text = {
             Text(text = dialogText)
@@ -349,7 +370,10 @@ fun AlertDialogExample(
                     onConfirmation()
                 }
             ) {
-                Text("Bekräfta")
+                Text("Bekräfta",
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         },
         dismissButton = {
@@ -358,14 +382,14 @@ fun AlertDialogExample(
                     onDismissRequest()
                 }
             ) {
-                Text("Avbruta")
+                Text("Avbruta", color = MaterialTheme.colorScheme.onTertiary)
             }
         }
     )
 }
 
 @Composable
-fun DialogExamples(
+fun Dialog(
     dialogIsOpen: MutableState<Boolean>,
     dbConnection: SQLiteDatabase,
     scope: CoroutineScope,
@@ -379,7 +403,7 @@ fun DialogExamples(
     when {
         // ...
         dialogIsOpen.value -> {
-            AlertDialogExample(
+            AlertDialog(
                 onDismissRequest = { dialogIsOpen.value = false },
                 onConfirmation = {
                     dialogIsOpen.value = false
