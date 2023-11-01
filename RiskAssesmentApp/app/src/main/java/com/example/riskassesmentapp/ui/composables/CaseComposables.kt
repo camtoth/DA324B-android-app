@@ -268,7 +268,7 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
         )
         {
             Text(
-                "Fysisk Skada",
+                "Framtida Fysisk Barnmisshandel",
                 style = MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline)
             )
             Row(
@@ -286,17 +286,17 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
                     modifier = Modifier
                         .padding(8.dp, 4.dp)
                         .clickable {
-                            sectionVisibility["Fysisk Skada"] = true
+                            sectionVisibility["Framtida Fysisk Barnmisshandel"] = true
                         }
                 )
-                if (sectionVisibility["Fysisk Skada"] == true) {
+                if (sectionVisibility["Framtida Fysisk Barnmisshandel"] == true) {
                     ShowSectionAnswers(
-                        section = "Fysisk Skada",
+                        section = "Framtida Fysisk Barnmisshandel",
                         parent = parent,
                         db = db,
-                        isVisible = sectionVisibility["Fysisk Skada"] == true,
+                        isVisible = sectionVisibility["Framtida Fysisk Barnmisshandel"] == true,
                         onDismiss = {
-                            sectionVisibility["Fysisk Skada"] = false
+                            sectionVisibility["Framtida Fysisk Barnmisshandel"] = false
                         }
                     )
                 }
@@ -544,7 +544,7 @@ fun ReviewButton(parent: Parent, navController: NavController){
 @Composable
 fun RiskLevel(highRisk: Boolean) {
     val fillColor = if (highRisk) MaterialTheme.colorScheme.error else BrightGreen
-    val riskText = if (highRisk) "High" else "Low"
+    val riskText = if (highRisk) "Hög" else "Låg"
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

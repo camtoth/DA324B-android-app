@@ -59,7 +59,7 @@ fun AppTitle(){
         val currentDate = remember  { Calendar.getInstance()}
 
         val formattedDate = remember {
-            val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("EEEE, d MMMM", Locale("sv", "SE"))
             dateFormat.format(currentDate.time)
         }
     Column(
@@ -132,6 +132,5 @@ fun PreviewHomeScreen(){
         )
     }
 
-//    ButtonWithIconText()
 }
 
