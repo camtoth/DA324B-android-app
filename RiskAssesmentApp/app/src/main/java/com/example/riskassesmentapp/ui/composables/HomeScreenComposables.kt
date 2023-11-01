@@ -36,25 +36,6 @@ import java.util.Locale
 
 
 @Composable
-fun AppTitle(){
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "RiskAssessmentPrototype",
-            style = MaterialTheme.typography.titleLarge
-        )
-        Text(
-            text = "Risk Assessment Aid",
-            fontStyle = FontStyle.Italic,
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
-}
-
-@Composable
     fun GetTodaysDate(){
         val currentDate = remember  { Calendar.getInstance()}
 
