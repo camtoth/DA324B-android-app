@@ -41,6 +41,7 @@ import com.example.riskassesmentapp.db.getCasesByUser
 import com.example.riskassesmentapp.db.getParentsByCase
 import com.example.riskassesmentapp.db.getUserByUsername
 import com.example.riskassesmentapp.db.loadCase
+import com.example.riskassesmentapp.ui.composables.DeleteButton
 import com.example.riskassesmentapp.ui.composables.ParentSection
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import kotlinx.coroutines.launch
@@ -146,6 +147,12 @@ class DetailedCaseScreen(private val navController: NavController,
                         navController = navController
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+                }
+                item{
+                    Row (verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start) {
+                        case?.let { DeleteButton(db = db, caseID = it.id ) }
+                    }
                 }
             }
         }

@@ -35,10 +35,13 @@ import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.Parent
 import com.example.riskassesmentapp.db.Case
 import com.example.riskassesmentapp.db.QuestionWithAnswer
+import com.example.riskassesmentapp.db.deleteCaseById
+import com.example.riskassesmentapp.db.deleteUser
 import com.example.riskassesmentapp.db.getQuestionsWithAnswerByParent
 import com.example.riskassesmentapp.ui.theme.BrightGreen
 import com.example.riskassesmentapp.ui.theme.LightBlue
 import com.example.riskassesmentapp.ui.theme.LightGray
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 
@@ -250,7 +253,7 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Uppfattad Risk ${parent.estHighRiskNeglect}",
+                text = "Uppfattad Risk:",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.estHighRiskNeglect?.let { RiskLevel(highRisk = it) }
@@ -316,7 +319,7 @@ fun RiskDetails(parent: Parent, db: SQLiteDatabase) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Upfattad Risk ${parent.estHighRiskPca}",
+                text = "Upfattad Risk:",
                 style = MaterialTheme.typography.labelSmall
             )
             parent.estHighRiskPca?.let { RiskLevel(highRisk = it) }
@@ -440,35 +443,45 @@ fun getRiskScore(section: String, answer: QuestionWithAnswer): String {
 
 @Composable
 fun ReviewSection(parent: Parent, navController: NavController) {
-    var isDialogOpen by remember { mutableStateOf(false) }
+//    var isDialogOpen by remember { mutableStateOf(false) }
     Row (
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically) {
-        Icon(imageVector = Icons.Default.Delete, contentDescription = "Trash Can",
-                modifier = Modifier
-                    .size(35.dp)
-                    .clickable
-                    {
-                        isDialogOpen = true
-                    },
-            tint = MaterialTheme.colorScheme.error)
-        if (isDialogOpen) {
-            ShowConfirmationDialog(
-                onConfirm = {
-                    // Perform the delete action here
-                    isDialogOpen = false
-                },
-                onCancel = {
-                    isDialogOpen = false
-                }
-            )
-        }
         ReviewButton(parent = parent, navController = navController)
     }
     Spacer(modifier = Modifier.height(16.dp))
 
 }
+
+@Composable
+fun DeleteButton(caseID: Long, db: SQLiteDatabase){
+    var isDialogOpen by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    Icon(imageVector = Icons.Default.Delete, contentDescription = "Trash Can",
+        modifier = Modifier
+            .size(35.dp)
+            .clickable
+            {
+                isDialogOpen = true
+            },
+        tint = MaterialTheme.colorScheme.error)
+    if (isDialogOpen) {
+        ShowConfirmationDialog(
+            onConfirm = {
+                // Perform the delete action here
+                coroutineScope.launch {
+                    deleteCaseById(db, caseID)
+                }
+                isDialogOpen = false
+            },
+            onCancel = {
+                isDialogOpen = false
+            }
+        )
+    }
+}
+
 
 @Composable
 fun ShowConfirmationDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
@@ -540,11 +553,6 @@ fun ReviewButton(parent: Parent, navController: NavController){
             )
         }
     }
-}
-
-@Composable
-fun EditAssessment(){
-    //should allow for the edits of an assessment
 }
 
 @Composable

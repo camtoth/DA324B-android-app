@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.R
@@ -32,6 +33,17 @@ class HomeScreen(private val navController: NavController, private val username:
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // App Title
+            Text(
+                text = "Forskning & Riskbedömning",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "Stöd för riskbedömning",
+                style = MaterialTheme.typography.headlineSmall.copy(fontStyle = FontStyle.Italic),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
             // Welcome Message
             Text(
                 text = "Välkommen $username",
