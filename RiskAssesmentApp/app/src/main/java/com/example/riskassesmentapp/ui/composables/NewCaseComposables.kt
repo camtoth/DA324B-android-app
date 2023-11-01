@@ -113,7 +113,13 @@ fun myCard(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, currentUserId: Long, addNewCaseScreen: AddNewCaseScreen, showCaseNumberInput: Boolean, showAddAssessmentButton: Boolean) : InsertCase{
+fun NewCaseCard(
+    dbConnection: SQLiteDatabase,
+    navController: NavController,
+    currentUserId: Long,
+    addNewCaseScreen: AddNewCaseScreen,
+    showCaseNumberInput: Boolean,
+    showAddAssessmentButton: Boolean) : InsertCase{
     var caseNumber by remember { mutableStateOf("") }
     var personnummer by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
@@ -187,7 +193,13 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
             }
         }
     }
-    return InsertCase(caseNr = caseNumber.toString(), personnr = personnummer, givenNames = firstName, lastName = lastName, email = "test@test", gender = gender)
+    return InsertCase(
+        caseNr = caseNumber,
+        personnr = personnummer,
+        givenNames = firstName,
+        lastName = lastName,
+        email = "test@test",
+        gender = gender)
 }
 
 @Composable
@@ -285,9 +297,8 @@ fun isNewCaseInputValid(newCase: InsertCase, parent1: InsertParent, parent2: Ins
     return (isNewCaseValid && isParent1Valid && isParent2Valid)
 }
 
-// Scrapped feature
 @Composable
-fun AddAssessmentButton(
+fun AddAssessmentButton(    // Scrapped feature
     dbConnection: SQLiteDatabase,
     navController: NavController,
     currentUserId: Long,
