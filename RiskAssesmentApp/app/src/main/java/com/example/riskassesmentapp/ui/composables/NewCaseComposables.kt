@@ -58,7 +58,7 @@ fun AddNewCase(
             ) {
                 item {
                     Text(
-                        text = "Add New Case",
+                        text = "Lägg till nytt ärende",
                         modifier = Modifier
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
@@ -66,7 +66,7 @@ fun AddNewCase(
                     addNewCaseScreen.caseToInsert =  NewCaseCard(showCaseNumberInput = true, showAddAssessmentButton = false, dbConnection = dbConnection, navController = navController, currentUserId = user.currentUser.value!!.id, addNewCaseScreen = addNewCaseScreen)
 
                     Text(
-                        text = "Add Parent 1",
+                        text = "Läg till förälder 1",
                         modifier = Modifier
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
@@ -75,7 +75,7 @@ fun AddNewCase(
                     addNewCaseScreen.parent1ToInsert = InsertParent(personnr = addNewCaseScreen.parent1.personnr, givenNames = addNewCaseScreen.parent1.givenNames, lastName = addNewCaseScreen.parent1.lastName, gender = addNewCaseScreen.parent1.gender)
 
                     Text(
-                        text = "Add Parent 2",
+                        text = "Läg till förälder 2",
                         modifier = Modifier
                             .padding(20.dp),
                         style = MaterialTheme.typography.headlineLarge,
@@ -137,7 +137,7 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
                     onValueChange = {
                         caseNumber = it
                     },
-                    label = { Text("Case Number") },
+                    label = { Text("Ärendenummer") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
@@ -159,7 +159,7 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
                 onValueChange = {
                     firstName = it
                 },
-                label = { Text("First Name") },
+                label = { Text("Förnamn") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -170,7 +170,7 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
                 onValueChange = {
                     lastName = it
                 },
-                label = { Text("Last Name") },
+                label = { Text("Efternamn") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -192,7 +192,7 @@ fun NewCaseCard(dbConnection: SQLiteDatabase, navController: NavController, curr
 
 @Composable
 fun GenderPicker() : String{
-    val radioOptions = listOf("Female", "Male", "Other")
+    val radioOptions = listOf("Kvinna", "Man", "Övrig")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
     Column {
         radioOptions.forEach { text ->
@@ -256,7 +256,7 @@ fun SaveCaseButton(
             .padding(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
     ) {
-        Text("Save")
+        Text("Spara")
     }
 }
 
@@ -270,7 +270,7 @@ fun InvalidInputCard() {
             contentColor = MaterialTheme.colorScheme.onTertiaryContainer
         )
     ) {
-        Text(text = "Fill in all input fields.",
+        Text(text = "Fyll i alla fält.",
             modifier = Modifier
                 .padding(10.dp),
             style = MaterialTheme.typography.labelLarge)
@@ -311,7 +311,7 @@ fun AddAssessmentButton(
             .padding(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
     ) {
-        Text("Add assessment")
+        Text("Lägg till bedömning")
     }
 }
 

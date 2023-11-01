@@ -74,21 +74,21 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Settings", style = MaterialTheme.typography.titleLarge)
+            Text("Inställningar", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(128.dp))
 
-            SettingRow(icon = Icons.Default.AccountBox, text = "Logged in as: $username")
+            SettingRow(icon = Icons.Default.AccountBox, text = "Loggad in som: $username")
             Spacer(modifier = Modifier.height(8.dp))
-            SettingRow(icon = Icons.Default.Lock, text = "Modify Password", onClick = { showDialog.value = true })
+            SettingRow(icon = Icons.Default.Lock, text = "Ändra lösenord", onClick = { showDialog.value = true })
             Spacer(modifier = Modifier.height(8.dp))
-            SettingRow(icon = Icons.Default.Send, text = "Export Data as CSV", onClick = { showExportDialog.value = true })
+            SettingRow(icon = Icons.Default.Send, text = "Exportera data som CSV", onClick = { showExportDialog.value = true })
             Spacer(modifier = Modifier.height(64.dp))
             Button(
                 onClick = { showDeleteDialog.value = true },
                 colors = ButtonDefaults.buttonColors(Color.Red),
                 modifier = Modifier.padding(12.dp)
             ) {
-                Text("Delete User", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
+                Text("Radera användar", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
             }
 
             Button(
@@ -96,7 +96,7 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer),
                 modifier = Modifier.padding(12.dp)
             ) {
-                Text("Logout User", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
+                Text("Logga ut användaren", color = Color.White, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
             }
 
             if (showDialog.value) {
@@ -120,25 +120,25 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Export Data as CSV", style = MaterialTheme.typography.bodyLarge) },
-            text = { Text("Are you sure you want to export the data as a CSV file?", style = MaterialTheme.typography.bodyMedium) },
+            title = { Text("Exportera data som CSV", style = MaterialTheme.typography.bodyLarge) },
+            text = { Text("Är du säkert att du vill exportera datan som CSV fil?", style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 Button(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             exportDataAsCsv(db, userId, context)
-                            Toast.makeText(context, "Data exported successfully", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Data exporterat till Downloads", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
-                    Text("Export", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                    Text("Exportera", color = Color.White, style = MaterialTheme.typography.bodyLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
+                    Text("Avbryta", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
                 }
             },
         )
@@ -169,12 +169,12 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Enter New Password", style = MaterialTheme.typography.bodyLarge) },
+            title = { Text("Ändra lösenord", style = MaterialTheme.typography.bodyLarge) },
             text = {
                 OutlinedTextField(
                     value = newPassword.value,
                     onValueChange = { newPassword.value = it },
-                    label = { Text("New Password") },
+                    label = { Text("Nytt lösenord") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
@@ -192,19 +192,19 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                             curUser = UpdateUser(id = userId, pw = hashPassword(newPassword.value))
                         )
                         if (updateSuccessful) {
-                            Toast.makeText(context, "Password updated successfully", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Lösenord updaterad", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         } else {
-                            Toast.makeText(context, "Failed to update password", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Det gick inte att uppdatera lösenordet", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = Color.White)) {
-                    Text("Confirm", style = MaterialTheme.typography.bodyLarge)
+                    Text("Bekräfta", style = MaterialTheme.typography.bodyLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
+                    Text("Avbryta", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
                 }
             }
         )
@@ -216,7 +216,7 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Are you sure you want to delete this user?", style = MaterialTheme.typography.bodyLarge) },
+            title = { Text("Är du säkert att du vill radera den här användaren?", style = MaterialTheme.typography.bodyLarge) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -224,22 +224,22 @@ class SettingsScreen(private val navController: NavController, val user: UserVie
                             var userId = user.currentUser.value!!.id
                             val result = deleteUser(db, userId)
                             if (result > 0) {
-                                Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Användar raderat", Toast.LENGTH_SHORT).show()
                                 user.logoutUser()
                             } else {
-                                Toast.makeText(context, "Failed to delete user", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Det gick inte att radera användaren", Toast.LENGTH_SHORT).show()
                             }
                             onDismiss()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(Color.Red)
                 ) {
-                    Text("Delete", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                    Text("Radera", color = Color.White, style = MaterialTheme.typography.bodyLarge)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
+                    Text("Avbryta", color = Color.Black, style = MaterialTheme.typography.bodyLarge)
                 }
             },
         )
