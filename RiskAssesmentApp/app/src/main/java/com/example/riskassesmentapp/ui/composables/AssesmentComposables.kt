@@ -96,7 +96,7 @@ fun Assessment(
 
 @Composable
 fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
-    val radioOptions = listOf("Yes", "No")
+    val radioOptions = listOf("Ja", "Nej")
     var previousAnswerIndex : Int = if(previousAnswer) {
         0
     } else {
@@ -104,9 +104,9 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
     }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[previousAnswerIndex] ) }
     var questionText : String = if (toEvaluate == "rPca"){
-        "Risk of physical abuse?"
+        "Tycker du att det finns högt risk för fysisk skada?"
     } else {
-        "Risk of neglect?"
+        "Tycker du att det finns högt risk för försummelse?"
     }
 
     Card(
@@ -159,7 +159,7 @@ fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
             }
         }
     }
-    return (selectedOption=="Yes")
+    return (selectedOption=="Ja")
 }
 
 suspend fun getAnswerMap(
@@ -198,10 +198,10 @@ suspend fun handleNotAnsweredQuestions(
     for (question in questionsList) {
         val newAnswerId = insertNewAnswer(
             db = dbConnection,
-            newAnswer = InsertAnswer(optYes = false, optMiddle = false, optNo = false),
+            newAnswer = InsertAnswer(optYes = false, optMiddle = true, optNo = false),
             questionId = question.id,
             parentId = parentId)
-        answerMap[question.id] = UpdateAnswer(id = newAnswerId, optYes = false, optMiddle = false, optNo = false)
+        answerMap[question.id] = UpdateAnswer(id = newAnswerId, optYes = false, optMiddle = true, optNo = false)
     }
     return answerMap
 }
@@ -260,7 +260,7 @@ fun RadioButton(
     if(selectedOptionFromMap == -1) {
         selectedOptionFromMap = selectedOptionIndex
     }
-    if(!answerChanged.value) answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
+    //if(!answerChanged.value) answersMap[questionId] = answerStringToUpdateAnswer(radioOptions[selectedOptionFromMap], answersMap[questionId]!!.id)
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[selectedOptionFromMap] ) }
     Column {
         radioOptions.forEach { text ->
