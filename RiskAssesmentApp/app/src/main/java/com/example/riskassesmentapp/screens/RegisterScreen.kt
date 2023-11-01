@@ -67,7 +67,7 @@ class RegisterScreen(
             var givenNames by remember { mutableStateOf("") } // new field for given names
             var lastName by remember { mutableStateOf("") } // new field for last name
             var showError by remember { mutableStateOf(false) }
-            var errorMessage = "Wrong username or password"
+            var errorMessage = "Fel användarnamn eller lösenord"
 
             val scope = rememberCoroutineScope()
 
@@ -93,7 +93,7 @@ class RegisterScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = "Sign up",
+                    text = "Registrera",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.align(Alignment.Start)
                 )
@@ -103,7 +103,7 @@ class RegisterScreen(
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    label = { Text("Username") },
+                    label = { Text("Användarnamn") },
                     leadingIcon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -120,7 +120,7 @@ class RegisterScreen(
                 OutlinedTextField(
                     value = givenNames,
                     onValueChange = { givenNames = it },
-                    label = { Text("Given Names") },
+                    label = { Text("Förnamn") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -135,7 +135,7 @@ class RegisterScreen(
                 OutlinedTextField(
                     value = lastName,
                     onValueChange = { lastName = it },
-                    label = { Text("Last Name") },
+                    label = { Text("Efternamn") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -150,7 +150,7 @@ class RegisterScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password") },
+                    label = { Text("Lösenord") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -168,7 +168,7 @@ class RegisterScreen(
                 OutlinedTextField(
                     value = passwordRepeat,
                     onValueChange = { passwordRepeat = it },
-                    label = { Text("Repeat Password") },
+                    label = { Text("Repetera lösenord") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier
@@ -198,14 +198,14 @@ class RegisterScreen(
                             try {
                                 if (username.isEmpty() || password.isEmpty() || givenNames.isEmpty() || lastName.isEmpty()) {
                                     // Update the error message and set showError to true
-                                    errorMessage = "All fields are required"
+                                    errorMessage = "Alla fält är obligatoriska"
                                     showError = true
                                     return@launch
                                 }
 
                                 if (password != passwordRepeat) {
                                     // Update the error message and set showError to true
-                                    errorMessage = "Passwords do not match"
+                                    errorMessage = "Lösenorden matchar inte"
                                     showError = true
                                     return@launch
                                 }
@@ -229,7 +229,7 @@ class RegisterScreen(
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
-                    Text("Sign up")
+                    Text("Registrera")
                 }
 
 
@@ -253,11 +253,11 @@ class RegisterScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Already have an Account? ",
+                text = "Har du redan ett konto? ",
                 color = Color.Black
             )
             Text(
-                text = "Sign in",
+                text = "Logga in",
                 color = MaterialTheme.colorScheme.primaryContainer,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable {

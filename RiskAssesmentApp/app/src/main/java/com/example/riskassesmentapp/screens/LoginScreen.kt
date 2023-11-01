@@ -75,7 +75,7 @@ class LoginPage(
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var showError by remember { mutableStateOf(false) }
-        val errorMessage = "Wrong username or password"
+        val errorMessage = "Fel användarnamn eller lösenord"
 
         val scope = rememberCoroutineScope()
 
@@ -100,7 +100,7 @@ class LoginPage(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Sign in",
+                text = "Logga in",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.align(Alignment.Start)
             )
@@ -110,7 +110,7 @@ class LoginPage(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Username") },
+                label = { Text("Användarnamn") },
                 leadingIcon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
@@ -127,7 +127,7 @@ class LoginPage(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text("Lösenord") },
                 leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
                 singleLine = true,
                 modifier = Modifier
@@ -173,7 +173,7 @@ class LoginPage(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             ) {
-                Text("Sign in")
+                Text("Logga in")
             }
 
 
@@ -201,11 +201,11 @@ fun SignUpText(navController: NavController, destination: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "No account yet? ",
+            text = "Inget konto än? ",
             color = Color.Black
         )
         Text(
-            text = "Sign up",
+            text = "Registrera",
             color = MaterialTheme.colorScheme.primaryContainer,
             textDecoration = TextDecoration.Underline,
             modifier = Modifier.clickable {
