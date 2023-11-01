@@ -128,7 +128,7 @@ fun ParentInfo(parent: Parent) {
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = parent.lastChanged ?: "Not Available",
+                    text = parent.lastChanged ?: "Ej tillgänglig",
                     style = MaterialTheme.typography.bodySmall
                 )
         }
