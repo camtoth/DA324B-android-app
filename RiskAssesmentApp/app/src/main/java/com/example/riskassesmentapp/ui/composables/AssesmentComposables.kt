@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.riskassesmentapp.db.InsertAnswer
+import com.example.riskassesmentapp.db.InsertParent
 import com.example.riskassesmentapp.db.Question
 import com.example.riskassesmentapp.db.UpdateAnswer
 import com.example.riskassesmentapp.db.UpdateParent
@@ -30,11 +31,14 @@ import java.util.LinkedList
 @Composable
 fun Assessment(
     questionsList : LinkedList<Question>,
-    parentId: Long, dbConnection: SQLiteDatabase,
+    parentId: Long,
+    dbConnection: SQLiteDatabase,
     navController: NavController) {
     val showDialog = remember { mutableStateOf(false) }
     val answersLoaded = remember { mutableStateOf(false) }
     val answersMap = remember { mutableStateOf(HashMap<Long, UpdateAnswer>()) }
+    var predPca by remember { mutableStateOf(false) }
+    var predNeg by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     if (!answersLoaded.value) {
@@ -50,7 +54,14 @@ fun Assessment(
             color = MaterialTheme.colorScheme.background
         ) {
             if (showDialog.value) {
-                DialogExamples(showDialog, answersMap = answersMap.value, scope = scope, parentId = parentId, dbConnection = dbConnection, navController = navController)
+                DialogExamples(showDialog,
+                    answersMap = answersMap.value,
+                    scope = scope,
+                    parentId = parentId,
+                    dbConnection = dbConnection,
+                    navController = navController,
+                    predPca = predPca,
+                    predNeg = predNeg)
             }
             Column {
                 LazyColumn(
@@ -58,6 +69,10 @@ fun Assessment(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
+                    item{
+                        predPca = PredCard("rPca", predPca)
+                        predNeg = PredCard("rNeg", predNeg)
+                    }
                     items(questionsList.size){ i ->
                         QuestionCard(questionsList[i], answersMap.value)
                     }
@@ -77,6 +92,74 @@ fun Assessment(
             }
         }
     }
+}
+
+@Composable
+fun PredCard(toEvaluate : String, previousAnswer : Boolean) : Boolean {
+    val radioOptions = listOf("Yes", "No")
+    var previousAnswerIndex : Int = if(previousAnswer) {
+        0
+    } else {
+        1
+    }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[previousAnswerIndex] ) }
+    var questionText : String = if (toEvaluate == "rPca"){
+        "Risk of physical abuse?"
+    } else {
+        "Risk of neglect?"
+    }
+
+    Card(
+        Modifier
+        .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+        ){
+        Column {
+            Text(
+                text = questionText,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Row {
+                Column {
+                    radioOptions.forEach { text ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = (text == selectedOption),
+                                    onClick = {
+                                        onOptionSelected(text)
+                                    }
+                                )
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            RadioButton(
+
+                                selected = (text == selectedOption),
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = MaterialTheme.colorScheme.onPrimary,
+                                    unselectedColor = MaterialTheme.colorScheme.onTertiary,
+                                ),
+                                onClick = {
+                                    onOptionSelected(text)
+                                }
+                            )
+                            Text(
+                                text = text,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return (selectedOption=="Yes")
 }
 
 suspend fun getAnswerMap(
@@ -99,6 +182,10 @@ suspend fun getAnswerMap(
         }
     }
     return answerMap
+}
+
+suspend fun insertPredictions(parent: UpdateParent, dbConnection: SQLiteDatabase){
+    updateParent(dbConnection, parent)
 }
 
 suspend fun handleNotAnsweredQuestions(
@@ -184,7 +271,8 @@ fun RadioButton(
                         selected = (text == selectedOption),
                         onClick = {
                             onOptionSelected(text)
-                            answersMap[questionId] = answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
+                            answersMap[questionId] =
+                                answerStringToUpdateAnswer(text, answersMap[questionId]!!.id)
                             answerChanged.value = true
                         }
                     )
@@ -283,6 +371,8 @@ fun DialogExamples(
     scope: CoroutineScope,
     answersMap: HashMap<Long, UpdateAnswer>,
     parentId: Long,
+    predPca: Boolean,
+    predNeg: Boolean,
     navController: NavController
     ) {
     // ...
@@ -295,6 +385,7 @@ fun DialogExamples(
                     dialogIsOpen.value = false
                     scope.launch {
                         sendAnswersToDB(dbConnection, answersMap, parentId)
+                        insertPredictions(UpdateParent(id = parentId, estHighRiskPca = predPca, estHighRiskNeglect = predNeg), dbConnection)
                         makeRiskAssessment(dbConnection, parentId)
                         navController.navigate("my_cases")
                     }
