@@ -148,6 +148,12 @@ fun NewCaseCard(
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
+                Text(
+                    text = "Barnets information",
+                    modifier = Modifier
+                        .padding(20.dp),
+                    style = MaterialTheme.typography.headlineSmall,
+                )
             }
             TextField(
                 value = personnummer,
@@ -204,7 +210,7 @@ fun NewCaseCard(
 
 @Composable
 fun GenderPicker() : String{
-    val radioOptions = listOf("Kvinna", "Man", "Övrig")
+    val radioOptions = listOf("Kvinnlig", "Manlig", "Övrig")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
     Column {
         radioOptions.forEach { text ->

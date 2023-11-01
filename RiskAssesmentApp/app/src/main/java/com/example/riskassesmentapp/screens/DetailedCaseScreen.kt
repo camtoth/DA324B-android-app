@@ -151,7 +151,7 @@ class DetailedCaseScreen(private val navController: NavController,
                 item{
                     Row (verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start) {
-                        case?.let { DeleteButton(db = db, caseID = it.id ) }
+                        case?.let { DeleteButton(db = db, caseID = it.id, navController = navController ) }
                     }
                 }
             }

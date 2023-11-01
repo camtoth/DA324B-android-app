@@ -455,7 +455,7 @@ fun ReviewSection(parent: Parent, navController: NavController) {
 }
 
 @Composable
-fun DeleteButton(caseID: Long, db: SQLiteDatabase){
+fun DeleteButton(caseID: Long, db: SQLiteDatabase, navController: NavController){
     var isDialogOpen by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     Icon(imageVector = Icons.Default.Delete, contentDescription = "Trash Can",
@@ -472,6 +472,7 @@ fun DeleteButton(caseID: Long, db: SQLiteDatabase){
                 // Perform the delete action here
                 coroutineScope.launch {
                     deleteCaseById(db, caseID)
+                    navController.navigate("my_cases")
                 }
                 isDialogOpen = false
             },
