@@ -69,12 +69,12 @@ fun Assessment(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
+                    items(questionsList.size){ i ->
+                        QuestionCard(questionsList[i], answersMap.value)
+                    }
                     item{
                         predPca = PredCard("rPca", predPca)
                         predNeg = PredCard("rNeg", predNeg)
-                    }
-                    items(questionsList.size){ i ->
-                        QuestionCard(questionsList[i], answersMap.value)
                     }
                     item {
                         Button(
