@@ -522,7 +522,7 @@ fun ShowConfirmationDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
                             onCancel()
                         }
                     ) {
-                        Text(text = "Annullera",
+                        Text(text = "Avbryta",
                             style = MaterialTheme.typography.labelMedium)
                     }
                 }
